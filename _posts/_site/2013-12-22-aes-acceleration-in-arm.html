@@ -1,0 +1,482 @@
+<h2 id='id1'>目录</h2>
+<hr />
+<h2 id='id2'>正文</h2>
+<hr />
+<h3 id='1'>1、特性分析</h3>
+
+<ul>
+<li>Hardware-based cryptographic engines</li>
+
+<li>security accelerator(CESA)</li>
+</ul>
+
+<h4 id='11cryptographic_engine_features'>1.1、Cryptographic Engine Features</h4>
+
+<ul>
+<li>
+<p>Four engines, one at a time</p>
+</li>
+
+<li>
+<p>Encryption</p>
+
+<ul>
+<li>DES(Only ECB and CBC modes)</li>
+
+<li>3DES(ECB/CBC EDE and EEE modes)</li>
+
+<li>AES(128/192/256): 其中AES-CBC支持IV feedback，即加密完之后密文的最后16个字节拷贝至引擎的内部SRAM中的IV位置</li>
+</ul>
+</li>
+
+<li>
+<p>Authentication</p>
+
+<ul>
+<li>SHA or MD5</li>
+
+<li>continue mode, enables chaining between blocks <br />对AES而言，首先将报文、配置信息以及密钥和初始化向量放入一连串的TDMA描述符当中，并配置chain模式，最后启动TDMA，即可连续加密。</li>
+
+<li>optimal external update of authentication and Encryption initial value <br />对于AES而言，IV是由用户配置的，后续的IV由硬件自己填充</li>
+
+<li>Support byte swap <br />暂时没有设置改位段</li>
+
+<li>automatic activation</li>
+
+<li>authentication and encryption termination interrupts <br />中断发生，会将对于位置位，通知软件取数</li>
+
+<li>support DES, OFB, and CFB modes with additional software<br />比如CTR模式可以通过软件实现</li>
+
+<li>TDMA和CESA的配合各种方式见文档</li>
+</ul>
+</li>
+</ul>
+
+<h4 id='12security_accelerator_features'>1.2、Security Accelerator Features</h4>
+
+<p>安全加速器的目的在于减少加解密中软件的干预，从而提高性能。</p>
+
+<ol>
+<li>
+<p>CPU职责</p>
+
+<ol>
+<li>一种方式是拷贝报文至加速器的本地SRAM中；另一种方式是利用TDMA引擎完成报文拷贝</li>
+
+<li>准备一个描述符，声明所需要的操作（ Q: 需要定义类似数据结构?）目前描述符在主存中分配和配置struct sa_accel_sram，并映射至硬件当中对应的镜像位置（偏移为SRAM_CONFIG, SRAM_KEY, SRAM_DATA_IN等）</li>
+
+<li>激活加速器（ Q: 如何激活? 通过Sheeva CPU core?）</li>
+</ol>
+</li>
+</ol>
+
+<p>2. 加速器职责<br /> TDMA只是负责在主存和SRAM之间拷贝数据，CESA负责对数据进行操作 1. 读取描述符 2. 启动引擎 3. 开始处理报文块，一次一个 4. 等待完成 5. 从引擎读取数据 6. 存储数据值本地SRAM</p>
+
+<h5 id='sram_vs_dram'>SRAM VS DRAM</h5>
+
+<ol>
+<li>SRAM是静态的，DRAM则为动态</li>
+
+<li>SRAM速度快于DRAM</li>
+
+<li>SRAM能耗低于DRAM</li>
+
+<li>SRAM价格更高</li>
+
+<li>SRAM一般用于cache memory，而DRAM用于主存</li>
+</ol>
+
+<h3 id='2_'>2、 软件流程</h3>
+
+<ol>
+<li>通过TDMA从主存中拷贝报文至安全加速引擎的本地SRAM，最大支持2KB</li>
+
+<li>保存与安全加速引擎相关的加密参数值 Q: 保存在哪里? 保存在主存当中，但是必须映射至引擎的SRAM当中</li>
+
+<li>在安全加速器的SRAM中准备描述符，开始加速引擎需要的操作和参数，</li>
+</ol>
+
+<h3 id='3_'>3、 硬件流程</h3>
+
+<h4 id='31using_cryptographic_engine'>3.1、Using Cryptographic Engine</h4>
+
+<h5 id='311_access'>3.1.1、 Access</h5>
+
+<p>CPU和SEAS交替控制，但在一个时间点上只能有一个作为HOST，TDMA当中有owner位，指示出当前的HOST是TDMA设备还是CPU</p>
+
+<h5 id='312_control'>3.1.2、 Control</h5>
+
+<p>four specified command registers:</p>
+
+<ol>
+<li>
+<p>SHA-1/MD5 Auth cmd reg</p>
+
+<ol>
+<li>RO</li>
+
+<li>Value</li>
+</ol>
+</li>
+</ol>
+
+<p>#define SHA1_MD5_CTRL_REG 0x0003DD18 /*Set when hash complete; Clear when any write to the auth engines*/ #define SHA1_MD5_TERM_MASK 0x1 &#171;&#160;31) /*bit31*/</p>
+
+<ol>
+<li>DES cmd reg</li>
+
+<li>AES cmd reg</li>
+</ol>
+
+<h5 id='313input'>3.1.3、Input</h5>
+
+<p>encryption engine: 64bit or 128bit authentication: 512bit</p>
+
+<ol>
+<li>
+<p>writing data reg: load input data Q: except DES, not support muti-tasking ?</p>
+
+<ol>
+<li>key reg</li>
+
+<li>iv digest reg</li>
+</ol>
+</li>
+</ol>
+
+<h5 id='314output'>3.1.4、output</h5>
+
+<ol>
+<li>encryption engine return 64/128bits</li>
+
+<li>authentication engine return 4/5 words which are the hash signature.</li>
+
+<li>access output data: specific data in/out registers load input data Q: ?</li>
+</ol>
+
+<h5 id='315'>3.1.5、操作原则</h5>
+
+<ol>
+<li>write cryptographic parameters</li>
+
+<li>write data(active the process)</li>
+
+<li>engine set a termination bit in one of the command reg</li>
+
+<li>active interrupt to notify the host that the operation is over.</li>
+
+<li>host read the result from reg.</li>
+</ol>
+
+<h4 id='32dove_88ap510_security_acceleration_engine'>3.2、DOVE 88AP510 Security Acceleration Engine</h4>
+
+<h4 id='address_maps'>address maps</h4>
+
+<p><code>
+\* phys virt size       
+\* c8000000 fdb00000 1M Cryptographic SRAM     
+\* e0000000 @runtime 128M PCIe-0 Memory space 
+\* e8000000 @runtime 128M PCIe-1 Memory space 
+\* f1000000 fde00000 8M on-chip south-bridge registers 
+\* f1800000 fe600000 8M on-chip north-bridge registers 
+\* f2000000 fee00000 1M PCIe-0 I/O space 
+\* f2100000 fef00000 1M PCIe-1 I/O space
+</code></p>
+
+<p><code>
+\#define DOVE\_CRYPT\_PHYS\_BASE. . (DOVE\_SB\_REGS\_PHYS\_BASE | 0x30000) /\* Cryptographic Engine \*/
+</code></p>
+
+<h4 id='321aes_acceleration'>3.2.1、AES Acceleration</h4>
+
+<h4 id='1'>1、寄存器配置</h4>
+
+<p>实例： 修改DOVE寄存器 <code>
+575 . /\* enable isolators \*/ 
+576 . reg = MV\_REG\_READ(PMU\_ISO\_CTRL\_REG); 
+577 . reg &amp;= \~PMU\_ISO\_VIDEO\_MASK; 
+578 . MV\_REG\_WRITE(PMU\_ISO\_CTRL\_REG, reg);
+</code></p>
+
+<h4 id='2'>2、加密流程</h4>
+
+<ol>
+<li>
+<p>verify aes_term = 1; 类似轮询操作</p>
+</li>
+
+<li>
+<p>configure AES_CTRL_REG: key size and date swap大小字节序的操作？</p>
+</li>
+
+<li>
+<p>write key registers: 总共8个，如果key不变，则无需配置</p>
+</li>
+
+<li>
+<p>write block for 128-bit data: 配置AES ENC Data In/out register；当这些寄存器填写完毕（填写顺序无所谓），加密开始；如果小于128，自动补0，问题：是否需要128整数倍输入？</p>
+</li>
+
+<li>
+<p>轮询AES命令寄存器或者等待中断</p>
+
+<ol>
+<li>轮询模式: 如果为1， 说明结果已经准备好；</li>
+
+<li>中断模式: 每次中断发生，结束位从0变为1，当中断发生后，主机向中断使能寄存器的Zint2写入0以重启它，写入1则无影响。</li>
+</ol>
+</li>
+
+<li>
+<p>获取AES结果</p>
+</li>
+</ol>
+
+<p>结果同样位于AES In/Out寄存器当中；引擎不会对字节序做任何修改；</p>
+
+<h4 id='3'>3、解密流程</h4>
+
+<ol>
+<li>
+<p>当加密操作完成时，key发生了变化，必须根据最后的加密key生成key schedule；具体如下：</p>
+
+<ol>
+<li>当用一个指定的key解密数据时候，主机首先加载key至解密引擎，然后设置AES解密命令寄存器为1，产生key schedule</li>
+
+<li>当从解密引擎中读取一个key的时候，主机必须等待AES命令寄存器的key schedule位为1，方可读取key寄存器</li>
+</ol>
+</li>
+</ol>
+
+<p>解密密钥生成步骤：</p>
+
+<ol>
+<li>
+<li>写入AES解密key n 寄存器</li>
+
+<li>设置解密控制寄存器的aesDecMakekey位为1,</li>
+
+<li>轮询直到该位设置为1</li>
+
+<li>从对应的解密key寄存器中读取key</li>
+
+<li>清空AES解密控制寄存器</li>
+</li>
+</ol>
+
+<p>主机可能会在内存中保存解密key，这样key计算可以在下次忽略（采用相同的key）: 1. 轮询解密寄存器的终止位（类似加密过程） 2. 为解密寄存器设置解密模式和大小端 3. 写入生成的key 4. 写入解密数据 5. 轮询解密寄存器或者是等待中断发生</p>
+
+<ol>
+<li>读取AES结果</li>
+
+<li>读取key(主机必须加载一个raw key)</li>
+</ol>
+
+<h3 id='2'>2、实现</h3>
+
+<h4 id='21'>2.1、设计原理</h4>
+
+<p>启用CESA，本质上是数据在DRAM和SRAM之间的拷贝，如果采用DMA，需要将DRAM和SRAM中数据的虚拟地址转化为对应的物理地址。 <br />由于CESA只能处理在CESA SRAM中的报文，最大支持2KB，因此在包含其他信息的前提下（SA描述符、key、IV），实际处理的数据最大是1.75KB。</p>
+
+<ol>
+<li>对于每个报文，至少需要1个SA描述符和4个TDMA描述符，如果数据在物理内存中有分片，则会需要更多的TDMA描述符</li>
+
+<li>驱动利用预定义的SA和TDMA描述符池以期获得最好的性能，池的大小可以匹配请求的size大小</li>
+</ol>
+
+<h4 id='22'>2.2、基本架构</h4>
+
+<h5 id='221'>2.2.1、应用请求分发方式</h5>
+
+<p>对于来自上层的应用请求（AES加解密）可以采用以下两种分发方式：</p>
+
+<p>1. 同步回调模式：同步操作较为简单，但是当请求被提交时程序会阻塞；调用同步回调函数（实现数据由软件传至硬件）即可，一旦硬件处理完毕，即可返回，流程如下： 1. 准备硬件请求； 2. 发送至硬件，等待完成； 3. 如果请求成功完成，用处理后的数据代替原先的数据 4. 如果该数据需要验证，需要在MAC缓冲区存储一份MAC值 2. 异步回调模式：异步请求会被加入硬件队列，同时返回，当硬件完成请求时，硬件调用另外一个处理程序返回，并送入上层协议栈，通常情况下效率更高，除了同步回调函数，必须注册另外一个回调函数（通知回调函数）以方便硬件完成操作之后调用，该回调通知函数在上层实现，主要将结果传至上层协议栈。 1. 准备硬件请求：包括所有数据和参数，实现通知回调函数 2. 根据返回值操作，如果正确则用处理后的数据替换原始数据；获取MAC值；清空本地内存 3. 如果失败则释放内存 4. 如果有必要，准备一个包含原始数据的指针 5. 发生请求值硬件 6. 返回状态代码 7. 当硬件完成操作后，调用通知回调函数</p>
+
+<p>目前采用的是同步方式。</p>
+
+<h5 id='222'>2.2.2、中间层</h5>
+
+<p>在硬件接口和上层接口层之间加入一个中间层，以此隔离上层对于底层调用的依赖，可以基于纯软件实现AES加解密，也可以基于硬件实现。</p>
+
+<h5 id='223'>2.2.3、流程控制</h5>
+
+<p>采用中断方式接收数据并进行处理。中断是硬件处理数据之后的动作，因此，触发中断需要有两级：<br />* 使能中断&#8212;-可以写对应中断掩码<br />* 写入数据&#8212;-开始硬件处理</p>
+
+<p>具体的流程如下：<br />1. 建立一个进程专门处理中断，通过读取中断寄存器判断是否有中断，如果中断上来就处理收发。<br />2. 设置中断寄存器 3. 本地中断寄存器和掩码寄存器，就包括了CESA单元的，可以在pic.c中为CESA定义中断向量</p>
+
+<h4 id='224tdma'>2.2.4、TDMA控制</h4>
+
+<h5 id='2241_tdma'>2.2.4.1、 TDMA特性</h5>
+
+<ol>
+<li>独立的TDMA引擎，无需CPU参与可以在DDR内存和内部SRAM之间搬移大规模数据</li>
+
+<li>一次最大支持2KB，可以运行于chain mode，该模式下为每个缓冲区分配一个唯一的描述符</li>
+
+<li>一旦TDMA激活，禁止任何软件读访问本地SRAM</li>
+</ol>
+
+<h5 id='2242tdma'>2.2.4.2、TDMA寄存器</h5>
+
+<p>这里指简要介绍TMDA描述符，主要是四个32位寄存器 1. Byte Count(0x800): 传输的数据字节数，最大支持64KB-1,随着数据从源地址向目的地址的拷贝递减，为0时，意味着TDMA传输完成或者终止;Own位表示CPU或者TMDA拥有该描述符: 2. Source Address(0x810)：TDMA源地址 必须为内部SRAM地址 可以直接将内部SRAM的固定偏移地址写入 3. Destination Address(0x820)：TDMA目的地址 必须为内部SRAM地址 提供了一种思路，遇到需要配置硬件地址的时候，可以定义一个固定偏移，这样软硬件填写方便 4. 下一个描述符指针(0x830)：为了支持chain模式，必须是16字节对齐（bit<span>3:0</span>=0）</p>
+
+<h5 id='2243tdmacesa'>2.2.4.3、TDMA与CESA协同工作</h5>
+
+<ol>
+<li>
+<p>设置CESA配置寄存器（0xE08）的waitforTDMA和ActiveTDMA</p>
+</li>
+
+<li>
+<p>当TMDA和CESA协同工作的时候，CESA能独立操作DRAM，CESA有能力激活TDMA，决定其状态并提供单独的完成中断 3. 软件步骤（五步）：</p>
+
+<ol>
+<li>在DRAM中配置TDMA描述符chain</li>
+
+<li>初始化TDMA配置寄存器</li>
+
+<li>在DRAM中或者SRAM中初始化CESA描述符和参数</li>
+
+<li>初始化CESA配置寄存器 5. 软件激活硬件加速</li>
+</ol>
+</li>
+</ol>
+
+<h5 id='2244tdma'>2.2.4.4、TDMA软件流程</h5>
+
+<ol>
+<li>利用TDMA从主存DRAM中拷贝报文至CESA的本地SRAM中，对于大的报文，可以进行分片</li>
+
+<li>存储CESA所需的加密参数</li>
+
+<li>为CESA的本地SRAM准备一个描述符（MV_CESA_DESC），设定需要的操作和参数，描述符总共8个双字长，由</li>
+
+<li>通过配置CESA描述符指针寄存器（0xE04），将SRAM中MV_CESA_DESC数据域地址写入选定的session中（通过计算偏移得到）</li>
+
+<li>通过配置命令寄存器（0xE00）合适的位激活该session</li>
+
+<li>等待硬件完成，在轮询模式或者中断模式下的判断标志为寄存器（0xE0C）第0位，若为1则说明已经actived</li>
+
+<li>利用TDMA将完成的报文拷贝回主存</li>
+</ol>
+
+<h6 id='1cesa_sram'>1、CESA SRAM内存映射</h6>
+
+<p>/* * CESA SRAM Memory Map: * * +&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ &lt;= sc-&gt;sc_sram_base + CESA_SRAM_SIZE * | | * | DATA | * | | * +&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ &lt;= sc-&gt;sc_sram_base + CESA_DATA(0) * | struct cesa_sa_data | * +&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ * | struct cesa_sa_hdesc | * +&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ &lt;= sc-&gt;sc_sram_base */</p>
+
+<p>其中CESA_SRAM_SIZE=2048， CESA_DATA(0)=sizeof（struct cesa_sa_hdesc）</p>
+
+<h6 id='2_'>2、 大小端</h6>
+
+<p>宏直接转化，使得使用者意识不到其存在</p>
+
+<h6 id='3'>3、分片处理</h6>
+
+<p>可以暂时不支持，以简化设计 CESA 的SDK支持最大报文为64 * 1024，而一次处理1600大小，因此需要分片。</p>
+
+<h6 id='4sram'>4、获取SRAM地址</h6>
+
+<p>直接返回一个全局变量：MV_U32 cesaCryptEngBase = 0;</p>
+
+<h6 id='5sa'>5、SA配置</h6>
+
+<ol>
+<li>定义数据结构sa_config 2. 定义配置函数</li>
+</ol>
+
+<h3 id='3'>3、调试小记</h3>
+
+<ol>
+<li>
+<p>如果有不同的错误可能，为了避免代码注释混乱，采用switch语句定义不同的dec_key方法，并用全局变量用GUI配置，则无需重新编译即可完成正确方案的选择 2. 面对时而正确时而错误的加解密情况，加入打印语句 1. 首先排除硬件返回超时的错误 2. 排除CESA SRAM没有初始化的错误 3. 排除状态机的锁处理问题 4. 定位至状态机的处理&#8212;-&gt;处理开始之前没有正确赋给初值</p>
+</li>
+
+<li>
+<p>分解TDMA和CESA的交互过程，逐步调试，至比如数据从主存至TDMA，是否拷贝正确；数据处理完之后是否拷贝至主存？</p>
+
+<ol>
+<li>从cache到主存</li>
+
+<li>DMA读： 从主存至设备</li>
+
+<li>DMA写： 从设备至主存</li>
+
+<li>主存至cache</li>
+</ol>
+</li>
+
+<li>
+<p>面对数据乱码的时候，首先考虑cache 1. 清除cache 1. Flush does write back the contents of cache to main memory, 2. 意味着将cache中的数据强制写入主存, 3. 即设备访问到了最新的内容，保证了设备访问CPU的数据正确性</p>
+
+<ol>
+<li>
+<p>invalide cache</p>
+
+<ol>
+<li>Invalidate does mark cache lines as invalid so that future reads go to main memory.</li>
+
+<li>确保设备完成时，CPU可以从主存中读取到最新的内容</li>
+
+<li>即保证了CPU访问设备的数据正确性</li>
+</ol>
+</li>
+</ol>
+</li>
+
+<li>
+<p>DMA要考虑页表连续性</p>
+
+<ol>
+<li>现象一：有错包出现，且大小无规律；现象二：memory trap，无规律</li>
+
+<li>定位：采用软件对比方法，对比几个方面，包括DMA-out/HW caculate,分析是错误点</li>
+
+<li>分析：硬件计算错误的原因（配置错误、密钥IV错误、源目的地址错误），排除了前二者，只能是传入了错误的物理地址给硬件。在进行虚实地址转化的时候，由于转化后的物理地址可能跨页，因此必须分页拷贝，即计算出距离页边界的偏移，判断是否跨页，如果跨了先拷贝当前页数据，在拷贝下一页数据。</li>
+</ol>
+</li>
+
+<li>
+<p>DMA和CPU-cache</p>
+
+<ol>
+<li>这是不同的两个概念，DMA指的是一种硬件设备，能够无须使用CPU指令实现对内存的拷贝；后者是主存和CPU之间的关系</li>
+
+<li>DMA在进行数据拷贝的时候，或许用到CPU-cache的参与，或许根本就不用</li>
+</ol>
+</li>
+</ol>
+
+<p>7. 进程并发错误</p>
+
+<pre><code>1.  确定问题：：由于在单个进程中调用时没有问题，在多个进程调用的时候出现问题，因此可以确定可能是进程并发的问题
+2.  定位：DEBUG发现，中断会在sleep之前发生，因此在需要禁止中断。</code></pre>
+
+<ol>
+<li>
+<p>又是volitile</p>
+
+<ol>
+<li>确定问题：：在调试版本中时没有问题，但是在release版本中出现问题，后者相对前者做了编译优化，导致发生不可预期的错误</li>
+
+<li>定位：DEBUG发现，控制结构体中的一个描述状态的字段不太正常，因此需要在其定义出加入volitile关键字，问题得以解决。</li>
+</ol>
+</li>
+</ol>
+
+<h3 id='4'>4、参考文献</h3>
+
+<ol>
+<li><a href='http://igoro.com/archive/gallery-of-processor-cache-effects/' title='http://igoro.com/archive/gallery-of-processor-cache-effects/'>Gallery of Processor Cache Effects</a></li>
+
+<li><a href='http://stackoverflow.com/questions/1855896/memory-alignment-on-modern-processors' title='http://stackoverflow.com/questions/1855896/memory-alignment-on-modern-processors'>Memory alignment on modern processors?</a></li>
+
+<li><a href='http://stackoverflow.com/questions/4605030/will-the-cache-line-aligned-memory-allocation-pay-off' title='http://stackoverflow.com/questions/4605030/will-the-cache-line-aligned-memory-allocation-pay-off'>Will the cache line aligned memory allocation pay off?</a></li>
+
+<li><a href='http://stackoverflow.com/questions/9809140/how-correctly-wake-up-process-inside-interrupt-handlers' title='http://stackoverflow.com/questions/9809140/how-correctly-wake-up-process-inside-interrupt-handlers'>How correctly wake up process inside interrupt handlers</a></li>
+
+<li><a href='http://stackoverflow.com/questions/11012406/race-condition-between-wait-event-and-wake-up?rq=1' title='http://stackoverflow.com/questions/11012406/race-condition-between-wait-event-and-wake-up?rq=1'>race condition between wait_event and wake_up</a></li>
+
+<li><a href='http://stackoverflow.com/questions/6570419/linux-kernel-interrupt-handler-mutex-protection?rq=1' title='http://stackoverflow.com/questions/6570419/linux-kernel-interrupt-handler-mutex-protection?rq=1'>Linux kernel interrupt handler mutex protection?</a></li>
+
+<li><a href='http://www.noise.physx.u-szeged.hu/DigitalMeasurements/DSP/Sharc/Sharc/chap06.pdf' title='http://www.noise.physx.u-szeged.hu/DigitalMeasurements/DSP/Sharc/Sharc/chap06.pdf'>DSP DMA</a></li>
+</ol>
