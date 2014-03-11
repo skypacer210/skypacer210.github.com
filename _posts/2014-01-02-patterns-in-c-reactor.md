@@ -3,12 +3,11 @@ layout: post
 title: "Patterns in C-REACTOR"  
 image: /image/reactor_figure_1.png  
 categories:
+- translation
+
+tags:
 - design pattern
 - reactor
-- 
-tags:
-- 
-
 
 ---
 
