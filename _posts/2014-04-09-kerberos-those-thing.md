@@ -2,7 +2,7 @@
 layout: post
 title: "Kerberos those thing"
 categories:
-- CBK
+- technology 
 tags:
 - ACCESS CONTROLS
 

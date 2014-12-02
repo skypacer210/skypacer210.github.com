@@ -2,7 +2,7 @@
 layout: post
 title: "AES Acceleration in ARM"
 categories:
-- original
+- technology  
 tags:
 - ARM
 - AES

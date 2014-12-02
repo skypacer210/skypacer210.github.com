@@ -2,7 +2,7 @@
 layout: post
 title: "IOT technology stack"
 categories:
-- read
+- technology  
 tags:
 - IOT
 - 物联网

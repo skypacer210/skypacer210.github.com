@@ -2,7 +2,7 @@
 layout: post
 title: "history of wireless security"
 categories:
-- translation
+- technology
 tags:
 - wireless
 - security

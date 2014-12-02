@@ -2,7 +2,7 @@
 layout: post
 title: "OOP Review"
 categories:
-- 读书笔记  
+- technology  
 tags:
 - JAVA
 - OOP

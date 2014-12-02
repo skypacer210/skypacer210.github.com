@@ -2,9 +2,10 @@
 layout: post
 title: "OpenStack Deploy in Ubuntu12.04"
 categories:
-- openstack
+- technology  
 tags:
 - deploy
+- openstack
 
 
 ---

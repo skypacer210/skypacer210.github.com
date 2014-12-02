@@ -2,7 +2,7 @@
 layout: post
 title: "802.11n TX aggregation in Linux"
 categories:
-- 80211
+- technology  
 tags:
 - Linux
 - TX Aggregation

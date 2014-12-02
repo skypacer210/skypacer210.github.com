@@ -2,9 +2,9 @@
 layout: post
 title: 《APIs with an Appetite》读后感  
 categories:
-- Read
+- technology
 tags:
-- 
+- Design Pattern
 
 
 ---

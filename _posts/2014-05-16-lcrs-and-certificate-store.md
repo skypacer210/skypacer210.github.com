@@ -2,10 +2,11 @@
 layout: post
 title: "LCRS and certificate store"
 categories:
-- data structure
+- technology  
 tags:
 - LCRS
 - certificate
+- data structure
 
 
 ---
