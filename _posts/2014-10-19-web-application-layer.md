@@ -55,6 +55,24 @@ HTTP事务的性能在很大程度上决定上取决于底层TCP通道的性能�
 * 持久化连接：通过头部的connection字段完成，client填充keep-alive，如果server同意，就会回复同样的字段和数据内容。  
 * 管道化连接  
 
+##6、HTTP验证框架  
+HTTP的验证框架基于Challenge/Response验证。具体而言，基本的HTTP验证通过GET方法，在首部利用WWW-Authentication字段（GET Response）和Authorization字段（GET Request）完成交互。 
+
+![图片](/assets/images/http_auth.jpg)
+   
+根据client在Authorization字段的对身份凭证（比如用户名密码）的处理方式不同，可以引申出诸多验证方式。    
+* 基于BASE64编码的基本认证；
+* 基于HASH算法的摘要认证；
+* 另外，为了防止重放攻击，可以再客户端和服务器端都引入随机数。  
+
+但是其其缺点也很明显：
+* 缺乏对客户端的认证；
+* 缺乏对服务器端的认证；
+* 无法保证客户端和服务器端数据的完整性；
+* 无法保证客户端和服务器端之间数据的私密性；
+
+HTTPS应运而生。
+
 #2 Web应用的层次结构  
 
 Web的基本原理即client向server发起HTTP Requst, server向client回应HTTP Response。client不仅仅局限于浏览器，也不限于人，更一般的情况下client向第三方发起HTTP Requst,得到第三方的HTTP Response。
