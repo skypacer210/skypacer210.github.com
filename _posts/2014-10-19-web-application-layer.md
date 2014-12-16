@@ -56,7 +56,10 @@ HTTP事务的性能在很大程度上决定上取决于底层TCP通道的性能�
 * 管道化连接  
 
 ##6、HTTP验证框架  
-HTTP的验证框架基于Challenge/Response验证。具体而言，基本的HTTP验证通过GET方法，在首部利用WWW-Authentication字段（GET Response）和Authorization字段（GET Request）完成交互。 
+###6.1、Secruity Realm  
+server通过安全域告诉client授权范围限定在该域内。    
+###6.2、HTTP Basic Authentication         
+HTTP的验证框架基于Challenge/Response验证，一般仅用于测试可用性。具体而言，基本的HTTP验证通过GET方法，在首部利用WWW-Authentication字段（GET Response）和Authorization字段（GET Request）完成交互。 
 
 ![图片](/assets/images/http_auth.jpg)
    
@@ -65,13 +68,19 @@ HTTP的验证框架基于Challenge/Response验证。具体而言，基本的HTTP
 * 基于HASH算法的摘要认证；  
 * 另外，为了防止重放攻击，可以再客户端和服务器端都引入随机数。    
 
-但是其其缺点也很明显：
+但是其其缺点也很明显：  
 * 缺乏对客户端的认证；  
 * 缺乏对服务器端的认证；  
 * 无法保证客户端和服务器端数据的完整性；  
 * 无法保证客户端和服务器端之间数据的私密性；  
 
-HTTPS应运而生。
+HTTPS应运而生。  
+###6.3、Token-based HTTP Authentication  
+该种验证方式适合于桌面系统和移动设备客户端。
+
+###6.4、Session backend for authentication  
+
+###6.5、OAuth-based Authentication  
 
 #2 Web应用的层次结构  
 
