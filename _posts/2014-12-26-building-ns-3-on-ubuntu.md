@@ -256,10 +256,25 @@ PASS: Example src/core/examples/sample-random-variable
 PASS: Example src/core/examples/sample-simulator.py
 </code></pre>  
 
-##3.3 添加实例程序  
+##3.3 运行测试  
 
 运行模拟器：  
 <pre><code>
 ./waf --run hello-simulator
+</code></pre> 
+结果：    
+<pre><code>  
+Waf: Entering directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
+Waf: Leaving directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
+'build' finished successfully (0.202s)
+Hello Simulator
 </code></pre>
+
+
+#4 参考文献 
+1. [explain-like-im-5-kerberos](http://www.roguelynn.com/words/explain-like-im-5-kerberos/) 
+2. [g++ error](https://cryptocointalk.com/topic/14840-how-to-solve-g-internal-compiler-error-killed-program-cc1plus/)
+3. [使能测试程序1](https://www.nsnam.org/wiki/HOWTO_enable/disable_examples_and_tests_in_ns-3)
+4. [使能测试程序2](http://www.nsnam.org/docs/manual/html/enable-modules.html)
+[getting-started](http://www.nsnam.org/docs/release/3.10/tutorial/html/getting-started.html)
 
