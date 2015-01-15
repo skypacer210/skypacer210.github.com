@@ -64,4 +64,35 @@ spin_unlock()
     xchgb(&keyi, lock);
 }
 
+</code></pre>  
+二元锁（CRITICAL_SECTION）实现，其中锁cs仅能取0或者-1：
+<pre><code>
+365 void
+366 InitializeCriticalSection(CRITICAL_SECTION *cs)
+367 {
+368 .       *cs = 0;	//互斥锁初始化为0, 类型为char
+369 }
+
+382 void
+383 EnterCriticalSection(CRITICAL_SECTION *cs)
+384 {
+385 .       int.    s = spl7();	//关中断
+386 
+387 .       while(xchgb(cs, 0xff) != 0) {	//若cs已经不是0，说明已经有进程持有，则转入休眠，注意此时cs = -1;若cs还是0，说明没有进程持有，继续执行。
+388 .       .       sleep(cs, PZERO);	//1.将调用进程置成等待互斥锁cs的状态（sleep）；2.放入该互斥锁的队列当中；3.转向进程调度
+389 .       }
+390 .       if (xchgb(cs, 1) != 0)		//执行前，cs为-1，再次修改cs为0xff
+391 .       .       *cs = 0xff;
+392 .       splx(s);	//开中断
+393 }
+394 
+395 void
+396 LeaveCriticalSection(CRITICAL_SECTION *cs)
+397 {
+398 .       CRITICAL_SECTION old;
+399 
+400 .       old = xchgb(cs, 0);		//返回cs旧值，并赋予新值0	
+401 .       if (old < 0) 
+402 .       .       wakeup(cs);		//若旧值小于0，说明有进程在该锁上等待，因此需要：1.从该锁上队列中唤醒一个； 2.放入运行队； 3.自己则继续执行
+403 }
 </code></pre>
