@@ -34,7 +34,7 @@ tags:
 
 ##4. 自旋锁 
 自旋锁可以通过CPU轮询机制实现同步。Spinlock作为一种临界区保护机制，在单处理器和多处理器下的实现不尽相同：    
-*  对于单处理器系统，实现互斥的最简单办法就是在进程进入临界区之前关闭中断，在进程退出临界区时开中断。因为进程的上下文切换都是由中断引起的，这样进程的执行就会被打断，因此关掉中断可以保证进行互斥的进入临界区。但不适宜作为通用的互斥机制，关中断事件过程会导致系统性能和效率下降，而且在多处理器中不适用，因为在一个处理器上关闭中断，并不能防止进程在其他处理器上执行同样的临界段代码。  
+*  对于单处理器系统，实现互斥的最简单办法就是在进程进入临界区之前关闭中断，在进程退出临界区时开中断。因为进程的上下文切换都是由中断引起的，这样进程的执行就会被打断，因此关掉中断可以保证进行互斥的进入临界区。但不适宜作为通用的互斥机制，关中断事件过程会导致系统性能和效率下降，而且在多处理器中不适用，因为在**一个处理器上关闭中断，并不能防止进程在其他处理器上执行同样的临界段代码**。  
 *  对于多处理器系统，可以基于xchag指令和Test and Set Lock (TSL) instruction: TSL指令这两个指令实现spinlock，因为二者都是原子操作，一个处理器在处理的时候，其余处理器只有等到处理完毕才可获取访问权，实现了对临界区的互斥访问。
 
 XCHGB的实现：  
@@ -67,13 +67,20 @@ spin_unlock()
 }
 </code></pre>  
 
-自旋锁的适用场合与缺点：适用与临界区代码执行时间较短的场合；由于自旋锁采取忙式等待，白白浪费了CPU的时间，将能否进入临界区的责任推给了各个竞争的进程，而且**只能解决竞争问题，而不能解决进程之间的协作问题**。
+自旋锁的适用场合与缺点：适用于**临界区代码执行时间较短**的场合；由于自旋锁采取忙式等待，白白浪费了CPU的时间，将能否进入临界区的责任推给了各个竞争的进程，而且**只能解决竞争问题，而不能解决进程之间的协作问题**。
 
 ##5. 信号量 
 
 信号量于1965年由Edsger Dijkstra提出，主要是为了解决并发编程中的竞争问题，其实质是二元信号量，后来Scholten在此基础上提出了通用信号量，也称为计数信号量。不管是哪一种信号量，都加入了进程调度，CPU不再大量的忙等待。
 
-###5.1 Linux中信号量的实现      
+从信号量的等待队列中唤醒进程的算法有如下：  
+
+* FIFO – 先入先出，唤醒次序由进入次序决定    
+* Priority – 优先级排序决定唤醒次序
+* Undefined – 未指定的实现算法  
+
+###5.1 Linux中信号量的实现   
+     
 * **semaphore定义和初始化**    
 
 <pre><code>
@@ -171,7 +178,7 @@ static noinline void __sched __up(struct semaphore *sem)
 
 </code></pre>
  
-信号量潜在的问题如下，其中死锁由三种情形：  
+信号量适用于**等待时间不确定**的场景，但也有其潜在的问题：  
 * **Accidental release**   
 * **Recursive deadlock**  
 * **Task-Death deadlock**  
@@ -184,46 +191,47 @@ static noinline void __sched __up(struct semaphore *sem)
 ###5.3 Recursive deadlock      
 所谓死就是进程都在等一个永远不会为真的条件，进程试图获取一个已经lock的信号量，比如如下锁实现会存在此问题。
 <pre><code>
-365 void
-366 InitializeCriticalSection(CRITICAL_SECTION *cs)
-367 {
-368 .       *cs = 0;	//互斥锁初始化为0, 类型为char
-369 }
+typedef.char.   binary_semaphore  
 
-382 void
-383 EnterCriticalSection(CRITICAL_SECTION *cs)
-384 {
-385 .       int.    s = spl7();	//关中断
-386 
-387 .       while(xchgb(cs, 0xff) != 0) {	//若cs已经不是0，说明已经有进程持有，则转入休眠，注意此时cs = -1;若cs还是0，说明没有进程持有，继续执行。
-388 .       .       sleep(cs, PZERO);	//1.将调用进程置成等待互斥锁cs的状态（sleep）；2.放入该互斥锁的队列当中；3.转向进程调度
-389 .       }
-390 .       if (xchgb(cs, 1) != 0)		//执行前，cs为-1，再次修改cs为0xff
-391 .       .       *cs = 0xff;
-392 .       splx(s);	//开中断
-393 }
-394 
-395 void
-396 LeaveCriticalSection(CRITICAL_SECTION *cs)
-397 {
-398 .       CRITICAL_SECTION old;
-399 
-400 .       old = xchgb(cs, 0);		//返回cs旧值，并赋予新值0	
-401 .       if (old < 0) 
-402 .       .       wakeup(cs);		//若旧值小于0，说明有进程在该锁上等待，因此需要：1.从该锁上队列中唤醒一个； 2.放入运行队； 3.自己则继续执行
-403 }
+void
+init_sem(binary_semaphore *sem)
+{
+.       *sem = 0;	//互斥锁初始化为0, 类型为char
+}
+
+void
+P(binary_semaphore *sem)
+{
+.       int.    s = spl7();	//关中断
+ 
+.       while(xchgb(sem, 0xff) != 0) {	//若sem已经不是0，说明已经有进程持有，则转入休眠，注意此时sem = -1;若sem还是0，说明没有进程持有，继续执行。
+.       .       sleep(sem, PZERO);	//1.将调用进程置成等待互斥锁sem的状态（sleep）；2.放入该互斥锁的队列当中；3.转向进程调度
+.       }
+.       if (xchgb(sem, 1) != 0)		//执行前，sem为-1，再次修改sem为0xff
+.       .       *sem = 0xff;
+.       splx(s);	//开中断
+}
+ 
+void
+V(binary_semaphore *sem)
+{
+.       binary_semaphore old;
+ 
+.       old = xchgb(sem, 0);		//返回sem旧值，并赋予新值0	
+.       if (old < 0) 
+.       .       wakeup(sem);		//若旧值小于0，说明有进程在该锁上等待，因此需要：1.从该锁上队列中唤醒一个； 2.放入运行队； 3.自己则继续执行
+}
 </code></pre>
 如果一个进程已经获取该锁，当该进程尝试再次获取该锁的时候，会再次将自己置于等待状态而无法释放。
   
 ###5.4 Task-Death deadlock  
 如果一个拥有信号量的task死亡了或者被终止了，会有什么后果？如果不能检测这种情况，所有正在等待的的task将永远都无法获得信号量从而进入死锁。为了一定程度上解决这个问题，普遍的做法是在获得信号量的函数调用中指定一个可选的超时时间。比如前文提到的Linux实现就指定了超时机制。
 ###5.5 Cyclic Deadlock (Deadly Embrace)
-###5.5 Priority Inversion  
+###5.6 Priority Inversion  
 大部分RTOS使用了优先级驱动的抢占调度算法。每个task拥有一个优先级，抢占调度中，低优先级的task释放CPU，使高优先级的task得以运行，这是构建一个实时操作系统的核心理念。优先级反转是指高优先级的task被低优先级的task挂起。
-###5.5 Semaphore as a signal  
+###5.7 Semaphore as a signal  
 
-同步（Synchronization）这个词经常被错误地用于表示互斥（mutual exclusion）。根据定义，同步是：
-
+同步（Synchronization）这个词经常被错误地用于表示互斥（mutual exclusion）。根据定义，同步是：  
 **To occur at the same time; be simultaneous**  
 一般来说，task之间的同步是指一个task在继续执行前，等待另外一个task的通知。还有一种情况是每个task都可能进入等待状态。互斥是一种保护机制，与此有很大不同。但是，这种错误的使用导致计数信号量可以被用于单向同步：初始化一个信号量，计数值为0。
 
@@ -231,8 +239,118 @@ static noinline void __sched __up(struct semaphore *sem)
 
 ##6. 互斥体  
 
-为了解决信号量存在的问题，1980年提出了一种新的概念——互斥（Mutual Exclusion的缩写）。互斥与二元信号量在原理上是相似的，但有一个很大的不同：属主，这就意味着如果一个task获得了互斥体，只有这个task可以释放这个互斥体。如果某个task试图释放另一个task的互斥体，将会触发错误导致操作失败。一个没有属主的“互斥体”不能被称为互斥体。
+为了解决信号量存在的问题，1980年提出了一种新的概念——互斥（Mutual Exclusion的缩写）。互斥与二元信号量在原理上是相似的，但有一个很大的不同：属主，这就意味着如果一个task获得了互斥体，只有这个task可以释放这个互斥体。如果某个task试图释放另一个task的互斥体，将会触发错误导致操作失败。一个没有属主的“互斥体”不能被称为互斥体。**加锁与解锁只能在一个task中成对出现**。
+    
+###6.1 互斥体实现  
 
+* **Mutex的定义和初始化**
+<pre><code>
+typedef.struct mtx {
+.       spinlock_t.     lock;
+.       struct. thread. *owner;
+.       short.  .       count;
+.       u_char. .       flags;
+.       u_char. .       waiters;
+} mutexlock_t;
+
+int
+mutex_init(mutexlock_t *mtx, int flags)
+{
+.       memset(mtx, 0, sizeof(*mtx));
+.       mtx->flags = flags;
+.       return(0);
+}
+
+</code></pre>
+
+* **Mutex的定义和初始化**
+<pre><code>
+int
+mutex_lock(mutexlock_t *mtx)
+{
+.       if (mtx->owner == curthread) {		//如果当前进程就是属主，计数递加即可
+.       .       mtx->count++;
+.       .       return(0);
+.       }
+
+.       SPIN_LOCK_SPL0(&mtx->lock);		//自旋锁进行互斥保护
+.       if (mtx->count > 0 || mtx->waiters > 0) {	//
+.       .       do {
+.       .       .       mtx->waiters++;		//等待计数递加
+.       .       .       SLEEP_SPINLOCK_UNLOCK(mtx, PZERO, &mtx->lock);		//将当前进程放入互斥体的等待队列
+.       .       .       SPIN_LOCK_SPL0(&mtx->lock);
+.       .       .       mtx->waiters--;
+.       .       } while(mtx->count > 0);
+.       }
+
+.       mtx->owner = curthread;
+.       mtx->count = 1;
+.       SPIN_UNLOCK_SPL0(&mtx->lock);
+
+.       return(0);
+}
+
+</code></pre>
+
+* **Mutex的定义和初始化**
+<pre><code>
+int
+mutex_unlock(mutexlock_t *mtx)
+{
+.       assert(mtx->count > 0);		//
+.       assert(mtx->owner == curthread);	//只有当前进程是属主的时候，才可解锁
+.       if (mtx->count > 1) {
+.       .       mtx->count--;
+.       .       return(0);
+.       }
+.       SPIN_LOCK_SPL0(&mtx->lock);		//互斥保护
+.       ASSERT(curthread->t_mutexcnt > 0);
+.       STAT_DEC(curthread->t_mutexcnt);
+
+.       ASSERT(mtx->count == 1);
+.       ASSERT(mtx->owner == curthread);
+.       mtx->count = 0;
+.       mtx->owner = 0;
+.       if (mtx->waiters > 0)
+ .      .       wakeup1(mtx);	//如果有等待进程，唤醒一个
+.       SPIN_UNLOCK_SPL0(&mtx->lock);
+.       return(0);
+}
+</code></pre>
+
+###6.2 解决Accidental release
+
+###6.3 解决Recursive deadlock 
+ 
+如果是属主进程递归加锁，只需递加计数，不会导致一直等待。
+ 
+###6.3 互斥体API  
+
+目前主流的互斥体接口主要有三类：  
+* VxWorks Version 5.4  
+* POSIX Threads (pThreads) – IEEE Std 1003.1, 2004 Edition  
+* Microsoft Windows Win32 – Not .NET  
+
+####1. VxWorks 
+
+VxWorks主要采用VxWorks mutex，支持优先级继承。
+
+####2. POSIX  
+
+缺省的POSIX mutex不支持递归、不支持优先级继承和消亡探测机制。Linux下大多采用POSIX threads编程，支持四种Mutex类型：  
+
+* Fast mutex – non-recursive and will deadlock [default]
+* Error checking mutex – non-recursive but will report error
+* Recursive mutex – as the name implies
+* Adaptive mutex – extra fast for mutli-processor systems  
+
+####3. Win32 API  
+
+window下编程接口遵循win32 API,有如下几种：  
+      
+* Semaphore – The counting semaphore
+* Critical Section – Mutex between threads in the same process; Recursive, no timeout, queuing order undefined
+* Mutex – As per critical sections, but can be used by threads in different processes; Recursive, timeout, queuing order undefined  
 
 ##7. 参考文献 
 [semaphore_mutex](https://github.com/windflyer/windflyer.github.io/blob/master/_posts/2013/semaphore_mutex.md)  
