@@ -1,4 +1,4 @@
-markdown: rdiscount
+markdown: kramdown
 permalink: /:year/:month/:day/:title/
 url: http://skypacer210.github.com
 author: skypacer
