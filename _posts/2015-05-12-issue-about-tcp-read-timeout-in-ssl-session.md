@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Issue about TCP Read Timeout in SSL session"
+title: "从SSL会话中出现TCP超时说起"
 categories:
 - technology 
 tags:
@@ -10,8 +10,7 @@ tags:
 
 
 ---
-
-## 从SSL会话中出现TCP超时说起  
+  
 
 最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。    
 
