@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Patterns in C-REACTOR"  
+title: "REACTOR设计模式C实现"  
 image: /image/reactor_figure_1.png  
 categories:
 - technology
@@ -57,7 +57,9 @@ tags:
   
 尽管这是一个极其简化的例子，这里仍然存在不少潜在的问题。首先是该方法将应用逻辑、网络代码、事件分发代码这几个毫不相干的逻辑捆绑在一起，会带来严重的维护、测试和可扩展问题，这样的设计违反了基本的设计原则。  
 
-<a id='mutil_client' name='mutil_client'> </a>
+<a id='mutil_client' name='mutil_client'> </a>    
+
+
 ###2、单一责任原则
 
 <a id='single_res' name='single_res'> </a>
