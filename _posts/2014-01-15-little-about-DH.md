@@ -61,5 +61,9 @@ DH算法作为一种密钥协商机制，可以用于TLS协议当中。
 
 事实上FS在诸多加密协议中应用广泛，比如IKEv2和802.11i密钥分发中的4-way握手，无一不引入此方法。
 
-那么问题来了，TLS中哪一个才是最安全的cipher呢？
+那么问题来了，TLS中哪一个才是最安全的cipher呢？就目前而言，最安全的三个候选者如下：  
+  
+- `TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P521`
+- `TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384`
+- `TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256`
 
