@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "LCRS and certificate store"
+title: "LCRS树在证书管理中的应用"
 categories:
 - technology  
 tags:
@@ -10,9 +10,10 @@ tags:
 
 
 ---
-## How it works  
 
-###1. LCRS  
+## How it works ##  
+
+### 1. LCRS ###  
 
 LCRS, 即left-child, right-sibling representation is a way of encoding a multi-way tree using a binary tree  
 
@@ -21,9 +22,9 @@ LCRS, 即left-child, right-sibling representation is a way of encoding a multi-w
 -	Multi-way tree: 意味着每个节点有任意数目的孩子
 -	LCRS仅仅是一种编码形式  
 
-###2. 为什么要用到LCRS Tree
+### 2. 为什么要用到LCRS Tree ###
 	
-传统的Mutil-way Tree
+传统的Mutil-way Tree  
 <pre><code>
  	               A       
                  //|\ \
@@ -33,7 +34,7 @@ LCRS, 即left-child, right-sibling representation is a way of encoding a multi-w
               G  H I J K   L
 </code></pre>  
 
-数据结构表达：  
+**数据结构表达**  
 
 <pre><code>
 struct Node {
@@ -59,7 +60,7 @@ struct Node {
  - 每个节点的leftmost child都链接在单链表里， 用child域存储下一个child，在tree的层次逐层增加；
  - 每个节点的兄弟节点都链接在另外一个单链表里，用sibling域存储该节点的兄弟节点，在tree中的层次是一样的
 
-遍历
+**遍历**
 
 From a parent node to its kth child (zero-indexed):
 
@@ -74,21 +75,21 @@ struct Node {
 };  
 </code></pre> 
 
-Multi-way tree VS LCSR tree  
+**Multi-way tree VS LCSR tree**  
 
 * 内存空间：后者比前者节省大约40%    
 * 时间：如果分叉因子很多，即每层的节点很多，前者查询节点只需找到对应的子节点指针即可，后者则需进行单链表遍历（树退化为链表），导致时间变长  
 
-###3. LCRS适用场景:  
+### 3. LCRS适用场景 ###  
 
  - Memory is extremely scarce: 如果在主存中存储一颗巨大多路树，LCRS会合适
  - Random access of a node’s children is not required  
 
 在构建某些特定的数据结构是，比如Heap data structures ，采样LCRS可以优化空间，而最常见操作集中如下：删除tree的根节点和处理一个孩子；合并两颗树，而这二者对于LCRS易于完成，对于certificate存储系统，该操作常见。
 
-## LCRS在证书系统中的应用  
+## LCRS在证书系统中的应用 ##  
 
-###1. 数据结构
+### 1. 数据结构 ###
 
 <pre><code>
 #define CTREE_CLASS_CERT.       0
@@ -116,11 +117,11 @@ struct tree {
 
 </code></pre>   
 
-###2. API
+### 2. API ###
 
-###2.1、Insert node  
+**Insert node**  
 
-###2.2、remove node  
+**remove node**  
    
 <pre><code>
 STATIC void
@@ -177,7 +178,8 @@ ctree_remove_node(struct tree *troot, uchar *filename)
 
 </code></pre>
    
-###2.3、update subtree:     
+
+**update subtree**     
 
 <pre><code>  
 void tree_update_order(struct tree *parent)
@@ -205,4 +207,5 @@ void tree_update_order(struct tree *parent)
 </code></pre>  
 
 ----
-## 总结
+
+## 总结 ##
