@@ -77,7 +77,11 @@ OpenSSL，可以用来公私密钥对产生，证书查看（查看证书整体�
 {% endhighlight %}  
 
 
-从上面的结果可以得知公钥未能正确对签名解密，严重怀疑server将私钥弄错了。  
+从上面的结果可以得知公钥未能正确对签名解密，严重怀疑server将私钥弄错了。实际上如果解密成功，则应该是下面这个样子：  
+
+![图片](/assets/images/tool/sig_decrypt.png)  
+
+其实就是遵循PKCS#1标准对数据的封装，整个明文长度和签名长度一致，都是RSA modulus个字节。第一个字节`00`意思是确保该加密块在转化为一个整数的时候其长度小于RSA的modulus。第二个字节`01`代表了这是一个私钥操作，即签名过程。然后是一大堆`FF`字节，用来填充结果，最后以`00`字节结尾。`30 21 30 09 06 05 2B 0E 03 02 1A 05 00 04 14` 则指明了HASH算法ID是SHA-1。最后的20个字节才是真正对整个证书进行HASH的结果，以此作为验证的比对对象。
 
 ### 开发新功能 ###   
 
@@ -94,4 +98,4 @@ OpenSSL，可以用来公私密钥对产生，证书查看（查看证书整体�
 1. [openssl rsautl](https://www.openssl.org/docs/apps/rsautl.html)  
 1. [OpenSSL Command-Line HOWTO 1](https://www.madboa.com/geek/openssl/#digest-verify)  
 1. [OpenSSL Command-Line HOWTO 2](https://www.madboa.com/geek/openssl/)  
-
+1. [The First Few Milliseconds of an HTTPS Connection](http://www.moserware.com/2009/06/first-few-milliseconds-of-https.html)
