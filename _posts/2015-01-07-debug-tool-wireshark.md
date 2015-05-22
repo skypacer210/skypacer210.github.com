@@ -48,7 +48,7 @@ Wireshark作为一个使用频率极高的工具，在日常工作中发挥着�
   
 为了能够对SSL/TLS中的数据报文进行解密，要保证一下几个前提：    
 
-第一：Cipher suit只能选择RSA相关，即必须强制SSL客户端使用RSA Key。如果选择了其他Cipher，比如Ephemeral Diffie-Hellman(称之为DHE) ，Elliptic Curve Diffie-Hellman(称之为TLS_ECDH)。RSA密钥仅仅用于协商而没有用在整个数据传输当中。对于自己的客户端，直接增加对应接口即可；而对于window客户端，可以通过修改注册表进行修改：  
+第一：Cipher suit只能选择RSA相关，即必须强制SSL客户端使用RSA Key。如果选择了其他Cipher，比如Ephemeral Diffie-Hellman(称之为DHE) ，Elliptic Curve Diffie-Hellman(称之为TLS_ECDH)。由于在DHE中在产生DH密钥的时候，每次都用新的DH参数，如果想解密报文，必须获取每次的pre-master key。事实上，为调试方便，直接强制使用RSA Cipher即可。对于自己的客户端，直接增加对应接口即可；而对于window客户端，可以通过修改注册表进行修改：  
 
 ![图片](/assets/images/tool/win_cipher_config.png)  
 
@@ -140,4 +140,10 @@ Wireshark的设置很简单，见下图所示：
 {% endhighlight %}
 
 
-第三步：修改源代码，在文件中包含该头文件，使得证书验证的数据流指向该数据即可。 
+第三步：修改源代码，在文件中包含该头文件，使得证书验证的数据流指向该数据即可。   
+
+
+### 参考资料 ###
+
+1. [Secure Socket Layer (SSL)](https://wiki.wireshark.org/SSL)  
+2. [SSL/TLS & Perfect Forward Secrecy](http://vincent.bernat.im/en/blog/2011-ssl-perfect-forward-secrecy.html)
