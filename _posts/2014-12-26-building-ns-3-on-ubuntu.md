@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Building NS 3 on Ubuntu"
+title: "Setup NS-3 on Ubuntu"
 categories:
 - technology
 tags:
@@ -11,16 +11,17 @@ tags:
 ---
 
 
-#1 概述  
+
+##1 概述 ##  
 
 本文记录了NS-3模拟器在Ubuntu12.04桌面版上的完整安装记录。  
 
-#2 安装
+## 2 安装 ##
 
 NS-3的安装方法有两种，一种是利用bake工具自动化安装，另一种是手动安装，安装包的下载可以通过Mercurial或则是直接下载tar包。  
 由于Bake工具安装陷入超时，因此直接采用基于Mercurial的手动安装。
 
-##2.1 依赖软件包安装  
+### 2.1 依赖软件包安装 ###  
 
 Bake本身提供依赖包检测，这里直接将所需包安装成功。  
 <pre><code>
@@ -43,7 +44,7 @@ apt-get install openmpi-bin openmpi-common openmpi-doc libopenmpi-dev
 </code></pre>
 
 
-##2.2 建立工作目录    
+#### 2.2 建立工作目录 ####    
 
 <pre><code>
 mkdir workspace
@@ -63,7 +64,7 @@ adding file changes
 
 最终生成ns-3-allinone目录。
 
-##2.3 利用Mercurial下载ns-3-dev  
+### 2.3 利用Mercurial下载ns-3-dev ###  
 
 <pre><code>
 ./download.py -n ns-3-dev
@@ -126,7 +127,7 @@ updating to branch default
 45 files updated, 0 files merged, 0 files removed, 0 files unresol
 </code></pre>
 
-##2.4 编译
+### 2.4 编译 ###
 
 NS-3的编译借助build.py脚本工具。
 
@@ -200,9 +201,10 @@ brite                     click                     openflow
 Leaving directory `./ns-3-dev
 </code></pre>
 
-#3 测试  
+## 3 测试 ##  
 
-##3.1 添加实例程序    
+### 3.1 添加实例程序 ###
+    
 Waf工具用于脚本运行，并保证共享库在运行时处在正确位置。 通过修改Waf程序配置，添加实例程序：
 <pre><code>
 $ ./waf clean
@@ -210,7 +212,7 @@ $ ./waf configure --enable-examples --enable-tests --enable-modules=core
 $ ./waf build
 </code></pre>
 
-##3.2 单元测试  
+### 3.2 单元测试 ###  
 
 NS-3自带单元测试功能，有了上述实程序之后，进行验证：    
 <pre><code>
@@ -256,7 +258,7 @@ PASS: Example src/core/examples/sample-random-variable
 PASS: Example src/core/examples/sample-simulator.py
 </code></pre>  
 
-##3.3 运行测试  
+### 3.3 运行测试 ###  
 
 运行模拟器：  
 <pre><code>
@@ -271,7 +273,7 @@ Hello Simulator
 </code></pre>
 
 
-#4 参考文献 
+## 4 参考文献 ## 
 1. [explain-like-im-5-kerberos](http://www.roguelynn.com/words/explain-like-im-5-kerberos/) 
 2. [g++ error](https://cryptocointalk.com/topic/14840-how-to-solve-g-internal-compiler-error-killed-program-cc1plus/)
 3. [使能测试程序1](https://www.nsnam.org/wiki/HOWTO_enable/disable_examples_and_tests_in_ns-3)

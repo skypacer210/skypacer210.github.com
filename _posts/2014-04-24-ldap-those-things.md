@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "LDAP those things"
+title: "LDAP那些事儿"
 categories:
 - technology  
 tags:

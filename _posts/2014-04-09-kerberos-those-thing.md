@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Kerberos those thing"
+title: "Kerberos那些事"
 categories:
 - technology 
 tags:
@@ -8,9 +8,6 @@ tags:
 
 
 ---
-
-# Kerberos那些事  
-
  
 
 本文将对kerberos的协议细节做一个粗略介绍~  

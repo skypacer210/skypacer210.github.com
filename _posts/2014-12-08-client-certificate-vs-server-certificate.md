@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Client Certificate VS Server Certificate"
+title: "客户端证书与服务端证书"
 categories:
 - technology
 tags:

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Event Sourcing Pattern"
+title: "Cloud Application设计模式之Event Sourcing Pattern"
 categories:
 - technology
 tags:
@@ -10,8 +10,6 @@ tags:
 
 ---
 
-# Event Sourcing Pattern  
-
 
 本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~  
 
@@ -19,7 +17,7 @@ tags:
 
 ------ 
 
-##1、问题提出：  
+## 1、问题提出： ##  
 
 大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。  
 CURD方式的不足之处：  
@@ -27,7 +25,7 @@ CURD方式的不足之处：
 * 在一个协作系统里面，多个并发用户在进行数据更新的时候会发生冲突  
 * 从审计的角度考虑，每个操作记录在单独的日志中，丢失了历史信息。  
 
-##2、解决思路：  
+## 2、解决思路： ##  
 
 事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。  
 完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。    
@@ -44,8 +42,8 @@ The Event Sourcing pattern provides many advantages, including the following:
 * The append-only storage of events provides an audit trail that can be used to monitor actions taken against a data store, regenerate the current state as materialized views or projections by replaying the events at any time, and assist in testing and debugging the system. In addition, the requirement to use compensating events to cancel changes provides a history of changes that were reversed, which would not be the case if the model simply stored the current state. The list of events can also be used to analyze application performance and detect user behavior trends, or to obtain other useful business information.
 * The decoupling of the events from any tasks that perform operations in response to each event raised by the event store provides flexibility and extensibility. For example, the tasks that handle events raised by the event store are aware only of the nature of the event and the data it contains. The way that the task is executed is decoupled from the operation that triggered the event. In addition, multiple tasks can handle each event. This may enable easy integration with other services and systems that need only listen for new events raised by the event store. However, the event sourcing events tend to be very low level, and it may be necessary to generate specific integration events instead.
 
-##2、适用场景 
+## 2、适用场景 ## 
   
 ![图片](/assets/images/Event_Sourcing_Pattern_2.jpg)
 
-##3、应用实例  
+## 3、应用实例 ##  
