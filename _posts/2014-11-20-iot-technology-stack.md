@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "IOT technology stack"
+title: "一张物联网框图"
 categories:
 - technology  
 tags:

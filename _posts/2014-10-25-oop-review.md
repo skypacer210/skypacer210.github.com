@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "OOP Review"
+title: "OOP小记"
 categories:
 - technology  
 tags:

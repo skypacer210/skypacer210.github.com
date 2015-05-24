@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "history of wireless security"
+title: "无线安全之前世今生"
 categories:
 - technology
 tags:
@@ -9,10 +9,6 @@ tags:
 
 
 ---
-
-# 无线安全之前世今生
-
-------
 
 本文将对wireless security的发展做一个粗略介绍，从open system到WPA、WPA2和802.1X，权当做抛砖引玉~
 

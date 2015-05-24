@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Reading about XML validator"
+title: "代码之美读后感之《设计XML验证器之经验》"
 categories:
 - Reading
 tags:

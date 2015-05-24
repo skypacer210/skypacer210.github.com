@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Setup NS-3 on Ubuntu"
+title: "Ubuntu上安装NS-3实践"
 categories:
 - technology
 tags:
