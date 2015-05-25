@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "OpenStack Deploy in Ubuntu12.04"
+title: "Ubuntu下OpenStack配置小记"
 categories:
 - technology  
 tags:
