@@ -35,7 +35,16 @@ tags:
 2.	第二、第四、第五、第七和第八步仅仅在SSL连接建立的情况下发生的流程，SSL开启前后的对比见图3。  
 3.	第六和第九步则SSL相关。   
 
-![图片](/assets/images/SSL/SSL_layer_compare.png)
+![图片](/assets/images/SSL/SSL_layer_compare.png)   
+
+而SSL本身的数据处理如图2所示：  
+
+![图片](/assets/images/SSL/SSL_data_enc.png)   
+
+1. 如果需要将应用数据进行分片和组合，每个分片包封装至SSL的记录协议单元（Record Protocol Unit）；
+2. 如果需要压缩则封装至压缩单元；
+3. 对整个报文进行MAC计算，附在原始报文之后，然后进行加密；
+4. 封装至TCP报文。
 
 让我们回到数据读取，这里需要说明的是程序采用的事件处理框架。作为SSL客户端，为了能够处理多个SSL连接建立后对多个socket的并发事件处理，引入了select机制，事实上最多支持32个SSL连接。Select作为一种非阻塞IO接口，在这里用于轮询建立的TCP socket (SSL连接基于TCP socket，当然例外情况是DTLS基于UDP) 事件，结果发现没有数据可读。  
 
