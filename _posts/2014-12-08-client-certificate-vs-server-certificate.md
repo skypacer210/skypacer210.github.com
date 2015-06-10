@@ -35,6 +35,11 @@ tags:
 - 私钥如果单独存放，一般为.pem后缀名。
 - Server端需要client端的数字签名，然后发送至Server，Server利用client的证书（即公钥）解密，以确认client端的身份。其中Client端的数字签名生成过程如下：首先对SSL交互中的随机值进行HASH，然后用client的私钥进行加密。  
 
+## HTTPS下虚拟主机 ##  
+
+在HTTP下有虚拟主机这一概念，其目的是为了在服务端用单个IP支持多个主机名；对应到HTTPS，客户端验证服务器为不同主机配置多个证书，但是客户端需要检查服务器证书的common name,当客户端请求服务器证书的时候，服务器需要决定提供哪个证书，SNI应用而生，其原理如下图：  
+
+![图片](/assets/images/SNI.jpg)  
 
 ## 中间人攻击与证书 ##  
 
@@ -49,3 +54,4 @@ SSL中间人攻击的形式主要有三种：SSL downgrading，SSL stripping和f
 
 1. [Understanding Man-In-The-Middle Attacks - Part 4: SSL Hijacking](http://www.windowsecurity.com/articles-tutorials/authentication_and_encryption/Understanding-Man-in-the-Middle-Attacks-ARP-Part4.html )
 2. [Introducing Strict SSL](https://blog.cloudflare.com/introducing-strict-ssl-protecting-against-a-man-in-the-middle-attack-on-origin-traffic/)
+3. [SNI for TLS](https://devcentral.f5.com/articles/ssl-profiles-part-7-server-name-indication)

@@ -14,9 +14,11 @@ tags:
 
 ### 1. 进程之间为什么需要同步 ###
 
-在顺序程序设计中，由于代码指令都是顺序执行，重复执行会得到相同的结果，即程序与计算一一对应。  
-并发程序意味着一个程序未执行完，而另外一个程序已经开始执行，这就是所谓的并发性。并发性从宏观上反映了一个时间段内有几个进程都处于运行态但运行尚未结束的状态。从微观上看，任一时刻仅有一个进程的一个操作在处理器上运行。反过来看，并发其实就是处理器在几个进程之间的多路复用器，是对有限物理资源的强制进行多用户共享，消除计算机部件之间的互等，提供系统资源的利用率。  
-由于交互的并发进程共享某些资源，一个进程的执行可能会影响其他进程的执行结果，即交互的进程之间**相互制约**。因此，必须对进程的交互过程进行控制，引入了各种同步机制。  
+在顺序程序设计中，由于代码指令都是顺序执行，重复执行会得到相同的结果，即程序与计算一一对应。    
+
+并发程序意味着一个程序未执行完，而另外一个程序已经开始执行，这就是所谓的并发性。并发性从宏观上反映了一个时间段内有几个进程都处于运行态但运行尚未结束的状态。从微观上看，任一时刻仅有一个进程的一个操作在处理器上运行。反过来看，并发其实就是处理器在几个进程之间的多路复用器，是对有限物理资源的强制进行多用户共享，消除计算机部件之间的互等，提供系统资源的利用率。   
+ 
+由于交互的并发进程共享某些资源，一个进程的执行可能会影响其他或者进程的执行结果，即交互的进程之间**相互制约**。因此，必须对进程的交互过程进行控制，引入了各种同步机制。  
 
 
 ### 2. 互斥与同步的关系 ###  
@@ -26,9 +28,11 @@ tags:
 互斥又称为竞争，并发的引入使得原本没有竞争关系的进程在访问共享资源时发生了冲突，进程之间存在**间接制约关系**。在这种关系下，一个进程获得资源，另一个进程不得不阻塞等待，因此可能会导致两个严重问题：死锁与饥饿。防止不公平，或者饿死某些低优先级的进程，是调度系统必须考虑的问题。    
 
 #### 2.2 同步 ####  
-进程同步是指为完成共同任务的并发进程基于某个条件来协调其活动，因为需要在某些位置上排定执行的**先后次序**而等待、传递信号或则消息所产生的协作制约关系。这种有先后次序的协作是进程之间的直接制约关系。          
-同步是为了几个具备一些依赖性的任务一起协同工作，通信则是为了同步的手段，可以基于共享内存，也可以基于消息传递。进行之间的协作可以是比知道对方名字的协作，比如通过共享内存进行松散式协作；或者进程双方知道对方名字，通过消息机制进行紧密协作。      
-竞争关系从某种意义上可以看出是同步，因为存在竞争关系的进程需要互斥的访问资源，也遵循**互斥的访问次序**。
+进程同步是指为完成共同任务的并发进程基于某个条件来协调其活动，因为需要在某些位置上排定执行的**先后次序**而等待、传递信号或者消息所产生的协作制约关系。这种有先后次序的协作是进程之间的直接制约关系。       
+     
+同步是为了几个具备一些依赖性的任务一起协同工作，通信则是为了同步的手段，可以基于共享内存，也可以基于消息传递。进程之间的协作可以是比知道对方名字的协作，比如通过共享内存进行松散式协作；或者进程双方知道对方名字，通过消息机制进行紧密协作。        
+
+竞争关系从某种意义上可以看成是同步，因为存在竞争关系的进程需要互斥的访问资源，也遵循**互斥的访问次序**。
 
 ### 3. 实现同步的方式 ###
 
@@ -36,12 +40,14 @@ tags:
 
 ### 4. 自旋锁 ###   
 
-自旋锁可以通过CPU轮询机制实现同步。Spinlock作为一种临界区保护机制，在单处理器和多处理器下的实现不尽相同：    
+自旋锁可以通过CPU轮询机制实现同步。Spinlock作为一种临界区保护机制，在单处理器和多处理器下的实现不尽相同：  
+    
 *  对于单处理器系统，实现互斥的最简单办法就是在进程进入临界区之前关闭中断，在进程退出临界区时开中断。因为进程的上下文切换都是由中断引起的，这样进程的执行就会被打断，因此关掉中断可以保证进行互斥的进入临界区。但不适宜作为通用的互斥机制，关中断事件过程会导致系统性能和效率下降，而且在多处理器中不适用，因为在**一个处理器上关闭中断，并不能防止进程在其他处理器上执行同样的临界段代码**。  
 *  对于多处理器系统，可以基于xchag指令和Test and Set Lock (TSL) instruction: TSL指令这两个指令实现spinlock，因为二者都是原子操作，一个处理器在处理的时候，其余处理器只有等到处理完毕才可获取访问权，实现了对临界区的互斥访问。
 
-XCHGB的实现：  
-<pre><code>
+XCHGB的实现：    
+
+{% highlight c %}
        .globl. xchgb
  xchgb:
        movl.   4(%esp), %edx   //edx = *((int32 *) (esp + 4));将最后一个参数赋值给ESP
@@ -49,10 +55,11 @@ XCHGB的实现：
        lock                    //锁住总线
        xchgb.  %al, (%edx)     //交换寄存器edx和寄存器al的值
        ret
-</code></pre>
+{% endhighlight %}
 
-spinlock的实现：  
-<pre><code>  
+spinlock的实现：    
+
+{% highlight c %}  
 bool lock = false;
 bool keyi = true;
 
@@ -68,7 +75,7 @@ spin_unlock()
 {
     xchgb(&keyi, lock);
 }
-</code></pre>  
+{% endhighlight %} 
 
 自旋锁的适用场合与缺点：适用于**临界区代码执行时间较短**的场合；由于自旋锁采取忙式等待，白白浪费了CPU的时间，将能否进入临界区的责任推给了各个竞争的进程，而且**只能解决竞争问题，而不能解决进程之间的协作问题**。
 
@@ -84,9 +91,11 @@ spin_unlock()
 
 #### 5.1 Linux中信号量的实现 ####   
      
+Linux的信号量semaphore实质上为计数信号量。
+
 * **semaphore定义和初始化**    
 
-<pre><code>
+{% highlight c %}
 struct semaphore {
 	raw_spinlock_t		lock;	//自旋锁，用于互斥保护
 	unsigned int		count;	//信号量值，若count为正值，代表进入临界区之前可用的资源总数；若count为负值，意外着在该信号量队列当中注册等待的进程个数
@@ -99,12 +108,13 @@ static inline void sema_init(struct semaphore *sem, int val)
 	*sem = (struct semaphore) __SEMAPHORE_INITIALIZER(*sem, val);	//初始化各个字段
 	lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0);
 }
-</code></pre>  
+{% endhighlight %} 
 
 * **semaphore的P操作**  
 
 P操作也称为down操作，即请求一个资源。
-<pre><code>  
+
+{% highlight c %}  
 void down(struct semaphore *sem)
 {
 	unsigned long flags;
@@ -154,10 +164,11 @@ static inline int __sched __down_common(struct semaphore *sem, long state,
 	return -EINTR;
 }
 
-</code></pre>
+{% endhighlight %}
 
-* **semaphore的V操作，即up操作，尝试释放一个资源**
-<pre><code>
+* **semaphore的V操作，即up操作，尝试释放一个资源**  
+
+{% highlight c %}
 void up(struct semaphore *sem)
 {
 	unsigned long flags;
@@ -179,9 +190,10 @@ static noinline void __sched __up(struct semaphore *sem)
 	wake_up_process(waiter->task);		//唤醒一个进程
 }
 
-</code></pre>
+{% endhighlight %}
  
 信号量适用于**等待时间不确定**的场景，但也有其潜在的问题：  
+  
 * **Accidental release**   
 * **Recursive deadlock**  
 * **Task-Death deadlock**  
@@ -195,8 +207,9 @@ static noinline void __sched __up(struct semaphore *sem)
 
 #### 5.3 Recursive deadlock ####      
 
-所谓死就是进程都在等一个永远不会为真的条件，进程试图获取一个已经lock的信号量，比如如下锁实现会存在此问题。  
-<pre><code>
+所谓死就是进程都在等一个永远不会为真的条件，进程试图获取一个已经lock的信号量，比如如下锁实现会存在此问题。   
+
+{% highlight c %}
 typedef.char.   binary_semaphore  
 
 void
@@ -227,13 +240,16 @@ V(binary_semaphore *sem)
 .       if (old < 0) 
 .       .       wakeup(sem);		//若旧值小于0，说明有进程在该锁上等待，因此需要：1.从该锁上队列中唤醒一个； 2.放入运行队； 3.自己则继续执行
 }
-</code></pre>
+{% endhighlight %}  
+
 如果一个进程已经获取该锁，当该进程尝试再次获取该锁的时候，会再次将自己置于等待状态而无法释放。
   
 
 #### 5.4 Task-Death deadlock ####    
 
-如果一个拥有信号量的task死亡了或者被终止了，会有什么后果？如果不能检测这种情况，所有正在等待的的task将永远都无法获得信号量从而进入死锁。为了一定程度上解决这个问题，普遍的做法是在获得信号量的函数调用中指定一个可选的超时时间。比如前文提到的Linux实现就指定了超时机制。  
+如果一个拥有信号量的task死亡了或者被终止了，会有什么后果？如果不能检测这种情况，所有正在等待的的task将永远都无法获得信号量从而进入死锁。  
+
+为了一定程度上解决这个问题，普遍的做法是在获得信号量的函数调用中指定一个可选的超时时间。比如前文提到的Linux实现就指定了超时机制。  
 
 #### 5.5 Cyclic Deadlock (Deadly Embrace) ####  
 
@@ -244,6 +260,7 @@ V(binary_semaphore *sem)
 #### 5.7 Semaphore as a signal ####  
 
 同步（Synchronization）这个词经常被错误地用于表示互斥（mutual exclusion）。根据定义，同步是：  
+  
 **To occur at the same time; be simultaneous**  
 一般来说，task之间的同步是指一个task在继续执行前，等待另外一个task的通知。还有一种情况是每个task都可能进入等待状态。互斥是一种保护机制，与此有很大不同。但是，这种错误的使用导致计数信号量可以被用于单向同步：初始化一个信号量，计数值为0。
 
@@ -258,7 +275,7 @@ V(binary_semaphore *sem)
 
 
 * **Mutex的定义和初始化**
-<pre><code>
+{% highlight c %}
 typedef.struct mtx {
 .       spinlock_t.     lock;
 .       struct. thread. *owner;
@@ -275,10 +292,10 @@ mutex_init(mutexlock_t *mtx, int flags)
 .       return(0);
 }
 
-</code></pre>
+{% endhighlight %}
 
 * **Mutex的定义和初始化**
-<pre><code>
+{% highlight c %}
 int
 mutex_lock(mutexlock_t *mtx)
 {
@@ -304,10 +321,10 @@ mutex_lock(mutexlock_t *mtx)
 .       return(0);
 }
 
-</code></pre>
+{% endhighlight %}
 
 * **Mutex的定义和初始化**
-<pre><code>
+{% highlight c %}
 int
 mutex_unlock(mutexlock_t *mtx)
 {
@@ -330,7 +347,7 @@ mutex_unlock(mutexlock_t *mtx)
 .       SPIN_UNLOCK_SPL0(&mtx->lock);
 .       return(0);
 }
-</code></pre>
+{% endhighlight %}
 
 #### 6.2 解决Accidental release ####
 
