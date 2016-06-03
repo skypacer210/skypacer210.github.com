@@ -12,7 +12,10 @@ tags:
 
 ---
 
+
 ## 生产者-消费者模式
+
+[Mexican_Standoff](/assets/images/1280px-Mexican_Standoff.jpg)
 
 生产者-消费者模式即所谓的Fan-in设计模式，这里建立两个channel，一个由多个生产者将生产的数据写入；另外一个由一个消费者读出。
 
