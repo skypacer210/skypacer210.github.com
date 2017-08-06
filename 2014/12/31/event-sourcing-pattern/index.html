@@ -5,23 +5,23 @@
   
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
-  <link rel="dns-prefetch" href="http://yoursite.com">
+  <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>Cloud Application设计模式之Event Sourcing Pattern | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出：大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足">
+  <meta name="description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足之">
 <meta name="keywords" content="Cloud Design Patterns,Event-Driven">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Cloud Application设计模式之Event Sourcing Pattern">
-<meta property="og:url" content="http://yoursite.com/2014/12/31/event-sourcing-pattern/index.html">
+<meta property="og:url" content="https://skypacer210.github.io/2014/12/31/event-sourcing-pattern/index.html">
 <meta property="og:site_name" content="skypacer的博客">
-<meta property="og:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出：大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足">
-<meta property="og:image" content="http://yoursite.com/assets/images/Event_Sourcing_Pattern_1.jpg">
-<meta property="og:image" content="http://yoursite.com/assets/images/Event_Sourcing_Pattern_2.jpg">
-<meta property="og:updated_time" content="2017-08-06T11:25:43.000Z">
+<meta property="og:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足之">
+<meta property="og:image" content="https://skypacer210.github.io/assets/images/Event_Sourcing_Pattern_1.jpg">
+<meta property="og:image" content="https://skypacer210.github.io/assets/images/Event_Sourcing_Pattern_2.jpg">
+<meta property="og:updated_time" content="2017-08-06T12:53:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Cloud Application设计模式之Event Sourcing Pattern">
-<meta name="twitter:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出：大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足">
-<meta name="twitter:image" content="http://yoursite.com/assets/images/Event_Sourcing_Pattern_1.jpg">
+<meta name="twitter:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足之">
+<meta name="twitter:image" content="https://skypacer210.github.io/assets/images/Event_Sourcing_Pattern_1.jpg">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
   
@@ -50,7 +50,7 @@
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
-			<img src="" class="js-avatar">
+			<img src="/assets/images/skypacer210.png" class="js-avatar">
 		</a>
 		<hgroup>
 		  <h1 class="header-author"><a href="/">skypacer210</a></h1>
@@ -84,13 +84,9 @@
 		<nav class="header-nav">
 			<div class="social">
 				
-					<a class="github" target="_blank" href="#" title="github"><i class="icon-github"></i></a>
+					<a class="github" target="_blank" href="https://github.com/skypacer210" title="github"><i class="icon-github"></i></a>
 		        
-					<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
-		        
-					<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
-		        
-					<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+					<a class="rss" target="_blank" href="/atom.xml" title="rss"><i class="icon-rss"></i></a>
 		        
 			</div>
 		</nav>
@@ -108,7 +104,7 @@
 	<div class="intrude-less">
 		<header id="header" class="inner">
 			<div class="profilepic">
-				<img src="" class="js-avatar">
+				<img src="/assets/images/skypacer210.png" class="js-avatar">
 			</div>
 			<hgroup>
 			  <h1 class="header-author js-header-author">skypacer210</h1>
@@ -125,13 +121,9 @@
 			<nav class="header-nav">
 				<div class="social">
 					
-						<a class="github" target="_blank" href="#" title="github"><i class="icon-github"></i></a>
+						<a class="github" target="_blank" href="https://github.com/skypacer210" title="github"><i class="icon-github"></i></a>
 			        
-						<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
-			        
-						<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
-			        
-						<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+						<a class="rss" target="_blank" href="/atom.xml" title="rss"><i class="icon-rss"></i></a>
 			        
 				</div>
 			</nav>
@@ -180,13 +172,13 @@
         <p>本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~  </p>
 <p>原文链接<a href="http://msdn.microsoft.com/en-us/library/dn589792.aspx/" target="_blank" rel="external">Event Sourcing Pattern</a>  </p>
 <hr>
-<h2 id="1、问题提出："><a href="#1、问题提出：" class="headerlink" title="1、问题提出："></a>1、问题提出：</h2><p>大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。<br>CURD方式的不足之处：  </p>
+<h2 id="1、问题提出"><a href="#1、问题提出" class="headerlink" title="1、问题提出"></a>1、问题提出</h2><p>大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。<br>CURD方式的不足之处：  </p>
 <ul>
 <li>CRUD系统直接对数据仓库进行更新操作会导致性能降低、而且不利于系统扩展。  </li>
 <li>在一个协作系统里面，多个并发用户在进行数据更新的时候会发生冲突  </li>
 <li>从审计的角度考虑，每个操作记录在单独的日志中，丢失了历史信息。  </li>
 </ul>
-<h2 id="2、解决思路："><a href="#2、解决思路：" class="headerlink" title="2、解决思路："></a>2、解决思路：</h2><p>事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。<br>完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。<br>通过Event store发布事件的一个典型应用就是当APP改变目录行为后对物化视图的维护，并且能够与外部系统集成。比如一个显示了所有客户订单的物化视图，用于产生UI的部分组件。当APP添加或者删除订单时，描述上述行为的事件能够被处理，以更新物化视图。    </p>
+<h2 id="2、解决思路"><a href="#2、解决思路" class="headerlink" title="2、解决思路"></a>2、解决思路</h2><p>事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。<br>完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。<br>通过Event store发布事件的一个典型应用就是当APP改变目录行为后对物化视图的维护，并且能够与外部系统集成。比如一个显示了所有客户订单的物化视图，用于产生UI的部分组件。当APP添加或者删除订单时，描述上述行为的事件能够被处理，以更新物化视图。    </p>
 <p><img src="/assets/images/Event_Sourcing_Pattern_1.jpg" alt="图片"></p>
 <p>The Event Sourcing pattern provides many advantages, including the following:  </p>
 <ul>
@@ -303,7 +295,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2014/12/31/event-sourcing-pattern/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=https://skypacer210.github.io/2014/12/31/event-sourcing-pattern/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -463,27 +455,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">openstack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -495,7 +479,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -511,7 +503,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -539,18 +535,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">IOT</a>
               </li>
              
@@ -575,6 +559,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">token</a>
               </li>
              
@@ -584,10 +580,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">http authentication</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -655,27 +647,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
         <ul class="search-ul">
           
             <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接1</a>
+              <a href="https://xuanwo.org/2014/08/14/hexo-usual-problem/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>Hexo常见问题解决方案</a>
             </li>
           
             <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接2</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接3</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接4</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接5</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接6</a>
+              <a href="https://github.com/litten/hexo-theme-yilia" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>hexo-theme-yilia</a>
             </li>
           
         </ul>
@@ -686,7 +662,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
     
     	<section class="tools-section tools-section-me" q-show="aboutme">
   	  	
-  	  		<div class="aboutme-wrap" id="js-aboutme">很惭愧&lt;br&gt;&lt;br&gt;只做了一点微小的工作&lt;br&gt;谢谢大家</div>
+  	  		<div class="aboutme-wrap" id="js-aboutme">希望能为我们的美好生活贡献微薄之力&lt;br&gt;&lt;br&gt;很惭愧&lt;br&gt;&lt;br&gt;愿和大家一起奋力前行</div>
   	  	
     	</section>
     

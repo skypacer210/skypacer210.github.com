@@ -4,9 +4,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
-  <updated>2017-08-06T11:25:43.000Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="https://skypacer210.github.io/"/>
+  <updated>2017-08-06T12:53:44.000Z</updated>
+  <id>https://skypacer210.github.io/</id>
   
   <author>
     <name>skypacer210</name>
@@ -17,21 +17,21 @@
   
   <entry>
     <title>Cloud Application设计模式之Event Sourcing Pattern</title>
-    <link href="http://yoursite.com/2014/12/31/event-sourcing-pattern/"/>
-    <id>http://yoursite.com/2014/12/31/event-sourcing-pattern/</id>
+    <link href="https://skypacer210.github.io/2014/12/31/event-sourcing-pattern/"/>
+    <id>https://skypacer210.github.io/2014/12/31/event-sourcing-pattern/</id>
     <published>2014-12-30T16:00:00.000Z</published>
-    <updated>2017-08-06T11:25:43.000Z</updated>
+    <updated>2017-08-06T12:53:44.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~  </p>
 <p>原文链接<a href="http://msdn.microsoft.com/en-us/library/dn589792.aspx/" target="_blank" rel="external">Event Sourcing Pattern</a>  </p>
 <hr>
-<h2 id="1、问题提出："><a href="#1、问题提出：" class="headerlink" title="1、问题提出："></a>1、问题提出：</h2><p>大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。<br>CURD方式的不足之处：  </p>
+<h2 id="1、问题提出"><a href="#1、问题提出" class="headerlink" title="1、问题提出"></a>1、问题提出</h2><p>大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。<br>CURD方式的不足之处：  </p>
 <ul>
 <li>CRUD系统直接对数据仓库进行更新操作会导致性能降低、而且不利于系统扩展。  </li>
 <li>在一个协作系统里面，多个并发用户在进行数据更新的时候会发生冲突  </li>
 <li>从审计的角度考虑，每个操作记录在单独的日志中，丢失了历史信息。  </li>
 </ul>
-<h2 id="2、解决思路："><a href="#2、解决思路：" class="headerlink" title="2、解决思路："></a>2、解决思路：</h2><p>事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。<br>完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。<br>通过Event store发布事件的一个典型应用就是当APP改变目录行为后对物化视图的维护，并且能够与外部系统集成。比如一个显示了所有客户订单的物化视图，用于产生UI的部分组件。当APP添加或者删除订单时，描述上述行为的事件能够被处理，以更新物化视图。    </p>
+<h2 id="2、解决思路"><a href="#2、解决思路" class="headerlink" title="2、解决思路"></a>2、解决思路</h2><p>事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。<br>完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。<br>通过Event store发布事件的一个典型应用就是当APP改变目录行为后对物化视图的维护，并且能够与外部系统集成。比如一个显示了所有客户订单的物化视图，用于产生UI的部分组件。当APP添加或者删除订单时，描述上述行为的事件能够被处理，以更新物化视图。    </p>
 <p><img src="/assets/images/Event_Sourcing_Pattern_1.jpg" alt="图片"></p>
 <p>The Event Sourcing pattern provides many advantages, including the following:  </p>
 <ul>
@@ -52,19 +52,19 @@
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="Cloud Design Patterns" scheme="http://yoursite.com/tags/Cloud-Design-Patterns/"/>
+      <category term="Cloud Design Patterns" scheme="https://skypacer210.github.io/tags/Cloud-Design-Patterns/"/>
     
-      <category term="Event-Driven" scheme="http://yoursite.com/tags/Event-Driven/"/>
+      <category term="Event-Driven" scheme="https://skypacer210.github.io/tags/Event-Driven/"/>
     
   </entry>
   
   <entry>
     <title>Ubuntu上安装NS-3实践</title>
-    <link href="http://yoursite.com/2014/12/26/building-ns-3-on-ubuntu/"/>
-    <id>http://yoursite.com/2014/12/26/building-ns-3-on-ubuntu/</id>
+    <link href="https://skypacer210.github.io/2014/12/26/building-ns-3-on-ubuntu/"/>
+    <id>https://skypacer210.github.io/2014/12/26/building-ns-3-on-ubuntu/</id>
     <published>2014-12-25T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -321,19 +321,19 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="NS-3" scheme="http://yoursite.com/tags/NS-3/"/>
+      <category term="NS-3" scheme="https://skypacer210.github.io/tags/NS-3/"/>
     
-      <category term="Python" scheme="http://yoursite.com/tags/Python/"/>
+      <category term="Python" scheme="https://skypacer210.github.io/tags/Python/"/>
     
   </entry>
   
   <entry>
     <title>Token VS Cookie</title>
-    <link href="http://yoursite.com/2014/12/16/token-vs-cookie/"/>
-    <id>http://yoursite.com/2014/12/16/token-vs-cookie/</id>
+    <link href="https://skypacer210.github.io/2014/12/16/token-vs-cookie/"/>
+    <id>https://skypacer210.github.io/2014/12/16/token-vs-cookie/</id>
     <published>2014-12-15T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -388,21 +388,21 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="token" scheme="http://yoursite.com/tags/token/"/>
+      <category term="token" scheme="https://skypacer210.github.io/tags/token/"/>
     
-      <category term="cookie" scheme="http://yoursite.com/tags/cookie/"/>
+      <category term="cookie" scheme="https://skypacer210.github.io/tags/cookie/"/>
     
-      <category term="http authentication" scheme="http://yoursite.com/tags/http-authentication/"/>
+      <category term="http authentication" scheme="https://skypacer210.github.io/tags/http-authentication/"/>
     
   </entry>
   
   <entry>
     <title>客户端证书与服务端证书</title>
-    <link href="http://yoursite.com/2014/12/08/client-certificate-vs-server-certificate/"/>
-    <id>http://yoursite.com/2014/12/08/client-certificate-vs-server-certificate/</id>
+    <link href="https://skypacer210.github.io/2014/12/08/client-certificate-vs-server-certificate/"/>
+    <id>https://skypacer210.github.io/2014/12/08/client-certificate-vs-server-certificate/</id>
     <published>2014-12-07T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -447,17 +447,17 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="Certificate" scheme="http://yoursite.com/tags/Certificate/"/>
+      <category term="Certificate" scheme="https://skypacer210.github.io/tags/Certificate/"/>
     
   </entry>
   
   <entry>
     <title>OAuth 2.0初探</title>
-    <link href="http://yoursite.com/2014/12/08/authorization-code-flow-in-oauth-20/"/>
-    <id>http://yoursite.com/2014/12/08/authorization-code-flow-in-oauth-20/</id>
+    <link href="https://skypacer210.github.io/2014/12/08/authorization-code-flow-in-oauth-20/"/>
+    <id>https://skypacer210.github.io/2014/12/08/authorization-code-flow-in-oauth-20/</id>
     <published>2014-12-07T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -487,19 +487,19 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="OAuth" scheme="http://yoursite.com/tags/OAuth/"/>
+      <category term="OAuth" scheme="https://skypacer210.github.io/tags/OAuth/"/>
     
-      <category term="Authorization" scheme="http://yoursite.com/tags/Authorization/"/>
+      <category term="Authorization" scheme="https://skypacer210.github.io/tags/Authorization/"/>
     
   </entry>
   
   <entry>
     <title>TCP/IP协议栈中的数据收发</title>
-    <link href="http://yoursite.com/2014/12/02/little-on-tcpip-stack/"/>
-    <id>http://yoursite.com/2014/12/02/little-on-tcpip-stack/</id>
+    <link href="https://skypacer210.github.io/2014/12/02/little-on-tcpip-stack/"/>
+    <id>https://skypacer210.github.io/2014/12/02/little-on-tcpip-stack/</id>
     <published>2014-12-01T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -556,19 +556,19 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="TCP/IP" scheme="http://yoursite.com/tags/TCP-IP/"/>
+      <category term="TCP/IP" scheme="https://skypacer210.github.io/tags/TCP-IP/"/>
     
-      <category term="Stack" scheme="http://yoursite.com/tags/Stack/"/>
+      <category term="Stack" scheme="https://skypacer210.github.io/tags/Stack/"/>
     
   </entry>
   
   <entry>
     <title>一张物联网框图</title>
-    <link href="http://yoursite.com/2014/11/20/iot-technology-stack/"/>
-    <id>http://yoursite.com/2014/11/20/iot-technology-stack/</id>
+    <link href="https://skypacer210.github.io/2014/11/20/iot-technology-stack/"/>
+    <id>https://skypacer210.github.io/2014/11/20/iot-technology-stack/</id>
     <published>2014-11-19T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -584,19 +584,19 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="IOT" scheme="http://yoursite.com/tags/IOT/"/>
+      <category term="IOT" scheme="https://skypacer210.github.io/tags/IOT/"/>
     
-      <category term="物联网" scheme="http://yoursite.com/tags/%E7%89%A9%E8%81%94%E7%BD%91/"/>
+      <category term="物联网" scheme="https://skypacer210.github.io/tags/%E7%89%A9%E8%81%94%E7%BD%91/"/>
     
   </entry>
   
   <entry>
     <title>OOP小记</title>
-    <link href="http://yoursite.com/2014/10/25/oop-review/"/>
-    <id>http://yoursite.com/2014/10/25/oop-review/</id>
+    <link href="https://skypacer210.github.io/2014/10/25/oop-review/"/>
+    <id>https://skypacer210.github.io/2014/10/25/oop-review/</id>
     <published>2014-10-24T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -621,19 +621,19 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="JAVA" scheme="http://yoursite.com/tags/JAVA/"/>
+      <category term="JAVA" scheme="https://skypacer210.github.io/tags/JAVA/"/>
     
-      <category term="OOP" scheme="http://yoursite.com/tags/OOP/"/>
+      <category term="OOP" scheme="https://skypacer210.github.io/tags/OOP/"/>
     
   </entry>
   
   <entry>
     <title>HTTP协议与Web开发</title>
-    <link href="http://yoursite.com/2014/10/19/web-application-layer/"/>
-    <id>http://yoursite.com/2014/10/19/web-application-layer/</id>
+    <link href="https://skypacer210.github.io/2014/10/19/web-application-layer/"/>
+    <id>https://skypacer210.github.io/2014/10/19/web-application-layer/</id>
     <published>2014-10-18T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -724,17 +724,17 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="Docker" scheme="http://yoursite.com/tags/Docker/"/>
+      <category term="Docker" scheme="https://skypacer210.github.io/tags/Docker/"/>
     
   </entry>
   
   <entry>
     <title>Linux下802.11n TX aggregation实现框图</title>
-    <link href="http://yoursite.com/2014/10/10/80211n-tx-aggregation-in-linux/"/>
-    <id>http://yoursite.com/2014/10/10/80211n-tx-aggregation-in-linux/</id>
+    <link href="https://skypacer210.github.io/2014/10/10/80211n-tx-aggregation-in-linux/"/>
+    <id>https://skypacer210.github.io/2014/10/10/80211n-tx-aggregation-in-linux/</id>
     <published>2014-10-09T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -761,21 +761,21 @@ Hello Simulator
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="Linux" scheme="http://yoursite.com/tags/Linux/"/>
+      <category term="Linux" scheme="https://skypacer210.github.io/tags/Linux/"/>
     
-      <category term="TX Aggregation" scheme="http://yoursite.com/tags/TX-Aggregation/"/>
+      <category term="TX Aggregation" scheme="https://skypacer210.github.io/tags/TX-Aggregation/"/>
     
-      <category term="mac80211" scheme="http://yoursite.com/tags/mac80211/"/>
+      <category term="mac80211" scheme="https://skypacer210.github.io/tags/mac80211/"/>
     
   </entry>
   
   <entry>
     <title>LCRS树在证书管理中的应用</title>
-    <link href="http://yoursite.com/2014/05/16/lcrs-and-certificate-store/"/>
-    <id>http://yoursite.com/2014/05/16/lcrs-and-certificate-store/</id>
+    <link href="https://skypacer210.github.io/2014/05/16/lcrs-and-certificate-store/"/>
+    <id>https://skypacer210.github.io/2014/05/16/lcrs-and-certificate-store/</id>
     <published>2014-05-15T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -960,21 +960,21 @@ void tree_update_order(struct tree *parent)
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="LCRS" scheme="http://yoursite.com/tags/LCRS/"/>
+      <category term="LCRS" scheme="https://skypacer210.github.io/tags/LCRS/"/>
     
-      <category term="certificate" scheme="http://yoursite.com/tags/certificate/"/>
+      <category term="certificate" scheme="https://skypacer210.github.io/tags/certificate/"/>
     
-      <category term="data structure" scheme="http://yoursite.com/tags/data-structure/"/>
+      <category term="data structure" scheme="https://skypacer210.github.io/tags/data-structure/"/>
     
   </entry>
   
   <entry>
     <title>LDAP那些事儿</title>
-    <link href="http://yoursite.com/2014/04/24/ldap-those-things/"/>
-    <id>http://yoursite.com/2014/04/24/ldap-those-things/</id>
+    <link href="https://skypacer210.github.io/2014/04/24/ldap-those-things/"/>
+    <id>https://skypacer210.github.io/2014/04/24/ldap-those-things/</id>
     <published>2014-04-23T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -998,21 +998,21 @@ void tree_update_order(struct tree *parent)
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="LDAP" scheme="http://yoursite.com/tags/LDAP/"/>
+      <category term="LDAP" scheme="https://skypacer210.github.io/tags/LDAP/"/>
     
-      <category term="AD" scheme="http://yoursite.com/tags/AD/"/>
+      <category term="AD" scheme="https://skypacer210.github.io/tags/AD/"/>
     
-      <category term="database" scheme="http://yoursite.com/tags/database/"/>
+      <category term="database" scheme="https://skypacer210.github.io/tags/database/"/>
     
   </entry>
   
   <entry>
     <title>Kerberos那些事</title>
-    <link href="http://yoursite.com/2014/04/09/kerberos-those-thing/"/>
-    <id>http://yoursite.com/2014/04/09/kerberos-those-thing/</id>
+    <link href="https://skypacer210.github.io/2014/04/09/kerberos-those-thing/"/>
+    <id>https://skypacer210.github.io/2014/04/09/kerberos-those-thing/</id>
     <published>2014-04-08T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -1162,17 +1162,17 @@ void tree_update_order(struct tree *parent)
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="ACCESS CONTROLS" scheme="http://yoursite.com/tags/ACCESS-CONTROLS/"/>
+      <category term="ACCESS CONTROLS" scheme="https://skypacer210.github.io/tags/ACCESS-CONTROLS/"/>
     
   </entry>
   
   <entry>
     <title>《APIs with an Appetite》读后感</title>
-    <link href="http://yoursite.com/2014/01/30/c-api-design/"/>
-    <id>http://yoursite.com/2014/01/30/c-api-design/</id>
+    <link href="https://skypacer210.github.io/2014/01/30/c-api-design/"/>
+    <id>https://skypacer210.github.io/2014/01/30/c-api-design/</id>
     <published>2014-01-29T16:00:00.000Z</published>
     <updated>2017-08-06T11:30:04.000Z</updated>
     
@@ -1228,17 +1228,17 @@ int delete_text(string name);
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="Design Pattern" scheme="http://yoursite.com/tags/Design-Pattern/"/>
+      <category term="Design Pattern" scheme="https://skypacer210.github.io/tags/Design-Pattern/"/>
     
   </entry>
   
   <entry>
     <title>代码之美读后感之《设计XML验证器之经验》</title>
-    <link href="http://yoursite.com/2014/01/19/Reading-about-XML-validator/"/>
-    <id>http://yoursite.com/2014/01/19/Reading-about-XML-validator/</id>
+    <link href="https://skypacer210.github.io/2014/01/19/Reading-about-XML-validator/"/>
+    <id>https://skypacer210.github.io/2014/01/19/Reading-about-XML-validator/</id>
     <published>2014-01-18T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -1265,19 +1265,19 @@ int delete_text(string name);
     
     </summary>
     
-      <category term="Reading" scheme="http://yoursite.com/categories/Reading/"/>
+      <category term="Reading" scheme="https://skypacer210.github.io/categories/Reading/"/>
     
     
-      <category term="XML" scheme="http://yoursite.com/tags/XML/"/>
+      <category term="XML" scheme="https://skypacer210.github.io/tags/XML/"/>
     
-      <category term="代码之美" scheme="http://yoursite.com/tags/%E4%BB%A3%E7%A0%81%E4%B9%8B%E7%BE%8E/"/>
+      <category term="代码之美" scheme="https://skypacer210.github.io/tags/%E4%BB%A3%E7%A0%81%E4%B9%8B%E7%BE%8E/"/>
     
   </entry>
   
   <entry>
     <title>再谈Diffie-Hellman算法</title>
-    <link href="http://yoursite.com/2014/01/15/little-about-DH/"/>
-    <id>http://yoursite.com/2014/01/15/little-about-DH/</id>
+    <link href="https://skypacer210.github.io/2014/01/15/little-about-DH/"/>
+    <id>https://skypacer210.github.io/2014/01/15/little-about-DH/</id>
     <published>2014-01-14T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -1322,19 +1322,19 @@ int delete_text(string name);
     
     </summary>
     
-      <category term="Reading" scheme="http://yoursite.com/categories/Reading/"/>
+      <category term="Reading" scheme="https://skypacer210.github.io/categories/Reading/"/>
     
     
-      <category term="DH" scheme="http://yoursite.com/tags/DH/"/>
+      <category term="DH" scheme="https://skypacer210.github.io/tags/DH/"/>
     
-      <category term="TLS" scheme="http://yoursite.com/tags/TLS/"/>
+      <category term="TLS" scheme="https://skypacer210.github.io/tags/TLS/"/>
     
   </entry>
   
   <entry>
     <title>无线安全之前世今生</title>
-    <link href="http://yoursite.com/2014/01/10/history-of-wireless-security/"/>
-    <id>http://yoursite.com/2014/01/10/history-of-wireless-security/</id>
+    <link href="https://skypacer210.github.io/2014/01/10/history-of-wireless-security/"/>
+    <id>https://skypacer210.github.io/2014/01/10/history-of-wireless-security/</id>
     <published>2014-01-09T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
@@ -1406,23 +1406,23 @@ int delete_text(string name);
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="wireless" scheme="http://yoursite.com/tags/wireless/"/>
+      <category term="wireless" scheme="https://skypacer210.github.io/tags/wireless/"/>
     
-      <category term="security" scheme="http://yoursite.com/tags/security/"/>
+      <category term="security" scheme="https://skypacer210.github.io/tags/security/"/>
     
   </entry>
   
   <entry>
     <title>Ubuntu下OpenStack配置小记</title>
-    <link href="http://yoursite.com/2014/01/08/openstack-deploy-in-ubuntu1204/"/>
-    <id>http://yoursite.com/2014/01/08/openstack-deploy-in-ubuntu1204/</id>
+    <link href="https://skypacer210.github.io/2014/01/08/openstack-deploy-in-ubuntu1204/"/>
+    <id>https://skypacer210.github.io/2014/01/08/openstack-deploy-in-ubuntu1204/</id>
     <published>2014-01-07T16:00:00.000Z</published>
     <updated>2017-08-06T11:25:43.000Z</updated>
     
-    <content type="html"><![CDATA[<p>本文由<a href="http://skypacer210.github.io/" target="_blank" rel="external">skypacer</a>根据<a href="http://docs.openstack.org/trunk/install-guide/install/apt/content/" target="_blank" rel="external">OpenStack Installation Guide for Ubuntu 12.04 (LTS)</a>在自己的环境中实际部署情况整理而成。转载请注明出处！</p>
+    <content type="html"><![CDATA[<p>本文由<a href="http://skypacer210.github.io/">skypacer</a>根据<a href="http://docs.openstack.org/trunk/install-guide/install/apt/content/" target="_blank" rel="external">OpenStack Installation Guide for Ubuntu 12.04 (LTS)</a>在自己的环境中实际部署情况整理而成。转载请注明出处！</p>
 <p>###1、安装准备  </p>
 <h4 id="网络设置"><a href="#网络设置" class="headerlink" title="网络设置"></a>网络设置</h4><ul>
 <li>安装双网卡：通过vsphere client安装两个网卡，一个内网，一个外网。<br>修改文件/etc/network/interfaces如下：    </li>
@@ -1800,27 +1800,27 @@ keystone user-list
     
     <summary type="html">
     
-      &lt;p&gt;本文由&lt;a href=&quot;http://skypacer210.github.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;skypacer&lt;/a&gt;根据&lt;a href=&quot;http://docs.openstack.org/trunk/install-
+      &lt;p&gt;本文由&lt;a href=&quot;http://skypacer210.github.io/&quot;&gt;skypacer&lt;/a&gt;根据&lt;a href=&quot;http://docs.openstack.org/trunk/install-guide/install/apt/content/&quot; tar
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="deploy" scheme="http://yoursite.com/tags/deploy/"/>
+      <category term="deploy" scheme="https://skypacer210.github.io/tags/deploy/"/>
     
-      <category term="openstack" scheme="http://yoursite.com/tags/openstack/"/>
+      <category term="openstack" scheme="https://skypacer210.github.io/tags/openstack/"/>
     
   </entry>
   
   <entry>
     <title>REACTOR设计模式C实现</title>
-    <link href="http://yoursite.com/2014/01/02/patterns-in-c-reactor/"/>
-    <id>http://yoursite.com/2014/01/02/patterns-in-c-reactor/</id>
+    <link href="https://skypacer210.github.io/2014/01/02/patterns-in-c-reactor/"/>
+    <id>https://skypacer210.github.io/2014/01/02/patterns-in-c-reactor/</id>
     <published>2014-01-01T16:00:00.000Z</published>
     <updated>2017-08-06T11:29:36.000Z</updated>
     
-    <content type="html"><![CDATA[<p>本文由<a href="http://skypacer210.github.io/" target="_blank" rel="external">skypacer</a>译自<a href="http://www.adampetersen.se/Patterns%20in%20C%205,%20REACTOR.pdf" target="_blank" rel="external">Patterns in C REACTOR</a>，原文作者<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>。转载请注明出处！</p>
+    <content type="html"><![CDATA[<p>本文由<a href="http://skypacer210.github.io/">skypacer</a>译自<a href="http://www.adampetersen.se/Patterns%20in%20C%205,%20REACTOR.pdf" target="_blank" rel="external">Patterns in C REACTOR</a>，原文作者<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>。转载请注明出处！</p>
 <h2 id="小引"><a href="#小引" class="headerlink" title="##小引"></a>##小引</h2><p>本篇英文原文所发布的站点<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>是一个个人网站，本文翻译的是其中的关于设计模式C实现的文章，本章主题是reactor模式。</p>
 <p>首次正式翻译文章，水平有限，欢迎指正。</p>
 <h2 id="目录"><a href="#目录" class="headerlink" title="##目录"></a>##目录</h2><p>1、<a href="#mutil_client">多客户端示例</a><br>2、<a href="#single_res">单一责任原则</a><br>3、<a href="#open_closed">违反Open-Closed原则</a><br>4、<a href="#performance">从性能谈起</a><br>5、<a href="#issue_sum">问题总结</a><br>6、<a href="#reactor_pattern">REACTOR模式</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.1、<a href="#6.1">事件探测</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.2、<a href="#6.2">实现机制</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.3、<a href="#6.3">Reactor注册策略</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.4、<a href="#6.4">Reactor实现</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.5、<a href="#6.5">触发Reactor</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.6、<a href="#6.6">处理注册</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.7、<a href="#6.7">事件多样性</a><br>7、<a href="#vs">REACTOR vs OBSERVER</a><br>8、<a href="#cons">结论</a><br>9、<a href="#sum">总结</a>            </p>
@@ -1919,23 +1919,23 @@ keystone user-list
     
     <summary type="html">
     
-      &lt;p&gt;本文由&lt;a href=&quot;http://skypacer210.github.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;skypacer&lt;/a&gt;译自&lt;a href=&quot;http://www.adampetersen.se/Patterns%20in
+      &lt;p&gt;本文由&lt;a href=&quot;http://skypacer210.github.io/&quot;&gt;skypacer&lt;/a&gt;译自&lt;a href=&quot;http://www.adampetersen.se/Patterns%20in%20C%205,%20REACTOR.pdf&quot; target
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="design pattern" scheme="http://yoursite.com/tags/design-pattern/"/>
+      <category term="design pattern" scheme="https://skypacer210.github.io/tags/design-pattern/"/>
     
-      <category term="reactor" scheme="http://yoursite.com/tags/reactor/"/>
+      <category term="reactor" scheme="https://skypacer210.github.io/tags/reactor/"/>
     
   </entry>
   
   <entry>
     <title>基于ARM平台的AES硬件加速实现</title>
-    <link href="http://yoursite.com/2013/12/22/aes-acceleration-in-arm/"/>
-    <id>http://yoursite.com/2013/12/22/aes-acceleration-in-arm/</id>
+    <link href="https://skypacer210.github.io/2013/12/22/aes-acceleration-in-arm/"/>
+    <id>https://skypacer210.github.io/2013/12/22/aes-acceleration-in-arm/</id>
     <published>2013-12-21T16:00:00.000Z</published>
     <updated>2017-08-06T11:23:47.000Z</updated>
     
@@ -2165,14 +2165,14 @@ keystone user-list
     
     </summary>
     
-      <category term="technology" scheme="http://yoursite.com/categories/technology/"/>
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
     
     
-      <category term="ARM" scheme="http://yoursite.com/tags/ARM/"/>
+      <category term="ARM" scheme="https://skypacer210.github.io/tags/ARM/"/>
     
-      <category term="AES" scheme="http://yoursite.com/tags/AES/"/>
+      <category term="AES" scheme="https://skypacer210.github.io/tags/AES/"/>
     
-      <category term="Acceleration" scheme="http://yoursite.com/tags/Acceleration/"/>
+      <category term="Acceleration" scheme="https://skypacer210.github.io/tags/Acceleration/"/>
     
   </entry>
   

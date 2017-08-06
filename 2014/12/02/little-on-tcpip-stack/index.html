@@ -5,23 +5,23 @@
   
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
-  <link rel="dns-prefetch" href="http://yoursite.com">
+  <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>TCP/IP协议栈中的数据收发 | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="概述本文将对TCP/IP的数据收发做一个粗略总结~      1、TCP/IP基本特点TCP/IP总的设计目的就是保证数据的快速有序的传输，且无丢失，基本特点如下：    面向连接：两端组成一个连接，每端以五元组为标识 双工字节流： 采用字节流进行双工数据通信 有序发送：利用序列号保证发送的有序性 可靠性：利用ACK保证数据的可靠性 流控：接收方利用接收窗口通告发送方 拥塞控制：接收方利用拥塞窗口">
 <meta name="keywords" content="TCP&#x2F;IP,Stack">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TCP&#x2F;IP协议栈中的数据收发">
-<meta property="og:url" content="http://yoursite.com/2014/12/02/little-on-tcpip-stack/index.html">
+<meta property="og:url" content="https://skypacer210.github.io/2014/12/02/little-on-tcpip-stack/index.html">
 <meta property="og:site_name" content="skypacer的博客">
 <meta property="og:description" content="概述本文将对TCP/IP的数据收发做一个粗略总结~      1、TCP/IP基本特点TCP/IP总的设计目的就是保证数据的快速有序的传输，且无丢失，基本特点如下：    面向连接：两端组成一个连接，每端以五元组为标识 双工字节流： 采用字节流进行双工数据通信 有序发送：利用序列号保证发送的有序性 可靠性：利用ACK保证数据的可靠性 流控：接收方利用接收窗口通告发送方 拥塞控制：接收方利用拥塞窗口">
-<meta property="og:image" content="http://yoursite.com/assets/images/TCP/tx.jpg">
-<meta property="og:image" content="http://yoursite.com/assets/images/TCP/rx.jpg">
+<meta property="og:image" content="https://skypacer210.github.io/assets/images/TCP/tx.jpg">
+<meta property="og:image" content="https://skypacer210.github.io/assets/images/TCP/rx.jpg">
 <meta property="og:updated_time" content="2017-08-06T11:25:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TCP&#x2F;IP协议栈中的数据收发">
 <meta name="twitter:description" content="概述本文将对TCP/IP的数据收发做一个粗略总结~      1、TCP/IP基本特点TCP/IP总的设计目的就是保证数据的快速有序的传输，且无丢失，基本特点如下：    面向连接：两端组成一个连接，每端以五元组为标识 双工字节流： 采用字节流进行双工数据通信 有序发送：利用序列号保证发送的有序性 可靠性：利用ACK保证数据的可靠性 流控：接收方利用接收窗口通告发送方 拥塞控制：接收方利用拥塞窗口">
-<meta name="twitter:image" content="http://yoursite.com/assets/images/TCP/tx.jpg">
+<meta name="twitter:image" content="https://skypacer210.github.io/assets/images/TCP/tx.jpg">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
   
@@ -50,7 +50,7 @@
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
-			<img src="" class="js-avatar">
+			<img src="/assets/images/skypacer210.png" class="js-avatar">
 		</a>
 		<hgroup>
 		  <h1 class="header-author"><a href="/">skypacer210</a></h1>
@@ -84,13 +84,9 @@
 		<nav class="header-nav">
 			<div class="social">
 				
-					<a class="github" target="_blank" href="#" title="github"><i class="icon-github"></i></a>
+					<a class="github" target="_blank" href="https://github.com/skypacer210" title="github"><i class="icon-github"></i></a>
 		        
-					<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
-		        
-					<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
-		        
-					<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+					<a class="rss" target="_blank" href="/atom.xml" title="rss"><i class="icon-rss"></i></a>
 		        
 			</div>
 		</nav>
@@ -108,7 +104,7 @@
 	<div class="intrude-less">
 		<header id="header" class="inner">
 			<div class="profilepic">
-				<img src="" class="js-avatar">
+				<img src="/assets/images/skypacer210.png" class="js-avatar">
 			</div>
 			<hgroup>
 			  <h1 class="header-author js-header-author">skypacer210</h1>
@@ -125,13 +121,9 @@
 			<nav class="header-nav">
 				<div class="social">
 					
-						<a class="github" target="_blank" href="#" title="github"><i class="icon-github"></i></a>
+						<a class="github" target="_blank" href="https://github.com/skypacer210" title="github"><i class="icon-github"></i></a>
 			        
-						<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
-			        
-						<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
-			        
-						<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+						<a class="rss" target="_blank" href="/atom.xml" title="rss"><i class="icon-rss"></i></a>
 			        
 				</div>
 			</nav>
@@ -325,7 +317,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2014/12/02/little-on-tcpip-stack/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=https://skypacer210.github.io/2014/12/02/little-on-tcpip-stack/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -494,27 +486,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">openstack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -526,7 +510,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -542,7 +534,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -570,18 +566,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">IOT</a>
               </li>
              
@@ -606,6 +590,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">token</a>
               </li>
              
@@ -615,10 +611,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">http authentication</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -686,27 +678,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
         <ul class="search-ul">
           
             <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接1</a>
+              <a href="https://xuanwo.org/2014/08/14/hexo-usual-problem/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>Hexo常见问题解决方案</a>
             </li>
           
             <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接2</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接3</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接4</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接5</a>
-            </li>
-          
-            <li class="search-li">
-              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接6</a>
+              <a href="https://github.com/litten/hexo-theme-yilia" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>hexo-theme-yilia</a>
             </li>
           
         </ul>
@@ -717,7 +693,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
     
     	<section class="tools-section tools-section-me" q-show="aboutme">
   	  	
-  	  		<div class="aboutme-wrap" id="js-aboutme">很惭愧&lt;br&gt;&lt;br&gt;只做了一点微小的工作&lt;br&gt;谢谢大家</div>
+  	  		<div class="aboutme-wrap" id="js-aboutme">希望能为我们的美好生活贡献微薄之力&lt;br&gt;&lt;br&gt;很惭愧&lt;br&gt;&lt;br&gt;愿和大家一起奋力前行</div>
   	  	
     	</section>
     
