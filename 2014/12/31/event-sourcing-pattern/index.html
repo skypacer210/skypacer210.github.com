@@ -8,19 +8,19 @@
   <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>Cloud Application设计模式之Event Sourcing Pattern | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足之">
-<meta name="keywords" content="Cloud Design Patterns,Event-Driven">
+  <meta name="description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。   CURD方式的不足">
+<meta name="keywords" content="Cloud Design Pattern,Event-Driven">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Cloud Application设计模式之Event Sourcing Pattern">
 <meta property="og:url" content="https://skypacer210.github.io/2014/12/31/event-sourcing-pattern/index.html">
 <meta property="og:site_name" content="skypacer的博客">
-<meta property="og:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足之">
+<meta property="og:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。   CURD方式的不足">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/Event_Sourcing_Pattern_1.jpg">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/Event_Sourcing_Pattern_2.jpg">
-<meta property="og:updated_time" content="2017-08-06T12:53:44.000Z">
+<meta property="og:updated_time" content="2017-08-07T10:18:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Cloud Application设计模式之Event Sourcing Pattern">
-<meta name="twitter:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    1、问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。CURD方式的不足之">
+<meta name="twitter:description" content="本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~   原文链接Event Sourcing Pattern    问题提出大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。   CURD方式的不足">
 <meta name="twitter:image" content="https://skypacer210.github.io/assets/images/Event_Sourcing_Pattern_1.jpg">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
@@ -172,13 +172,14 @@
         <p>本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~  </p>
 <p>原文链接<a href="http://msdn.microsoft.com/en-us/library/dn589792.aspx/" target="_blank" rel="external">Event Sourcing Pattern</a>  </p>
 <hr>
-<h2 id="1、问题提出"><a href="#1、问题提出" class="headerlink" title="1、问题提出"></a>1、问题提出</h2><p>大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。<br>CURD方式的不足之处：  </p>
+<h2 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h2><p>大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。  </p>
+<p>CURD方式的不足之处：  </p>
 <ul>
 <li>CRUD系统直接对数据仓库进行更新操作会导致性能降低、而且不利于系统扩展。  </li>
 <li>在一个协作系统里面，多个并发用户在进行数据更新的时候会发生冲突  </li>
 <li>从审计的角度考虑，每个操作记录在单独的日志中，丢失了历史信息。  </li>
 </ul>
-<h2 id="2、解决思路"><a href="#2、解决思路" class="headerlink" title="2、解决思路"></a>2、解决思路</h2><p>事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。<br>完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。<br>通过Event store发布事件的一个典型应用就是当APP改变目录行为后对物化视图的维护，并且能够与外部系统集成。比如一个显示了所有客户订单的物化视图，用于产生UI的部分组件。当APP添加或者删除订单时，描述上述行为的事件能够被处理，以更新物化视图。    </p>
+<h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。<br>完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。<br>通过Event store发布事件的一个典型应用就是当APP改变目录行为后对物化视图的维护，并且能够与外部系统集成。比如一个显示了所有客户订单的物化视图，用于产生UI的部分组件。当APP添加或者删除订单时，描述上述行为的事件能够被处理，以更新物化视图。    </p>
 <p><img src="/assets/images/Event_Sourcing_Pattern_1.jpg" alt="图片"></p>
 <p>The Event Sourcing pattern provides many advantages, including the following:  </p>
 <ul>
@@ -189,8 +190,9 @@
 <li>The append-only storage of events provides an audit trail that can be used to monitor actions taken against a data store, regenerate the current state as materialized views or projections by replaying the events at any time, and assist in testing and debugging the system. In addition, the requirement to use compensating events to cancel changes provides a history of changes that were reversed, which would not be the case if the model simply stored the current state. The list of events can also be used to analyze application performance and detect user behavior trends, or to obtain other useful business information.</li>
 <li>The decoupling of the events from any tasks that perform operations in response to each event raised by the event store provides flexibility and extensibility. For example, the tasks that handle events raised by the event store are aware only of the nature of the event and the data it contains. The way that the task is executed is decoupled from the operation that triggered the event. In addition, multiple tasks can handle each event. This may enable easy integration with other services and systems that need only listen for new events raised by the event store. However, the event sourcing events tend to be very low level, and it may be necessary to generate specific integration events instead.</li>
 </ul>
-<h2 id="2、适用场景"><a href="#2、适用场景" class="headerlink" title="2、适用场景"></a>2、适用场景</h2><p><img src="/assets/images/Event_Sourcing_Pattern_2.jpg" alt="图片"></p>
-<h2 id="3、应用实例"><a href="#3、应用实例" class="headerlink" title="3、应用实例"></a>3、应用实例</h2>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p><img src="/assets/images/Event_Sourcing_Pattern_2.jpg" alt="图片"></p>
+<h2 id="应用实例"><a href="#应用实例" class="headerlink" title="应用实例"></a>应用实例</h2><p>TODO</p>
+
       
 
       
@@ -224,7 +226,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Cloud Design Patterns</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Cloud Design Pattern</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
@@ -435,14 +437,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -463,11 +457,31 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">security</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -479,15 +493,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -500,14 +506,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -535,27 +533,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">IOT</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -567,7 +545,39 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">IOT</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">物联网</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -588,14 +598,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Cloud Design Patterns</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
               </li>
             
             <div class="clearfix"></div>

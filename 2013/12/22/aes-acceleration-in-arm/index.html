@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>基于ARM平台的AES硬件加速实现 | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="1、硬件加密引擎特点硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：    DES(Only ECB and CBC modes)  3DES(ECB/CBC EDE and EEE modes) AES(128/192/256):  其中AES-CBC支持IV feedback，即加密完之后密文的最后16个字节拷贝至引擎的内">
+  <meta name="description" content="硬件加密引擎特点硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：    DES(Only ECB and CBC modes)  3DES(ECB/CBC EDE and EEE modes) AES(128/192/256):  其中AES-CBC支持IV feedback，即加密完之后密文的最后16个字节拷贝至引擎的内部">
 <meta name="keywords" content="ARM,AES,Acceleration">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于ARM平台的AES硬件加速实现">
 <meta property="og:url" content="https://skypacer210.github.io/2013/12/22/aes-acceleration-in-arm/index.html">
 <meta property="og:site_name" content="skypacer的博客">
-<meta property="og:description" content="1、硬件加密引擎特点硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：    DES(Only ECB and CBC modes)  3DES(ECB/CBC EDE and EEE modes) AES(128/192/256):  其中AES-CBC支持IV feedback，即加密完之后密文的最后16个字节拷贝至引擎的内">
-<meta property="og:updated_time" content="2017-08-06T11:23:47.000Z">
+<meta property="og:description" content="硬件加密引擎特点硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：    DES(Only ECB and CBC modes)  3DES(ECB/CBC EDE and EEE modes) AES(128/192/256):  其中AES-CBC支持IV feedback，即加密完之后密文的最后16个字节拷贝至引擎的内部">
+<meta property="og:updated_time" content="2017-08-07T09:50:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于ARM平台的AES硬件加速实现">
-<meta name="twitter:description" content="1、硬件加密引擎特点硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：    DES(Only ECB and CBC modes)  3DES(ECB/CBC EDE and EEE modes) AES(128/192/256):  其中AES-CBC支持IV feedback，即加密完之后密文的最后16个字节拷贝至引擎的内">
+<meta name="twitter:description" content="硬件加密引擎特点硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：    DES(Only ECB and CBC modes)  3DES(ECB/CBC EDE and EEE modes) AES(128/192/256):  其中AES-CBC支持IV feedback，即加密完之后密文的最后16个字节拷贝至引擎的内部">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
   
@@ -166,7 +166,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="1、硬件加密引擎特点"><a href="#1、硬件加密引擎特点" class="headerlink" title="1、硬件加密引擎特点"></a>1、硬件加密引擎特点</h2><p>硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：  </p>
+        <hr>
+<h2 id="硬件加密引擎特点"><a href="#硬件加密引擎特点" class="headerlink" title="硬件加密引擎特点"></a>硬件加密引擎特点</h2><p>硬件加速引擎的目的在于减少加解密中软件的干预，从而提高性能.该硬件加密引擎共有四个引擎，每次运行一个，支持的加密算法有：  </p>
 <ul>
 <li>DES(Only ECB and CBC modes) </li>
 <li>3DES(ECB/CBC EDE and EEE modes)</li>
@@ -182,48 +183,46 @@
 <li>通过Sheeva CPU core，激活加速器。    </li>
 </ul>
 <p>而加速引擎的职责包括计算、与CPU交互和数据搬运，具体来说，包括CESA和TDMA两个子引擎，其中CESA负责对数据进行操作，主要流程如下：    </p>
-<ol>
+<ul>
 <li>读取描述符  </li>
 <li>启动引擎 </li>
 <li>开始处理报文块，一次一个</li>
 <li>等待完成</li>
 <li>从引擎读取数据</li>
 <li>存储数据值本地SRAM    </li>
-</ol>
+</ul>
 <p>而TDMA只是负责在主存和SRAM之间拷贝数据。</p>
-<h2 id="2、CESA配置流程"><a href="#2、CESA配置流程" class="headerlink" title="2、CESA配置流程"></a>2、CESA配置流程</h2><h3 id="2-1、引入加密引擎"><a href="#2-1、引入加密引擎" class="headerlink" title="2.1、引入加密引擎"></a>2.1、引入加密引擎</h3><p><strong>Access</strong></p>
+<h2 id="CESA配置流程"><a href="#CESA配置流程" class="headerlink" title="CESA配置流程"></a>CESA配置流程</h2><h3 id="引入加密引擎"><a href="#引入加密引擎" class="headerlink" title="引入加密引擎"></a>引入加密引擎</h3><p><strong>Access</strong></p>
 <p>CPU和SEAS交替控制，但在一个时间点上只能有一个作为HOST，TDMA当中有owner位，指示出当前的HOST是TDMA设备还是CPU。  </p>
 <p><strong>Control</strong></p>
 <p>若干特殊的命令控制器，比如SHA-1/MD5相关的命令寄存器：    </p>
-<p>#define SHA1_MD5_CTRL_REG 0x0003DD18 /    *Set when hash complete; Clear when any write to the auth engines*/   </p>
-<p>#define SHA1_MD5_TERM_MASK 0x1 &lt;&lt; 31) /    *bit31*/</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#define SHA1_MD5_CTRL_REG 0x0003DD18 /	\*Set when hash complete; Clear when any write to the auth engines\*/   </div><div class="line">#define SHA1_MD5_TERM_MASK 0x1 &lt;&lt; 31) /	\*bit31\*/</div></pre></td></tr></table></figure>
 <p><strong>输入</strong>  </p>
-<ol>
-<li>输入数据长度为64bit或者128bit </li>
-<li>输入带验证数据长度为512bit  </li>
+<ul>
+<li>输入数据长度为64bit或者128bit</li>
+<li>输入带验证数据长度为512bit </li>
 <li>写数据寄存器，加载输入数据(只有DES支持多任务)</li>
 <li>写密钥寄存器和IV寄存器</li>
-</ol>
+</ul>
 <p><strong>输出</strong></p>
-<ol>
+<ul>
 <li>加密引擎返回数据长度也为64bit或者128bit</li>
 <li>验证引擎返回相应的签名长度.</li>
 <li>通过指定的数据寄存器访问输出数据  </li>
-</ol>
+</ul>
 <p><strong>操作原则</strong></p>
-<ol>
+<ul>
 <li>写入加密参数</li>
 <li>写入数据，激活引擎</li>
 <li>在指定的命令寄存器上设置终止位</li>
 <li>使能中断通知CPU操作完毕</li>
 <li>CPU从寄存器读取结果  </li>
-</ol>
-<h3 id="2-2、88AP510安全加密引擎"><a href="#2-2、88AP510安全加密引擎" class="headerlink" title="2.2、88AP510安全加密引擎"></a>2.2、88AP510安全加密引擎</h3><p><strong>地址映射</strong>   </p>
-<p>* phys virt size<br>* c8000000 fdb00000 1M Cryptographic SRAM<br>* e0000000 @runtime 128M PCIe-0 Memory space<br>* e8000000 @runtime 128M PCIe-1 Memory space<br>* f1000000 fde00000 8M on-chip south-bridge registers<br>* f1800000 fe600000 8M on-chip north-bridge registers<br>* f2000000 fee00000 1M PCIe-0 I/O space<br>* f2100000 fef00000 1M PCIe-1 I/O space</p>
-<p>#define DOVE_CRYPT_PHYS_BASE. . (DOVE_SB_REGS_PHYS_BASE | 0x30000) /    * Cryptographic Engine */</p>
+</ul>
+<h3 id="88AP510安全加密引擎"><a href="#88AP510安全加密引擎" class="headerlink" title="88AP510安全加密引擎"></a>88AP510安全加密引擎</h3><p><strong>地址映射</strong>   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">\* phys virt size       </div><div class="line">\* c8000000 fdb00000 1M Cryptographic SRAM     </div><div class="line">\* e0000000 @runtime 128M PCIe-0 Memory space </div><div class="line">\* e8000000 @runtime 128M PCIe-1 Memory space </div><div class="line">\* f1000000 fde00000 8M on-chip south-bridge registers </div><div class="line">\* f1800000 fe600000 8M on-chip north-bridge registers </div><div class="line">\* f2000000 fee00000 1M PCIe-0 I/O space </div><div class="line">\* f2100000 fef00000 1M PCIe-1 I/O space</div><div class="line"></div><div class="line">#define DOVE_CRYPT_PHYS_BASE. . (DOVE_SB_REGS_PHYS_BASE | 0x30000) /	\* Cryptographic Engine \*/</div></pre></td></tr></table></figure>
 <p><strong>寄存器配置</strong></p>
 <p>实例： 修改DOVE寄存器   </p>
-<p>575 . /<em> enable isolators </em>/<br>576 . reg = MV_REG_READ(PMU_ISO_CTRL_REG);<br>577 . reg &amp;= ~PMU_ISO_VIDEO_MASK;<br>578 . MV_REG_WRITE(PMU_ISO_CTRL_REG, reg);</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">575 . /* enable isolators */ </div><div class="line">576 . reg = MV_REG_READ(PMU_ISO_CTRL_REG); </div><div class="line">577 . reg &amp;= ~PMU_ISO_VIDEO_MASK; </div><div class="line">578 . MV_REG_WRITE(PMU_ISO_CTRL_REG, reg);</div></pre></td></tr></table></figure>
 <p><strong>加密流程</strong></p>
 <ul>
 <li>检查 <code>aes_term</code> 是否为1，类似轮询操作；</li>
@@ -257,12 +256,12 @@
 <li>读取AES结果；  </li>
 <li>读取key(主机必须加载一个raw key)。</li>
 </ol>
-<h2 id="3、实现"><a href="#3、实现" class="headerlink" title="3、实现"></a>3、实现</h2><h3 id="3-1、设计原理"><a href="#3-1、设计原理" class="headerlink" title="3.1、设计原理"></a>3.1、设计原理</h3><p>启用CESA，本质上是数据在DRAM和SRAM之间的拷贝，如果采用DMA，需要将DRAM和SRAM中数据的虚拟地址转化为对应的物理地址。<br>由于CESA只能处理在CESA SRAM中的报文，最大支持2KB，因此在包含其他信息的前提下（SA描述符、key、IV），实际处理的数据最大是1.75KB。  </p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="设计原理"><a href="#设计原理" class="headerlink" title="设计原理"></a>设计原理</h3><p>启用CESA，本质上是数据在DRAM和SRAM之间的拷贝，如果采用DMA，需要将DRAM和SRAM中数据的虚拟地址转化为对应的物理地址。<br>由于CESA只能处理在CESA SRAM中的报文，最大支持2KB，因此在包含其他信息的前提下（SA描述符、key、IV），实际处理的数据最大是1.75KB。  </p>
 <ul>
 <li>对于每个报文，至少需要1个SA描述符和4个TDMA描述符，如果数据在物理内存中有分片，则会需要更多的TDMA描述符。</li>
 <li>驱动利用预定义的SA和TDMA描述符池以期获得最好的性能，池的大小可以匹配请求的size大小。  </li>
 </ul>
-<h3 id="3-2、基本架构"><a href="#3-2、基本架构" class="headerlink" title="3.2、基本架构"></a>3.2、基本架构</h3><p><strong>1、应用请求分发方式</strong></p>
+<h3 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h3><p><strong>应用请求分发方式</strong></p>
 <p>对于来自上层的应用请求（AES加解密）可以采用以下两种同步回调模式和异步回调模式。  </p>
 <p>对于同步回调模式而言，同步操作较为简单，但是当请求被提交时程序会阻塞；调用同步回调函数（实现数据由软件传至硬件）即可，一旦硬件处理完毕，即可返回，流程如下：</p>
 <ol>
@@ -282,9 +281,9 @@
 <li>当硬件完成操作后，调用通知回调函数</li>
 </ol>
 <p>目前采用的是同步方式。</p>
-<p><strong>2、中间层</strong></p>
+<p><strong>中间层</strong></p>
 <p>在硬件接口和上层接口层之间加入一个中间层，以此隔离上层对于底层调用的依赖，可以基于纯软件实现AES加解密，也可以基于硬件实现。  </p>
-<p><strong>3、流程控制</strong>  </p>
+<p><strong>流程控制</strong>  </p>
 <p>采用中断方式接收数据并进行处理。中断是硬件处理数据之后的动作，因此，触发中断需要有两级：  </p>
 <ul>
 <li>使能中断，此时可以写对应中断掩码  </li>
@@ -296,7 +295,7 @@
 <li>设置中断寄存器；  </li>
 <li>本地中断寄存器和掩码寄存器，就包括了CESA单元的，可以在pic.c中为CESA定义中断向量。     </li>
 </ul>
-<p><strong>4、DMA</strong></p>
+<p><strong>DMA</strong></p>
 <p>在该平台的硬件引擎中，专门实现了DMA，称之为TDMA。TDMA的基本特点如下：</p>
 <ul>
 <li>独立的TDMA引擎，无需CPU参与可以在DDR内存和内部SRAM之间搬移大规模数据, 通过TDMA从主存中拷贝报文至安全加速引擎的本地SRAM，最大支持2KB。</li>
@@ -312,7 +311,7 @@
 <li>Destination Address(0x820)：TDMA目的地址 必须为内部SRAM地址 提供了一种思路，遇到需要配置硬件地址的时候，可以定义一个固定偏移，这样软硬件填写方便;</li>
 <li>下一个描述符指针(0x830)：为了支持chain模式，必须是16字节对齐（bit[3:0]=0）。</li>
 </ul>
-<p><strong>5、TDMA与加密引擎协调工作</strong></p>
+<p><strong>TDMA与加密引擎协调工作</strong></p>
 <p>TDMA作为一种硬件内置的DMA方式，与其他硬件加速引擎配合工作，较为显著的提高了吞吐率，基本流程如下：  </p>
 <p>首先设置CESA配置寄存器（0xE08）的waitforTDMA和ActiveTDMA，当TMDA和CESA协同工作的时候，CESA能独立操作DRAM，CESA有能力激活TDMA，决定其状态并提供单独的完成中断；其中软件则需要步骤（五步）：  </p>
 <ul>
@@ -333,12 +332,12 @@
 <li>利用TDMA将完成的报文拷贝回主存。</li>
 </ul>
 <p>其中CESA中的SRAM内存映射如下：  </p>
-<p>/*<br> * CESA SRAM Memory Map: *<br> * +————————+ &lt;= sc-&gt;sc_sram_base + CESA_SRAM_SIZE<br> * |                        |<br> * |          DATA          |<br> * |                        |<br> * +————————+ &lt;= sc-&gt;sc_sram_base + CESA_DATA(0)<br> * | struct cesa_sa_data    |<br> * +————————+<br> * | struct cesa_sa_hdesc |<br> * +————————+ &lt;= sc-&gt;sc_sram_base<br> */</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">/\*   </div><div class="line"> \* CESA SRAM Memory Map: \*  </div><div class="line"> \* +------------------------+ &lt;= sc-&gt;sc_sram_base + CESA_SRAM_SIZE   </div><div class="line"> \* |                        |   </div><div class="line"> \* |          DATA          |   </div><div class="line"> \* |                        |   </div><div class="line"> \* +------------------------+ &lt;= sc-&gt;sc_sram_base + CESA_DATA(0)    </div><div class="line"> \* | struct cesa_sa_data    |   </div><div class="line"> \* +------------------------+   </div><div class="line"> \* | struct cesa_sa_hdesc |  </div><div class="line"> \* +------------------------+ &lt;= sc-&gt;sc_sram_base   </div><div class="line"> */</div></pre></td></tr></table></figure>
 <p>其中<code>CESA_SRAM_SIZE=2048</code>， <code>CESA_DATA(0)=sizeof（struct cesa_sa_hdesc）</code>，字节序则利用宏直接转化。  </p>
 <p>对于分片报文，可以暂时不支持，以简化设计 CESA 的SDK支持最大报文为64 * 1024，而一次处理1600大小，因此需要分片。</p>
 <p>SRAM地址可以直接返回一个全局变量：<code>MV_U32 cesaCryptEngBase = 0</code>;</p>
 <p>对于SA配置，可以定义数据结构<code>sa_config</code>和相应的配置函数。</p>
-<h3 id="4、调试小记"><a href="#4、调试小记" class="headerlink" title="4、调试小记"></a>4、调试小记</h3><h3 id="4-1、调试基本原则"><a href="#4-1、调试基本原则" class="headerlink" title="4.1、调试基本原则"></a>4.1、调试基本原则</h3><p>在开发前期，为了尽快试错以及避免代码注释混乱，采用switch语句定义不同的dec_key方法，并用全局变量用GUI配置，则无需重新编译即可完成正确方案的选择。而在面对时而正确时而错误的加解密情况，加入打印语句：  </p>
+<h3 id="调试小记"><a href="#调试小记" class="headerlink" title="调试小记"></a>调试小记</h3><h3 id="调试基本原则"><a href="#调试基本原则" class="headerlink" title="调试基本原则"></a>调试基本原则</h3><p>在开发前期，为了尽快试错以及避免代码注释混乱，采用switch语句定义不同的dec_key方法，并用全局变量用GUI配置，则无需重新编译即可完成正确方案的选择。而在面对时而正确时而错误的加解密情况，加入打印语句：  </p>
 <ul>
 <li>首先排除硬件返回超时的错误；</li>
 <li>排除CESA SRAM没有初始化的错误；</li>
@@ -346,21 +345,21 @@
 <li>定位至状态机的处理，很可能在处理开始之前没有正确赋给初值。</li>
 </ul>
 <p>基于以上分析思路，解决了数据乱码问题，定位过程如下：  </p>
-<p><strong>1、数据拷贝流程分析</strong>  </p>
+<p><strong>数据拷贝流程分析</strong>  </p>
 <p>分解TDMA和CESA的交互过程，逐步调试，至比如数据从主存至TDMA，是否拷贝正确； 数据处理完之后是否拷贝至主存?</p>
 <ul>
 <li>从cache到主存；</li>
-<li>DMA读： 从主存至设备；</li>
+<li>DMA读：从主存至设备；</li>
 <li>DMA写： 从设备至主存；</li>
 <li>主存至cache。  </li>
 </ul>
-<p><strong>2、Cache相关</strong>   </p>
+<p><strong>Cache相关</strong>   </p>
 <p>这里涉及两个问题：clean cache和Invalide cache:  </p>
 <ul>
 <li>clean cache意味着将cache中的数据强制写入主存, 即设备访问到了最新的内容，保证了设备访问CPU的数据正确性。    </li>
 <li>invalide cache用来确保设备完成时，CPU可以从主存中读取到最新的内容，即保证了CPU访问设备的数据正确性。</li>
 </ul>
-<p><strong>3、DMA相关</strong>  </p>
+<p><strong>DMA相关</strong>  </p>
 <p>DMA要考虑页表连续性和CPU-cache。  </p>
 <p>现象：  </p>
 <ul>
@@ -372,10 +371,10 @@
 <li>DMA指的是一种硬件设备，能够无须使用CPU指令实现对内存的拷贝；后者是主存和CPU之间的关系；</li>
 <li>DMA在进行数据拷贝的时候，或许用到CPU-cache的参与，或许根本就不用。</li>
 </ul>
-<p><strong>4、随机问题定位</strong></p>
+<p><strong>随机问题定位</strong></p>
 <p>在实际的调试中在单个进程中调用时没有问题，在多个进程调用的时候出现问题，因此可以确定可能是进程并发的问题。经过调试发现，中断会在休眠之前发生，因此在需要禁止中断。    </p>
 <p>另外一个随机问题是在释放版本中发现的，硬件加速引擎偶尔出现超时，但是在开发版本中从不会超时，控制结构体中的一个描述状态的字段不太正常，后者相对前者做了编译优化，导致发生不可预期的错误，因此需要在其定义出加入volitile关键字，问题得以解决。  </p>
-<h2 id="5、参考文献"><a href="#5、参考文献" class="headerlink" title="5、参考文献"></a>5、参考文献</h2><ol>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
 <li><a href="http://igoro.com/archive/gallery-of-processor-cache-effects/" title="http://igoro.com/archive/gallery-of-processor-cache-effects/" target="_blank" rel="external">Gallery of Processor Cache Effects</a></li>
 <li><a href="http://stackoverflow.com/questions/1855896/memory-alignment-on-modern-processors" title="http://stackoverflow.com/questions/1855896/memory-alignment-on-modern-processors" target="_blank" rel="external">Memory alignment on modern processors?</a></li>
 <li><a href="http://stackoverflow.com/questions/4605030/will-the-cache-line-aligned-memory-allocation-pay-off" title="http://stackoverflow.com/questions/4605030/will-the-cache-line-aligned-memory-allocation-pay-off" target="_blank" rel="external">Will the cache line aligned memory allocation pay off?</a></li>
@@ -637,14 +636,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -665,11 +656,31 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">security</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -681,15 +692,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -702,14 +705,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -737,27 +732,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">IOT</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -769,7 +744,39 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">IOT</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">物联网</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -790,14 +797,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Cloud Design Patterns</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
               </li>
             
             <div class="clearfix"></div>
