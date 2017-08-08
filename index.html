@@ -779,7 +779,7 @@
 <p>该函数的接口和用法都发生了改变。调用程序必须向每次调用提供该字符串，且在首次调用前，必须将索引初始化为 0，如以下代码所示：   </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">char *my_string;</div><div class="line">char my_char;</div><div class="line">int my_index;</div><div class="line">...</div><div class="line">my_index = 0;</div><div class="line">while (my_char = reentrant_lowercase_c(my_string, &amp;my_index)) &#123;</div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p><strong>TLS库的线程安全</strong></p>
-<p>在TLS实现中，常见的需要保证现场安全的场景主要有：</p>
+<p>在TLS实现中，常见的需要保证线程安全的场景主要有：</p>
 <ul>
 <li>SSL收发缓冲区；</li>
 <li>SSL Session Cache context</li>
@@ -914,7 +914,8 @@
       
         <p>最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。    </p>
 <p>初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？ </p>
-<p>首先看SSL连接的建立过程，如图1所示：<br><img src="/assets/images/SSL/SSL_exchange.png" alt="图片"></p>
+<p>首先看SSL连接的建立过程，如图1所示：    </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_exchange.png" alt="图片"></div></p>
 <ol>
 <li>第一步服务器端创建监听socket等待客户端连接。</li>
 <li>第二步客户端创建SSL上下文数据结构，包括支持的cipher种类，证书以及SSL版本等。</li>
@@ -933,9 +934,9 @@
 <li>第二、第四、第五、第七和第八步仅仅在SSL连接建立的情况下发生的流程，SSL开启前后的对比见图3。  </li>
 <li>第六和第九步则SSL相关。   </li>
 </ol>
-<p><img src="/assets/images/SSL/SSL_layer_compare.png" alt="图片">   </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_layer_compare.png" alt="图片">   </div></p>
 <p>而SSL本身的数据处理如图2所示：  </p>
-<p><img src="/assets/images/SSL/SSL_data_enc.png" alt="图片">   </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_data_enc.png" alt="图片">   </div></p>
 <ol>
 <li>如果需要将应用数据进行分片和组合，每个分片包封装至SSL的记录协议单元（Record Protocol Unit）；</li>
 <li>如果需要压缩则封装至压缩单元；</li>
@@ -944,9 +945,9 @@
 </ol>
 <p>让我们回到数据读取，这里需要说明的是程序采用的事件处理框架。作为SSL客户端，为了能够处理多个SSL连接建立后对多个socket的并发事件处理，引入了select机制，事实上最多支持32个SSL连接。Select作为一种非阻塞IO接口，在这里用于轮询建立的TCP socket (SSL连接基于TCP socket，当然例外情况是DTLS基于UDP) 事件，结果发现没有数据可读。  </p>
 <p>数据读取在非阻塞模式下遵从能读多少就读多少的原则，同理数据写入在非阻塞模式下也遵从能输出多少就输出多少的原则,其中输出缓冲区如下图所示：  </p>
-<p><img src="/assets/images/SSL/SSL_write.jpg" alt="图片">  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_write.jpg" alt="图片">  </div></p>
 <p>进一步查看已经建立的SSL连接表，结构如图2所示。SSL连接表本身由一个数组存储，为了加快SSL连接的查找又引入了一张哈希表，该哈希表采用数组作为散列的桶，每个桶是一个单向链表以解决哈希冲突。      </p>
-<p><img src="/assets/images/SSL/SSL_data.png" alt="图片"></p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_data.png" alt="图片"></div></p>
 <p>当前的SSL连接表显示多个SSL连接都挂在了一个桶的链表上，看起来是发生了哈希冲突，但细想这概率似乎有点高，那就看看为啥这几个SSL连接都搞出来一个key， 注意到这里的hash key是TCP socket的抽象数据结构指针，再看代码直接把当前进程中的文件描述作为查找键，增加一行代码就好了，即利用getsock拿到真正的socket数据结构指针。</p>
 <p>为了搞清楚错误是怎么发生的，有必要来个情景再现。让我们看看在哈希表插入的时候发生什么。哈希表的插入发生在新建一个SSL连接的时候（每一个SSL连接对应一个TCP socket），当TCP连接建立之后，SSL就以socket作为key插入哈希表当中。由于APP在SSL建立时候打开的一个文件描述符和隧道建立时候打开的文件描述符一些情况下是一样的，这样新旧两个SSL连接描述符产生相同的key,都插入同一个桶，对应依次插入链表尾部，当进行数据读写时根据文件描述符查找到的是旧的SSL连接描述符，此时该连接符已无数据可读写，导致超时。    </p>
 
@@ -992,6 +993,123 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2015/05/12/issue-about-tcp-read-timeout-in-ssl-session/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-client-certificate-vs-server-certificate" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/04/08/client-certificate-vs-server-certificate/">客户端证书与服务端证书</a>
+    </h1>
+  
+
+        
+        <a href="/2015/04/08/client-certificate-vs-server-certificate/" class="archive-article-date">
+  	<time datetime="2015-04-07T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-04-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Server-Certificate"><a href="#Server-Certificate" class="headerlink" title="Server Certificate"></a>Server Certificate</h2><p>服务器端证书用于标识一个Server，典型地被签发给主机名，比如机器名或者host-header(www.baidu.com)。对Server证书而言，”Issued to”域意味着选择哪个签发的hostname。  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/server_certificate.png" alt="图片">    </div></p>
+<ol>
+<li>目的：加密和解密内容</li>
+<li>真实世界里只有ROOT CA有自签名证书</li>
+<li>存储：对于window IIS，Server certificates are stored in the Personal store of the “Local Computer” account</li>
+<li>证书可以存储在用户账户对应的个人存储目录下，也是IIS缺省的搜索路径</li>
+</ol>
+<h2 id="Client-Certificate"><a href="#Client-Certificate" class="headerlink" title="Client Certificate"></a>Client Certificate</h2><p>服务器端证书用于标识一个Client或者user，意味着向Server验证Client，”Issued to”域采用用户的名字。  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/client_certificate.png" alt="图片">      </div></p>
+<ol>
+<li>目的：仅用于标识身份</li>
+<li>真实世界里只有ROOT CA有自签名证书</li>
+<li>Client certificate and private key的角色：</li>
+</ol>
+<ul>
+<li>Client证书的证书和私钥作用就是为了在Client authentication中提供Client的数字签名。</li>
+<li>crt后缀名文件仅仅包含证书，证书和私钥一般包含在.p12或者.pfx文件中(PKCS12格式)。</li>
+<li>私钥如果单独存放，一般为.pem后缀名。</li>
+<li>Server端需要client端的数字签名，然后发送至Server，Server利用client的证书（即公钥）解密，以确认client端的身份。其中Client端的数字签名生成过程如下：首先对SSL交互中的随机值进行HASH，然后用client的私钥进行加密。  </li>
+</ul>
+<h2 id="HTTPS下虚拟主机"><a href="#HTTPS下虚拟主机" class="headerlink" title="HTTPS下虚拟主机"></a>HTTPS下虚拟主机</h2><p>在HTTP下有虚拟主机这一概念，其目的是为了在服务端用单个IP支持多个主机名；对应到HTTPS，客户端验证服务器为不同主机配置多个证书，但是客户端需要检查服务器证书的common name,当客户端请求服务器证书的时候，服务器需要决定提供哪个证书，SNI应用而生，其原理如下图：  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SNI.jpg" alt="图片">  </div></p>
+<h2 id="中间人攻击与证书"><a href="#中间人攻击与证书" class="headerlink" title="中间人攻击与证书"></a>中间人攻击与证书</h2><p>SSL中间人攻击的形式主要有三种：SSL downgrading，SSL stripping和fake of SSL certs。<br>在SSL协议中，证书是用来进行身份验证的，这里有两个关键的检查点：  </p>
+<ul>
+<li>第一个是CA验证，对于客户端而言，验证服务器端证书依赖与本地的trust store，如果本地的trust  store被人篡改，那么避免中间人攻击则无从谈起，事实上这也正是PKI体系的弱点所在。  </li>
+<li>第二个是hostname检查，用来确保所连接的服务器就是其声称的，如果有人劫持了DNS服务器，即利用DNS cache poisoning攻击让你的地址栏看起来很正常，这个时候劫持者就可以让此项检查通过。  </li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a href="http://www.windowsecurity.com/articles-tutorials/authentication_and_encryption/Understanding-Man-in-the-Middle-Attacks-ARP-Part4.html" target="_blank" rel="external">Understanding Man-In-The-Middle Attacks - Part 4: SSL Hijacking</a></li>
+<li><a href="https://blog.cloudflare.com/introducing-strict-ssl-protecting-against-a-man-in-the-middle-attack-on-origin-traffic/" target="_blank" rel="external">Introducing Strict SSL</a></li>
+<li><a href="https://devcentral.f5.com/articles/ssl-profiles-part-7-server-name-indication" target="_blank" rel="external">SNI for TLS</a></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Certificate</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/04/08/client-certificate-vs-server-certificate/">展开全文 >></a>
         </p>
       
 
@@ -1429,195 +1547,6 @@
 
 
   
-    <article id="post-synchronization-and-exclusion" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/01/13/synchronization-and-exclusion/">同步与互斥二三事</a>
-    </h1>
-  
-
-        
-        <a href="/2015/01/13/synchronization-and-exclusion/" class="archive-article-date">
-  	<time datetime="2015-01-12T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-01-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="1-进程之间为什么需要同步"><a href="#1-进程之间为什么需要同步" class="headerlink" title="1. 进程之间为什么需要同步"></a>1. 进程之间为什么需要同步</h3><p>在顺序程序设计中，由于代码指令都是顺序执行，重复执行会得到相同的结果，即程序与计算一一对应。    </p>
-<p>并发程序意味着一个程序未执行完，而另外一个程序已经开始执行，这就是所谓的并发性。并发性从宏观上反映了一个时间段内有几个进程都处于运行态但运行尚未结束的状态。从微观上看，任一时刻仅有一个进程的一个操作在处理器上运行。反过来看，并发其实就是处理器在几个进程之间的多路复用器，是对有限物理资源的强制进行多用户共享，消除计算机部件之间的互等，提供系统资源的利用率。   </p>
-<p>由于交互的并发进程共享某些资源，一个进程的执行可能会影响其他或者进程的执行结果，即交互的进程之间<strong>相互制约</strong>。因此，必须对进程的交互过程进行控制，引入了各种同步机制。  </p>
-<h3 id="2-互斥与同步的关系"><a href="#2-互斥与同步的关系" class="headerlink" title="2. 互斥与同步的关系"></a>2. 互斥与同步的关系</h3><h4 id="2-1-互斥"><a href="#2-1-互斥" class="headerlink" title="2.1 互斥"></a>2.1 互斥</h4><p>互斥又称为竞争，并发的引入使得原本没有竞争关系的进程在访问共享资源时发生了冲突，进程之间存在<strong>间接制约关系</strong>。在这种关系下，一个进程获得资源，另一个进程不得不阻塞等待，因此可能会导致两个严重问题：死锁与饥饿。防止不公平，或者饿死某些低优先级的进程，是调度系统必须考虑的问题。    </p>
-<h4 id="2-2-同步"><a href="#2-2-同步" class="headerlink" title="2.2 同步"></a>2.2 同步</h4><p>进程同步是指为完成共同任务的并发进程基于某个条件来协调其活动，因为需要在某些位置上排定执行的<strong>先后次序</strong>而等待、传递信号或者消息所产生的协作制约关系。这种有先后次序的协作是进程之间的直接制约关系。       </p>
-<p>同步是为了几个具备一些依赖性的任务一起协同工作，通信则是为了同步的手段，可以基于共享内存，也可以基于消息传递。进程之间的协作可以是比知道对方名字的协作，比如通过共享内存进行松散式协作；或者进程双方知道对方名字，通过消息机制进行紧密协作。        </p>
-<p>竞争关系从某种意义上可以看成是同步，因为存在竞争关系的进程需要互斥的访问资源，也遵循<strong>互斥的访问次序</strong>。</p>
-<h3 id="3-实现同步的方式"><a href="#3-实现同步的方式" class="headerlink" title="3. 实现同步的方式"></a>3. 实现同步的方式</h3><p>实现同步的方式有多种，可以基于软件，也可以基于硬件。历史上，其演变史大致由自旋锁至信号量，再到互斥锁。</p>
-<h3 id="4-自旋锁"><a href="#4-自旋锁" class="headerlink" title="4. 自旋锁"></a>4. 自旋锁</h3><p>自旋锁可以通过CPU轮询机制实现同步。Spinlock作为一种临界区保护机制，在单处理器和多处理器下的实现不尽相同：  </p>
-<ul>
-<li>对于单处理器系统，实现互斥的最简单办法就是在进程进入临界区之前关闭中断，在进程退出临界区时开中断。因为进程的上下文切换都是由中断引起的，这样进程的执行就会被打断，因此关掉中断可以保证进行互斥的进入临界区。但不适宜作为通用的互斥机制，关中断事件过程会导致系统性能和效率下降，而且在多处理器中不适用，因为在<strong>一个处理器上关闭中断，并不能防止进程在其他处理器上执行同样的临界段代码</strong>。  </li>
-<li>对于多处理器系统，可以基于xchag指令和Test and Set Lock (TSL) instruction: TSL指令这两个指令实现spinlock，因为二者都是原子操作，一个处理器在处理的时候，其余处理器只有等到处理完毕才可获取访问权，实现了对临界区的互斥访问。</li>
-</ul>
-<p>XCHGB的实现：    </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">      .globl. xchgb</div><div class="line">xchgb:</div><div class="line">      movl.   4(%esp), %edx   //edx = *((int32 *) (esp + 4));将最后一个参数赋值给ESP</div><div class="line">      movl.   8(%esp), %eax   //eax = *((int32 *) (esp + 8));将第一个参数赋值给寄存器eax</div><div class="line">      lock                    //锁住总线</div><div class="line">      xchgb.  %al, (%edx)     //交换寄存器edx和寄存器al的值</div><div class="line">      ret</div></pre></td></tr></table></figure>
-<p>spinlock的实现：    </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">bool lock = false;</div><div class="line">bool keyi = true;</div><div class="line"></div><div class="line">spin_lock()</div><div class="line">&#123;   </div><div class="line">    </div><div class="line">    do &#123;</div><div class="line">        xchgb(&amp;keyi, lock); //xchg保证原子性操作，中间不会有中断进入</div><div class="line">    &#125; while (keyi);</div><div class="line">&#125;</div><div class="line"></div><div class="line">spin_unlock()</div><div class="line">&#123;</div><div class="line">    xchgb(&amp;keyi, lock);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>自旋锁的适用场合与缺点：适用于<strong>临界区代码执行时间较短</strong>的场合；由于自旋锁采取忙式等待，白白浪费了CPU的时间，将能否进入临界区的责任推给了各个竞争的进程，而且<strong>只能解决竞争问题，而不能解决进程之间的协作问题</strong>。</p>
-<h3 id="5-信号量"><a href="#5-信号量" class="headerlink" title="5. 信号量"></a>5. 信号量</h3><p>信号量于1965年由Edsger Dijkstra提出，主要是为了解决并发编程中的竞争问题，其实质是二元信号量，后来Scholten在此基础上提出了通用信号量，也称为计数信号量。不管是哪一种信号量，都加入了进程调度，CPU不再大量的忙等待。</p>
-<p>从信号量的等待队列中唤醒进程的算法有如下：  </p>
-<ul>
-<li>FIFO – 先入先出，唤醒次序由进入次序决定    </li>
-<li>Priority – 优先级排序决定唤醒次序</li>
-<li>Undefined – 未指定的实现算法  </li>
-</ul>
-<h4 id="5-1-Linux中信号量的实现"><a href="#5-1-Linux中信号量的实现" class="headerlink" title="5.1 Linux中信号量的实现"></a>5.1 Linux中信号量的实现</h4><p>Linux的信号量semaphore实质上为计数信号量。</p>
-<ul>
-<li><strong>semaphore定义和初始化</strong>    </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">struct semaphore &#123;</div><div class="line">	raw_spinlock_t		lock;	//自旋锁，用于互斥保护</div><div class="line">	unsigned int		count;	//信号量值，若count为正值，代表进入临界区之前可用的资源总数；若count为负值，意外着在该信号量队列当中注册等待的进程个数</div><div class="line">	struct list_head	wait_list;	//信号量队列，即等待队列</div><div class="line">&#125;;</div><div class="line"></div><div class="line">static inline void sema_init(struct semaphore *sem, int val)</div><div class="line">&#123;</div><div class="line">	static struct lock_class_key __key;</div><div class="line">	*sem = (struct semaphore) __SEMAPHORE_INITIALIZER(*sem, val);	//初始化各个字段</div><div class="line">	lockdep_init_map(&amp;sem-&gt;lock.dep_map, &quot;semaphore-&gt;lock&quot;, &amp;__key, 0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<ul>
-<li><strong>semaphore的P操作</strong>  </li>
-</ul>
-<p>P操作也称为down操作，即请求一个资源。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">void down(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	unsigned long flags;</div><div class="line"></div><div class="line">	raw_spin_lock_irqsave(&amp;sem-&gt;lock, flags);	//互斥保护信号量计数</div><div class="line">	if (likely(sem-&gt;count &gt; 0))		//如果资源个数大于0，递减</div><div class="line">		sem-&gt;count--;</div><div class="line">	else</div><div class="line">		__down(sem);	//如果资源数不大于0，则将此进程放入该信号量的等待队列。</div><div class="line">	raw_spin_unlock_irqrestore(&amp;sem-&gt;lock, flags);</div><div class="line">&#125;</div><div class="line"></div><div class="line">static noinline void __sched __down(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	__down_common(sem, TASK_UNINTERRUPTIBLE, MAX_SCHEDULE_TIMEOUT);</div><div class="line">&#125;</div><div class="line"></div><div class="line">static inline int __sched __down_common(struct semaphore *sem, long state,</div><div class="line">								long timeout)</div><div class="line">&#123;</div><div class="line">	struct task_struct *task = current;</div><div class="line">	struct semaphore_waiter waiter;</div><div class="line"></div><div class="line">	list_add_tail(&amp;waiter.list, &amp;sem-&gt;wait_list);	//加入信号量的等待队列</div><div class="line">	waiter.task = task;</div><div class="line">	waiter.up = false;	//设置资源释放标志位up为假</div><div class="line"></div><div class="line">	for (;;) &#123;</div><div class="line">		if (signal_pending_state(state, task))</div><div class="line">			goto interrupted;	</div><div class="line">		if (unlikely(timeout &lt;= 0))</div><div class="line">			goto timed_out;</div><div class="line">		__set_task_state(task, state);	//设置当前进程状态为TASK_UNINTERRUPTIBLE</div><div class="line">		raw_spin_unlock_irq(&amp;sem-&gt;lock);</div><div class="line">		timeout = schedule_timeout(timeout);	//当前进程sleep，超时时间为MAX_SCHEDULE_TIMEOUT</div><div class="line">		raw_spin_lock_irq(&amp;sem-&gt;lock);</div><div class="line">		if (waiter.up)	//一旦资源释放标志位up为真，返回0</div><div class="line">			return 0;</div><div class="line">	&#125;</div><div class="line"></div><div class="line"> timed_out:</div><div class="line">	list_del(&amp;waiter.list);		//超时发生，将当前进程从等待队列移除，返回-ETIME</div><div class="line">	return -ETIME;</div><div class="line"></div><div class="line"> interrupted:		//中断发生，将当前进程从等待队列移除，返回-EINTR</div><div class="line">	list_del(&amp;waiter.list);</div><div class="line">	return -EINTR;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<ul>
-<li><strong>semaphore的V操作，即up操作，尝试释放一个资源</strong>  </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">void up(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	unsigned long flags;</div><div class="line"></div><div class="line">	raw_spin_lock_irqsave(&amp;sem-&gt;lock, flags);</div><div class="line">	if (likely(list_empty(&amp;sem-&gt;wait_list)))		//如果等待队列为空，只需将可用资源递加即可</div><div class="line">		sem-&gt;count++;</div><div class="line">	else</div><div class="line">		__up(sem);		//如果在该信号量上有等待队列，以某种调度算法唤醒一个进程。比如遵循FCFS算法</div><div class="line">	raw_spin_unlock_irqrestore(&amp;sem-&gt;lock, flags);</div><div class="line">&#125;</div><div class="line"></div><div class="line">static noinline void __sched __up(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	struct semaphore_waiter *waiter = list_first_entry(&amp;sem-&gt;wait_list,</div><div class="line">						struct semaphore_waiter, list);</div><div class="line">	list_del(&amp;waiter-&gt;list);		//将当前进程从等待队列中移除</div><div class="line">	waiter-&gt;up = true;		//设置资源释放标志up为真</div><div class="line">	wake_up_process(waiter-&gt;task);		//唤醒一个进程</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>信号量适用于<strong>等待时间不确定</strong>的场景，但也有其潜在的问题：  </p>
-<ul>
-<li><strong>Accidental release</strong>   </li>
-<li><strong>Recursive deadlock</strong>  </li>
-<li><strong>Task-Death deadlock</strong>  </li>
-<li><strong>Cyclic Deadlock (Deadly Embrace)</strong></li>
-<li><strong>Priority inversion</strong>  </li>
-<li><strong>Semaphore as a signal</strong>  </li>
-</ul>
-<h4 id="5-2-Accidental-release"><a href="#5-2-Accidental-release" class="headerlink" title="5.2 Accidental release"></a>5.2 Accidental release</h4><p>比如没有进程P操作就进行V操作，会导致资源访问错误。    </p>
-<h4 id="5-3-Recursive-deadlock"><a href="#5-3-Recursive-deadlock" class="headerlink" title="5.3 Recursive deadlock"></a>5.3 Recursive deadlock</h4><p>所谓死就是进程都在等一个永远不会为真的条件，进程试图获取一个已经lock的信号量，比如如下锁实现会存在此问题。   </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">typedef.char.   binary_semaphore  </div><div class="line"></div><div class="line">void</div><div class="line">init_sem(binary_semaphore *sem)</div><div class="line">&#123;</div><div class="line">.       *sem = 0;	//互斥锁初始化为0, 类型为char</div><div class="line">&#125;</div><div class="line"></div><div class="line">void</div><div class="line">P(binary_semaphore *sem)</div><div class="line">&#123;</div><div class="line">.       int.    s = spl7();	//关中断</div><div class="line"> </div><div class="line">.       while(xchgb(sem, 0xff) != 0) &#123;	//若sem已经不是0，说明已经有进程持有，则转入休眠，注意此时sem = -1;若sem还是0，说明没有进程持有，继续执行。</div><div class="line">.       .       sleep(sem, PZERO);	//1.将调用进程置成等待互斥锁sem的状态（sleep）；2.放入该互斥锁的队列当中；3.转向进程调度</div><div class="line">.       &#125;</div><div class="line">.       if (xchgb(sem, 1) != 0)		//执行前，sem为-1，再次修改sem为0xff</div><div class="line">.       .       *sem = 0xff;</div><div class="line">.       splx(s);	//开中断</div><div class="line">&#125;</div><div class="line"> </div><div class="line">void</div><div class="line">V(binary_semaphore *sem)</div><div class="line">&#123;</div><div class="line">.       binary_semaphore old;</div><div class="line"> </div><div class="line">.       old = xchgb(sem, 0);		//返回sem旧值，并赋予新值0	</div><div class="line">.       if (old &lt; 0) </div><div class="line">.       .       wakeup(sem);		//若旧值小于0，说明有进程在该锁上等待，因此需要：1.从该锁上队列中唤醒一个； 2.放入运行队； 3.自己则继续执行</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>如果一个进程已经获取该锁，当该进程尝试再次获取该锁的时候，会再次将自己置于等待状态而无法释放。</p>
-<h4 id="5-4-Task-Death-deadlock"><a href="#5-4-Task-Death-deadlock" class="headerlink" title="5.4 Task-Death deadlock"></a>5.4 Task-Death deadlock</h4><p>如果一个拥有信号量的task死亡了或者被终止了，会有什么后果？如果不能检测这种情况，所有正在等待的的task将永远都无法获得信号量从而进入死锁。  </p>
-<p>为了一定程度上解决这个问题，普遍的做法是在获得信号量的函数调用中指定一个可选的超时时间。比如前文提到的Linux实现就指定了超时机制。  </p>
-<h4 id="5-5-Cyclic-Deadlock-Deadly-Embrace"><a href="#5-5-Cyclic-Deadlock-Deadly-Embrace" class="headerlink" title="5.5 Cyclic Deadlock (Deadly Embrace)"></a>5.5 Cyclic Deadlock (Deadly Embrace)</h4><h4 id="5-6-Priority-Inversion"><a href="#5-6-Priority-Inversion" class="headerlink" title="5.6 Priority Inversion"></a>5.6 Priority Inversion</h4><p>大部分RTOS使用了优先级驱动的抢占调度算法。每个task拥有一个优先级，抢占调度中，低优先级的task释放CPU，使高优先级的task得以运行，这是构建一个实时操作系统的核心理念。优先级反转是指高优先级的task被低优先级的task挂起。  </p>
-<h4 id="5-7-Semaphore-as-a-signal"><a href="#5-7-Semaphore-as-a-signal" class="headerlink" title="5.7 Semaphore as a signal"></a>5.7 Semaphore as a signal</h4><p>同步（Synchronization）这个词经常被错误地用于表示互斥（mutual exclusion）。根据定义，同步是：  </p>
-<p><strong>To occur at the same time; be simultaneous</strong><br>一般来说，task之间的同步是指一个task在继续执行前，等待另外一个task的通知。还有一种情况是每个task都可能进入等待状态。互斥是一种保护机制，与此有很大不同。但是，这种错误的使用导致计数信号量可以被用于单向同步：初始化一个信号量，计数值为0。</p>
-<p>需要注意的是，<strong>P和V并不是在同一个task中成对出现的</strong>。在这个例子中，假设Task1调用了P(S)它将被挂起。当Task2之后调用V(S)时，单向同步发生了，两个task都进入就绪状态（高优先级的task先运行）。不过，这种对信号量的误用是存在问题的，会导致调试起来非常困难，并可能导致accidental release类型的问题，因为单独的V(S)调用（不与P(S)配对）现在被编译器认为是合法的。</p>
-<h3 id="6-互斥体"><a href="#6-互斥体" class="headerlink" title="6. 互斥体"></a>6. 互斥体</h3><p>为了解决信号量存在的问题，1980年提出了一种新的概念——互斥（Mutual Exclusion的缩写）。互斥与二元信号量在原理上是相似的，但有一个很大的不同：属主，这就意味着如果一个task获得了互斥体，只有这个task可以释放这个互斥体。如果某个task试图释放另一个task的互斥体，将会触发错误导致操作失败。一个没有属主的“互斥体”不能被称为互斥体。<strong>加锁与解锁只能在一个task中成对出现</strong>。</p>
-<h4 id="6-1-互斥体实现"><a href="#6-1-互斥体实现" class="headerlink" title="6.1 互斥体实现"></a>6.1 互斥体实现</h4><ul>
-<li><p><strong>Mutex的定义和初始化</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">typedef.struct mtx &#123;</div><div class="line">.       spinlock_t.     lock;</div><div class="line">.       struct. thread. *owner;</div><div class="line">.       short.  .       count;</div><div class="line">.       u_char. .       flags;</div><div class="line">.       u_char. .       waiters;</div><div class="line">&#125; mutexlock_t;</div><div class="line"></div><div class="line">int</div><div class="line">mutex_init(mutexlock_t *mtx, int flags)</div><div class="line">&#123;</div><div class="line">.       memset(mtx, 0, sizeof(*mtx));</div><div class="line">.       mtx-&gt;flags = flags;</div><div class="line">.       return(0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p><strong>Mutex的定义和初始化</strong></p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">int</div><div class="line">mutex_lock(mutexlock_t *mtx)</div><div class="line">&#123;</div><div class="line">.       if (mtx-&gt;owner == curthread) &#123;		//如果当前进程就是属主，计数递加即可</div><div class="line">.       .       mtx-&gt;count++;</div><div class="line">.       .       return(0);</div><div class="line">.       &#125;</div><div class="line"></div><div class="line">.       SPIN_LOCK_SPL0(&amp;mtx-&gt;lock);		//自旋锁进行互斥保护</div><div class="line">.       if (mtx-&gt;count &gt; 0 || mtx-&gt;waiters &gt; 0) &#123;	//</div><div class="line">.       .       do &#123;</div><div class="line">.       .       .       mtx-&gt;waiters++;		//等待计数递加</div><div class="line">.       .       .       SLEEP_SPINLOCK_UNLOCK(mtx, PZERO, &amp;mtx-&gt;lock);		//将当前进程放入互斥体的等待队列</div><div class="line">.       .       .       SPIN_LOCK_SPL0(&amp;mtx-&gt;lock);</div><div class="line">.       .       .       mtx-&gt;waiters--;</div><div class="line">.       .       &#125; while(mtx-&gt;count &gt; 0);</div><div class="line">.       &#125;</div><div class="line"></div><div class="line">.       mtx-&gt;owner = curthread;</div><div class="line">.       mtx-&gt;count = 1;</div><div class="line">.       SPIN_UNLOCK_SPL0(&amp;mtx-&gt;lock);</div><div class="line"></div><div class="line">.       return(0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<ul>
-<li><strong>Mutex的定义和初始化</strong></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">int</div><div class="line">mutex_unlock(mutexlock_t *mtx)</div><div class="line">&#123;</div><div class="line">.       assert(mtx-&gt;count &gt; 0);		//</div><div class="line">.       assert(mtx-&gt;owner == curthread);	//只有当前进程是属主的时候，才可解锁</div><div class="line">.       if (mtx-&gt;count &gt; 1) &#123;</div><div class="line">.       .       mtx-&gt;count--;</div><div class="line">.       .       return(0);</div><div class="line">.       &#125;</div><div class="line">.       SPIN_LOCK_SPL0(&amp;mtx-&gt;lock);		//互斥保护</div><div class="line">.       ASSERT(curthread-&gt;t_mutexcnt &gt; 0);</div><div class="line">.       STAT_DEC(curthread-&gt;t_mutexcnt);</div><div class="line"></div><div class="line">.       ASSERT(mtx-&gt;count == 1);</div><div class="line">.       ASSERT(mtx-&gt;owner == curthread);</div><div class="line">.       mtx-&gt;count = 0;</div><div class="line">.       mtx-&gt;owner = 0;</div><div class="line">.       if (mtx-&gt;waiters &gt; 0)</div><div class="line"> .      .       wakeup1(mtx);	//如果有等待进程，唤醒一个</div><div class="line">.       SPIN_UNLOCK_SPL0(&amp;mtx-&gt;lock);</div><div class="line">.       return(0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="6-2-解决Accidental-release"><a href="#6-2-解决Accidental-release" class="headerlink" title="6.2 解决Accidental release"></a>6.2 解决Accidental release</h4><h4 id="6-3-解决Recursive-deadlock"><a href="#6-3-解决Recursive-deadlock" class="headerlink" title="6.3 解决Recursive deadlock"></a>6.3 解决Recursive deadlock</h4><p>如果是属主进程递归加锁，只需递加计数，不会导致一直等待。</p>
-<h4 id="6-4-互斥体API"><a href="#6-4-互斥体API" class="headerlink" title="6.4 互斥体API"></a>6.4 互斥体API</h4><p>目前主流的互斥体接口主要有三类：  </p>
-<ul>
-<li>VxWorks Version 5.4  </li>
-<li>POSIX Threads (pThreads) – IEEE Std 1003.1, 2004 Edition  </li>
-<li>Microsoft Windows Win32 – Not .NET  </li>
-</ul>
-<h4 id="1-VxWorks"><a href="#1-VxWorks" class="headerlink" title="1. VxWorks"></a>1. VxWorks</h4><p>VxWorks主要采用VxWorks mutex，支持优先级继承。</p>
-<h4 id="2-POSIX"><a href="#2-POSIX" class="headerlink" title="2. POSIX"></a>2. POSIX</h4><p>缺省的POSIX mutex不支持递归、不支持优先级继承和消亡探测机制。Linux下大多采用POSIX threads编程，支持四种Mutex类型：  </p>
-<ul>
-<li>Fast mutex – non-recursive and will deadlock [default]</li>
-<li>Error checking mutex – non-recursive but will report error</li>
-<li>Recursive mutex – as the name implies</li>
-<li>Adaptive mutex – extra fast for mutli-processor systems  </li>
-</ul>
-<h4 id="3-Win32-API"><a href="#3-Win32-API" class="headerlink" title="3. Win32 API"></a>3. Win32 API</h4><p>window下编程接口遵循win32 API,有如下几种：  </p>
-<ul>
-<li>Semaphore – The counting semaphore</li>
-<li>Critical Section – Mutex between threads in the same process; Recursive, no timeout, queuing order undefined</li>
-<li>Mutex – As per critical sections, but can be used by threads in different processes; Recursive, timeout, queuing order undefined  </li>
-</ul>
-<h3 id="7-参考文献"><a href="#7-参考文献" class="headerlink" title="7. 参考文献"></a>7. 参考文献</h3><p><a href="https://github.com/windflyer/windflyer.github.io/blob/master/_posts/2013/semaphore_mutex.md" target="_blank" rel="external">semaphore_mutex</a><br><a href="https://blog.feabhas.com/2009/09/mutex-vs-semaphores-%E2%80%93-part-1-semaphores/" target="_blank" rel="external">semaphore_mutex2</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Spinlock</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Process</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Synchronization</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Exclusion</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2015/01/13/synchronization-and-exclusion/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1715,19 +1644,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1743,11 +1672,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1759,19 +1688,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1787,7 +1716,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+                <a href="javascript:void(0)" class="js-tag color5">LDAP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">AD</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">database</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1803,23 +1740,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LDAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">AD</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">database</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1831,31 +1752,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Stack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1868,6 +1777,34 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">http authentication</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1887,15 +1824,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1923,14 +1856,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Timer</a>
               </li>
              
@@ -1940,18 +1865,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1967,6 +1880,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">thread</a>
               </li>
              
@@ -1979,15 +1904,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">HTTPClient</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">keep-alive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2008,6 +1925,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Consumer</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">HTTPClient</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">keep-alive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
               </li>
             
             <div class="clearfix"></div>

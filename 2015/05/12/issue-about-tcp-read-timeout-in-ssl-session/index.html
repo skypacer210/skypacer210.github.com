@@ -8,22 +8,22 @@
   <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>从SSL会话中出现TCP超时说起 | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。     初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？  首先看SSL连接的建立过程，如图1所示：  第一步服务器端创建监听socket等待客户端连接。 第二">
+  <meta name="description" content="最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。     初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？  首先看SSL连接的建立过程，如图1所示：       第一步服务器端创建监听socket等待客户端连">
 <meta name="keywords" content="SSL&#x2F;TLS,select,HashTable">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从SSL会话中出现TCP超时说起">
 <meta property="og:url" content="https://skypacer210.github.io/2015/05/12/issue-about-tcp-read-timeout-in-ssl-session/index.html">
 <meta property="og:site_name" content="skypacer的博客">
-<meta property="og:description" content="最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。     初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？  首先看SSL连接的建立过程，如图1所示：  第一步服务器端创建监听socket等待客户端连接。 第二">
+<meta property="og:description" content="最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。     初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？  首先看SSL连接的建立过程，如图1所示：       第一步服务器端创建监听socket等待客户端连">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/SSL/SSL_exchange.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/SSL/SSL_layer_compare.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/SSL/SSL_data_enc.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/SSL/SSL_write.jpg">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/SSL/SSL_data.png">
-<meta property="og:updated_time" content="2017-08-08T02:18:52.000Z">
+<meta property="og:updated_time" content="2017-08-08T14:45:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从SSL会话中出现TCP超时说起">
-<meta name="twitter:description" content="最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。     初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？  首先看SSL连接的建立过程，如图1所示：  第一步服务器端创建监听socket等待客户端连接。 第二">
+<meta name="twitter:description" content="最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。     初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？  首先看SSL连接的建立过程，如图1所示：       第一步服务器端创建监听socket等待客户端连">
 <meta name="twitter:image" content="https://skypacer210.github.io/assets/images/SSL/SSL_exchange.png">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
@@ -174,7 +174,8 @@
       
         <p>最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。    </p>
 <p>初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？ </p>
-<p>首先看SSL连接的建立过程，如图1所示：<br><img src="/assets/images/SSL/SSL_exchange.png" alt="图片"></p>
+<p>首先看SSL连接的建立过程，如图1所示：    </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_exchange.png" alt="图片"></div></p>
 <ol>
 <li>第一步服务器端创建监听socket等待客户端连接。</li>
 <li>第二步客户端创建SSL上下文数据结构，包括支持的cipher种类，证书以及SSL版本等。</li>
@@ -193,9 +194,9 @@
 <li>第二、第四、第五、第七和第八步仅仅在SSL连接建立的情况下发生的流程，SSL开启前后的对比见图3。  </li>
 <li>第六和第九步则SSL相关。   </li>
 </ol>
-<p><img src="/assets/images/SSL/SSL_layer_compare.png" alt="图片">   </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_layer_compare.png" alt="图片">   </div></p>
 <p>而SSL本身的数据处理如图2所示：  </p>
-<p><img src="/assets/images/SSL/SSL_data_enc.png" alt="图片">   </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_data_enc.png" alt="图片">   </div></p>
 <ol>
 <li>如果需要将应用数据进行分片和组合，每个分片包封装至SSL的记录协议单元（Record Protocol Unit）；</li>
 <li>如果需要压缩则封装至压缩单元；</li>
@@ -204,9 +205,9 @@
 </ol>
 <p>让我们回到数据读取，这里需要说明的是程序采用的事件处理框架。作为SSL客户端，为了能够处理多个SSL连接建立后对多个socket的并发事件处理，引入了select机制，事实上最多支持32个SSL连接。Select作为一种非阻塞IO接口，在这里用于轮询建立的TCP socket (SSL连接基于TCP socket，当然例外情况是DTLS基于UDP) 事件，结果发现没有数据可读。  </p>
 <p>数据读取在非阻塞模式下遵从能读多少就读多少的原则，同理数据写入在非阻塞模式下也遵从能输出多少就输出多少的原则,其中输出缓冲区如下图所示：  </p>
-<p><img src="/assets/images/SSL/SSL_write.jpg" alt="图片">  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_write.jpg" alt="图片">  </div></p>
 <p>进一步查看已经建立的SSL连接表，结构如图2所示。SSL连接表本身由一个数组存储，为了加快SSL连接的查找又引入了一张哈希表，该哈希表采用数组作为散列的桶，每个桶是一个单向链表以解决哈希冲突。      </p>
-<p><img src="/assets/images/SSL/SSL_data.png" alt="图片"></p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_data.png" alt="图片"></div></p>
 <p>当前的SSL连接表显示多个SSL连接都挂在了一个桶的链表上，看起来是发生了哈希冲突，但细想这概率似乎有点高，那就看看为啥这几个SSL连接都搞出来一个key， 注意到这里的hash key是TCP socket的抽象数据结构指针，再看代码直接把当前进程中的文件描述作为查找键，增加一行代码就好了，即利用getsock拿到真正的socket数据结构指针。</p>
 <p>为了搞清楚错误是怎么发生的，有必要来个情景再现。让我们看看在哈希表插入的时候发生什么。哈希表的插入发生在新建一个SSL连接的时候（每一个SSL连接对应一个TCP socket），当TCP连接建立之后，SSL就以socket作为key插入哈希表当中。由于APP在SSL建立时候打开的一个文件描述符和隧道建立时候打开的文件描述符一些情况下是一样的，这样新旧两个SSL连接描述符产生相同的key,都插入同一个桶，对应依次插入链表尾部，当进行数据读写时根据文件描述符查找到的是旧的SSL连接描述符，此时该连接符已无数据可读写，导致超时。    </p>
 
@@ -342,8 +343,8 @@
     </a>
   
   
-    <a href="/2015/03/01/tune-timer-implmentation/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">关于timer实现的优化</div>
+    <a href="/2015/04/08/client-certificate-vs-server-certificate/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">客户端证书与服务端证书</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -467,19 +468,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -495,11 +496,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -511,19 +512,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -539,7 +540,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+                <a href="javascript:void(0)" class="js-tag color5">LDAP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">AD</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">database</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -555,23 +564,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LDAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">AD</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">database</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -583,31 +576,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Stack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -620,6 +601,34 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">http authentication</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -639,15 +648,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -675,14 +680,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Timer</a>
               </li>
              
@@ -692,18 +689,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -719,6 +704,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">thread</a>
               </li>
              
@@ -731,15 +728,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">HTTPClient</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">keep-alive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -760,6 +749,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Consumer</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">HTTPClient</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">keep-alive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
               </li>
             
             <div class="clearfix"></div>

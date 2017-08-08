@@ -94,7 +94,7 @@
     <link href="https://skypacer210.github.io/2015/08/25/Go-Concurrency-Part1/"/>
     <id>https://skypacer210.github.io/2015/08/25/Go-Concurrency-Part1/</id>
     <published>2015-08-24T16:00:00.000Z</published>
-    <updated>2017-08-08T02:59:15.000Z</updated>
+    <updated>2017-08-08T14:52:12.000Z</updated>
     
     <content type="html"><![CDATA[<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/Mexican_Standoff.jpg" alt="三个火枪手"></div></p>
 <p>生产者-消费者模式即所谓的Fan-in设计模式，这里建立两个channel，一个由多个生产者将生产的数据写入；另外一个由一个消费者读出。</p>
@@ -317,7 +317,7 @@
     <link href="https://skypacer210.github.io/2015/06/01/thread-safe/"/>
     <id>https://skypacer210.github.io/2015/06/01/thread-safe/</id>
     <published>2015-05-31T16:00:00.000Z</published>
-    <updated>2017-08-08T02:29:28.000Z</updated>
+    <updated>2017-08-08T14:56:42.000Z</updated>
     
     <content type="html"><![CDATA[<h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><p>线程安全是多线程程序中的编程理念，一段代码线程安全意味着在多个线程执行的时候能够运行正确。因此，它必须满足：</p>
 <ul>
@@ -374,7 +374,7 @@
 <p>该函数的接口和用法都发生了改变。调用程序必须向每次调用提供该字符串，且在首次调用前，必须将索引初始化为 0，如以下代码所示：   </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">char *my_string;</div><div class="line">char my_char;</div><div class="line">int my_index;</div><div class="line">...</div><div class="line">my_index = 0;</div><div class="line">while (my_char = reentrant_lowercase_c(my_string, &amp;my_index)) &#123;</div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p><strong>TLS库的线程安全</strong></p>
-<p>在TLS实现中，常见的需要保证现场安全的场景主要有：</p>
+<p>在TLS实现中，常见的需要保证线程安全的场景主要有：</p>
 <ul>
 <li>SSL收发缓冲区；</li>
 <li>SSL Session Cache context</li>
@@ -440,11 +440,12 @@
     <link href="https://skypacer210.github.io/2015/05/12/issue-about-tcp-read-timeout-in-ssl-session/"/>
     <id>https://skypacer210.github.io/2015/05/12/issue-about-tcp-read-timeout-in-ssl-session/</id>
     <published>2015-05-11T16:00:00.000Z</published>
-    <updated>2017-08-08T02:18:52.000Z</updated>
+    <updated>2017-08-08T14:45:28.000Z</updated>
     
     <content type="html"><![CDATA[<p>最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。    </p>
 <p>初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？ </p>
-<p>首先看SSL连接的建立过程，如图1所示：<br><img src="/assets/images/SSL/SSL_exchange.png" alt="图片"></p>
+<p>首先看SSL连接的建立过程，如图1所示：    </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_exchange.png" alt="图片"></div></p>
 <ol>
 <li>第一步服务器端创建监听socket等待客户端连接。</li>
 <li>第二步客户端创建SSL上下文数据结构，包括支持的cipher种类，证书以及SSL版本等。</li>
@@ -463,9 +464,9 @@
 <li>第二、第四、第五、第七和第八步仅仅在SSL连接建立的情况下发生的流程，SSL开启前后的对比见图3。  </li>
 <li>第六和第九步则SSL相关。   </li>
 </ol>
-<p><img src="/assets/images/SSL/SSL_layer_compare.png" alt="图片">   </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_layer_compare.png" alt="图片">   </div></p>
 <p>而SSL本身的数据处理如图2所示：  </p>
-<p><img src="/assets/images/SSL/SSL_data_enc.png" alt="图片">   </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_data_enc.png" alt="图片">   </div></p>
 <ol>
 <li>如果需要将应用数据进行分片和组合，每个分片包封装至SSL的记录协议单元（Record Protocol Unit）；</li>
 <li>如果需要压缩则封装至压缩单元；</li>
@@ -474,9 +475,9 @@
 </ol>
 <p>让我们回到数据读取，这里需要说明的是程序采用的事件处理框架。作为SSL客户端，为了能够处理多个SSL连接建立后对多个socket的并发事件处理，引入了select机制，事实上最多支持32个SSL连接。Select作为一种非阻塞IO接口，在这里用于轮询建立的TCP socket (SSL连接基于TCP socket，当然例外情况是DTLS基于UDP) 事件，结果发现没有数据可读。  </p>
 <p>数据读取在非阻塞模式下遵从能读多少就读多少的原则，同理数据写入在非阻塞模式下也遵从能输出多少就输出多少的原则,其中输出缓冲区如下图所示：  </p>
-<p><img src="/assets/images/SSL/SSL_write.jpg" alt="图片">  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_write.jpg" alt="图片">  </div></p>
 <p>进一步查看已经建立的SSL连接表，结构如图2所示。SSL连接表本身由一个数组存储，为了加快SSL连接的查找又引入了一张哈希表，该哈希表采用数组作为散列的桶，每个桶是一个单向链表以解决哈希冲突。      </p>
-<p><img src="/assets/images/SSL/SSL_data.png" alt="图片"></p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SSL/SSL_data.png" alt="图片"></div></p>
 <p>当前的SSL连接表显示多个SSL连接都挂在了一个桶的链表上，看起来是发生了哈希冲突，但细想这概率似乎有点高，那就看看为啥这几个SSL连接都搞出来一个key， 注意到这里的hash key是TCP socket的抽象数据结构指针，再看代码直接把当前进程中的文件描述作为查找键，增加一行代码就好了，即利用getsock拿到真正的socket数据结构指针。</p>
 <p>为了搞清楚错误是怎么发生的，有必要来个情景再现。让我们看看在哈希表插入的时候发生什么。哈希表的插入发生在新建一个SSL连接的时候（每一个SSL连接对应一个TCP socket），当TCP连接建立之后，SSL就以socket作为key插入哈希表当中。由于APP在SSL建立时候打开的一个文件描述符和隧道建立时候打开的文件描述符一些情况下是一样的，这样新旧两个SSL连接描述符产生相同的key,都插入同一个桶，对应依次插入链表尾部，当进行数据读写时根据文件描述符查找到的是旧的SSL连接描述符，此时该连接符已无数据可读写，导致超时。    </p>
 ]]></content>
@@ -496,6 +497,61 @@
       <category term="select" scheme="https://skypacer210.github.io/tags/select/"/>
     
       <category term="HashTable" scheme="https://skypacer210.github.io/tags/HashTable/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>客户端证书与服务端证书</title>
+    <link href="https://skypacer210.github.io/2015/04/08/client-certificate-vs-server-certificate/"/>
+    <id>https://skypacer210.github.io/2015/04/08/client-certificate-vs-server-certificate/</id>
+    <published>2015-04-07T16:00:00.000Z</published>
+    <updated>2017-08-08T14:52:11.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="Server-Certificate"><a href="#Server-Certificate" class="headerlink" title="Server Certificate"></a>Server Certificate</h2><p>服务器端证书用于标识一个Server，典型地被签发给主机名，比如机器名或者host-header(www.baidu.com)。对Server证书而言，”Issued to”域意味着选择哪个签发的hostname。  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/server_certificate.png" alt="图片">    </div></p>
+<ol>
+<li>目的：加密和解密内容</li>
+<li>真实世界里只有ROOT CA有自签名证书</li>
+<li>存储：对于window IIS，Server certificates are stored in the Personal store of the “Local Computer” account</li>
+<li>证书可以存储在用户账户对应的个人存储目录下，也是IIS缺省的搜索路径</li>
+</ol>
+<h2 id="Client-Certificate"><a href="#Client-Certificate" class="headerlink" title="Client Certificate"></a>Client Certificate</h2><p>服务器端证书用于标识一个Client或者user，意味着向Server验证Client，”Issued to”域采用用户的名字。  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/client_certificate.png" alt="图片">      </div></p>
+<ol>
+<li>目的：仅用于标识身份</li>
+<li>真实世界里只有ROOT CA有自签名证书</li>
+<li>Client certificate and private key的角色：</li>
+</ol>
+<ul>
+<li>Client证书的证书和私钥作用就是为了在Client authentication中提供Client的数字签名。</li>
+<li>crt后缀名文件仅仅包含证书，证书和私钥一般包含在.p12或者.pfx文件中(PKCS12格式)。</li>
+<li>私钥如果单独存放，一般为.pem后缀名。</li>
+<li>Server端需要client端的数字签名，然后发送至Server，Server利用client的证书（即公钥）解密，以确认client端的身份。其中Client端的数字签名生成过程如下：首先对SSL交互中的随机值进行HASH，然后用client的私钥进行加密。  </li>
+</ul>
+<h2 id="HTTPS下虚拟主机"><a href="#HTTPS下虚拟主机" class="headerlink" title="HTTPS下虚拟主机"></a>HTTPS下虚拟主机</h2><p>在HTTP下有虚拟主机这一概念，其目的是为了在服务端用单个IP支持多个主机名；对应到HTTPS，客户端验证服务器为不同主机配置多个证书，但是客户端需要检查服务器证书的common name,当客户端请求服务器证书的时候，服务器需要决定提供哪个证书，SNI应用而生，其原理如下图：  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SNI.jpg" alt="图片">  </div></p>
+<h2 id="中间人攻击与证书"><a href="#中间人攻击与证书" class="headerlink" title="中间人攻击与证书"></a>中间人攻击与证书</h2><p>SSL中间人攻击的形式主要有三种：SSL downgrading，SSL stripping和fake of SSL certs。<br>在SSL协议中，证书是用来进行身份验证的，这里有两个关键的检查点：  </p>
+<ul>
+<li>第一个是CA验证，对于客户端而言，验证服务器端证书依赖与本地的trust store，如果本地的trust  store被人篡改，那么避免中间人攻击则无从谈起，事实上这也正是PKI体系的弱点所在。  </li>
+<li>第二个是hostname检查，用来确保所连接的服务器就是其声称的，如果有人劫持了DNS服务器，即利用DNS cache poisoning攻击让你的地址栏看起来很正常，这个时候劫持者就可以让此项检查通过。  </li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a href="http://www.windowsecurity.com/articles-tutorials/authentication_and_encryption/Understanding-Man-in-the-Middle-Attacks-ARP-Part4.html" target="_blank" rel="external">Understanding Man-In-The-Middle Attacks - Part 4: SSL Hijacking</a></li>
+<li><a href="https://blog.cloudflare.com/introducing-strict-ssl-protecting-against-a-man-in-the-middle-attack-on-origin-traffic/" target="_blank" rel="external">Introducing Strict SSL</a></li>
+<li><a href="https://devcentral.f5.com/articles/ssl-profiles-part-7-server-name-indication" target="_blank" rel="external">SNI for TLS</a></li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;Server-Certificate&quot;&gt;&lt;a href=&quot;#Server-Certificate&quot; class=&quot;headerlink&quot; title=&quot;Server Certificate&quot;&gt;&lt;/a&gt;Server Certificate&lt;/h2&gt;&lt;p&gt;服务器端证书
+    
+    </summary>
+    
+      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
+    
+    
+      <category term="Certificate" scheme="https://skypacer210.github.io/tags/Certificate/"/>
     
   </entry>
   
@@ -1382,61 +1438,6 @@ Hello Simulator
   </entry>
   
   <entry>
-    <title>客户端证书与服务端证书</title>
-    <link href="https://skypacer210.github.io/2014/12/08/client-certificate-vs-server-certificate/"/>
-    <id>https://skypacer210.github.io/2014/12/08/client-certificate-vs-server-certificate/</id>
-    <published>2014-12-07T16:00:00.000Z</published>
-    <updated>2017-08-08T02:18:51.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="Server-Certificate"><a href="#Server-Certificate" class="headerlink" title="Server Certificate"></a>Server Certificate</h2><p>服务器端证书用于标识一个Server，典型地被签发给主机名，比如机器名或者host-header(www.baidu.com)。对Server证书而言，”Issued to”域意味着选择哪个签发的hostname。  </p>
-<p><img src="/assets/images/server_certificate.png" alt="图片">    </p>
-<ol>
-<li>目的：加密和解密内容</li>
-<li>真实世界里只有ROOT CA有自签名证书</li>
-<li>存储：对于window IIS，Server certificates are stored in the Personal store of the “Local Computer” account</li>
-<li>证书可以存储在用户账户对应的个人存储目录下，也是IIS缺省的搜索路径</li>
-</ol>
-<h2 id="Client-Certificate"><a href="#Client-Certificate" class="headerlink" title="Client Certificate"></a>Client Certificate</h2><p>服务器端证书用于标识一个Client或者user，意味着向Server验证Client，”Issued to”域采用用户的名字。  </p>
-<p><img src="/assets/images/client_certificate.png" alt="图片">      </p>
-<ol>
-<li>目的：仅用于标识身份</li>
-<li>真实世界里只有ROOT CA有自签名证书</li>
-<li>Client certificate and private key的角色：</li>
-</ol>
-<ul>
-<li>Client证书的证书和私钥作用就是为了在Client authentication中提供Client的数字签名。</li>
-<li>crt后缀名文件仅仅包含证书，证书和私钥一般包含在.p12或者.pfx文件中(PKCS12格式)。</li>
-<li>私钥如果单独存放，一般为.pem后缀名。</li>
-<li>Server端需要client端的数字签名，然后发送至Server，Server利用client的证书（即公钥）解密，以确认client端的身份。其中Client端的数字签名生成过程如下：首先对SSL交互中的随机值进行HASH，然后用client的私钥进行加密。  </li>
-</ul>
-<h2 id="HTTPS下虚拟主机"><a href="#HTTPS下虚拟主机" class="headerlink" title="HTTPS下虚拟主机"></a>HTTPS下虚拟主机</h2><p>在HTTP下有虚拟主机这一概念，其目的是为了在服务端用单个IP支持多个主机名；对应到HTTPS，客户端验证服务器为不同主机配置多个证书，但是客户端需要检查服务器证书的common name,当客户端请求服务器证书的时候，服务器需要决定提供哪个证书，SNI应用而生，其原理如下图：  </p>
-<p><img src="/assets/images/SNI.jpg" alt="图片">  </p>
-<h2 id="中间人攻击与证书"><a href="#中间人攻击与证书" class="headerlink" title="中间人攻击与证书"></a>中间人攻击与证书</h2><p>SSL中间人攻击的形式主要有三种：SSL downgrading，SSL stripping和fake of SSL certs。<br>在SSL协议中，证书是用来进行身份验证的，这里有两个关键的检查点：  </p>
-<ul>
-<li>第一个是CA验证，对于客户端而言，验证服务器端证书依赖与本地的trust store，如果本地的trust  store被人篡改，那么避免中间人攻击则无从谈起，事实上这也正是PKI体系的弱点所在。  </li>
-<li>第二个是hostname检查，用来确保所连接的服务器就是其声称的，如果有人劫持了DNS服务器，即利用DNS cache poisoning攻击让你的地址栏看起来很正常，这个时候劫持者就可以让此项检查通过。  </li>
-</ul>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
-<li><a href="http://www.windowsecurity.com/articles-tutorials/authentication_and_encryption/Understanding-Man-in-the-Middle-Attacks-ARP-Part4.html" target="_blank" rel="external">Understanding Man-In-The-Middle Attacks - Part 4: SSL Hijacking</a></li>
-<li><a href="https://blog.cloudflare.com/introducing-strict-ssl-protecting-against-a-man-in-the-middle-attack-on-origin-traffic/" target="_blank" rel="external">Introducing Strict SSL</a></li>
-<li><a href="https://devcentral.f5.com/articles/ssl-profiles-part-7-server-name-indication" target="_blank" rel="external">SNI for TLS</a></li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;Server-Certificate&quot;&gt;&lt;a href=&quot;#Server-Certificate&quot; class=&quot;headerlink&quot; title=&quot;Server Certificate&quot;&gt;&lt;/a&gt;Server Certificate&lt;/h2&gt;&lt;p&gt;服务器端证书
-    
-    </summary>
-    
-      <category term="technology" scheme="https://skypacer210.github.io/categories/technology/"/>
-    
-    
-      <category term="Certificate" scheme="https://skypacer210.github.io/tags/Certificate/"/>
-    
-  </entry>
-  
-  <entry>
     <title>TCP/IP协议栈中的数据收发</title>
     <link href="https://skypacer210.github.io/2014/12/02/little-on-tcpip-stack/"/>
     <id>https://skypacer210.github.io/2014/12/02/little-on-tcpip-stack/</id>
@@ -1954,14 +1955,12 @@ void tree_update_order(struct tree *parent)
     <link href="https://skypacer210.github.io/2014/04/09/kerberos-those-thing/"/>
     <id>https://skypacer210.github.io/2014/04/09/kerberos-those-thing/</id>
     <published>2014-04-08T16:00:00.000Z</published>
-    <updated>2017-08-08T02:18:51.000Z</updated>
+    <updated>2017-08-08T15:03:32.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文将对kerberos的协议细节做一个粗略介绍~  </p>
 <p>原文链接<a href="http://www.roguelynn.com/words/explain-like-im-5-kerberos/" target="_blank" rel="external">explain-like-im-5-kerberos</a>  </p>
 <hr>
-<p>##1、Nutshell  </p>
-<p>Kerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。</p>
-<p>Kerberos有如下特点：  </p>
+<h2 id="1、Nutshell"><a href="#1、Nutshell" class="headerlink" title="1、Nutshell"></a>1、Nutshell</h2><p>Kerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。Kerberos有如下特点：  </p>
 <ul>
 <li>一种验证协议</li>
 <li>采用ticket进行验证</li>
@@ -1972,13 +1971,11 @@ void tree_update_order(struct tree *parent)
 <p>一个ticket意味着用特定服务请求所对应的key加密后的身份证明，如果其有效，你可以在一个kerberos域内访问该服务。</p>
 <p>Ticket由很多信息组成，以保证特定服务授权的针对性和实效性。<br>Keberos其目的仍是保证client和client所请求的服务或者主机之间的session key。  </p>
 <p>典型实例：<br>访问内网的工资系统，每次重新输入user/password的时候或者在终端运行kinit USER的时候，用户的ticket会更新。  </p>
-<p>##2、Kerberos Realm </p>
-<p>管理员创建realm，囊括了所有可能的访问，即定义了不同服务和主机的访问策略和授权，其本质为依据谁能够访问什么的原则定义了Kerberos的管理内容。  </p>
+<h2 id="2、Kerberos-Realm"><a href="#2、Kerberos-Realm" class="headerlink" title="2、Kerberos Realm"></a>2、Kerberos Realm</h2><p>管理员创建realm，囊括了所有可能的访问，即定义了不同服务和主机的访问策略和授权，其本质为依据谁能够访问什么的原则定义了Kerberos的管理内容。  </p>
 <p>用户主机位于该realm,同时也包括了所期望访问的服务、KDC(Key Distribution Center)。  </p>
 <p>KDC可以分为Authentication Server 和Ticket Granting Server。  </p>
 <p><img src="/assets/images/kerberos/Kerb.001.jpg" alt="图片"></p>
-<p>##3、Kerberos那些事  </p>
-<p>当访问一个服务或者主机时，存在着三种交互：  </p>
+<h2 id="3、Kerberos那些事"><a href="#3、Kerberos那些事" class="headerlink" title="3、Kerberos那些事"></a>3、Kerberos那些事</h2><p>当访问一个服务或者主机时，存在着三种交互：  </p>
 <ul>
 <li>Client 和Authentication Server</li>
 <li>Client 和Ticket Granting Server</li>
@@ -1994,9 +1991,8 @@ void tree_update_order(struct tree *parent)
 <li>KDC本身由主密钥加密；</li>
 <li>已经存在Kerberos的配置和实现采用公钥加密。</li>
 </ul>
-<p>上述定义的消息和内容并未反映他们在TCP、UDP发送中的实际顺序。<br>下面描述如果访问一个内部的HTTP服务，将会发生什么。</p>
-<p>###3.1、You and the Authentication Server  </p>
-<p>在访问HTTP服务之前，client必须向authentication server介绍自己。当登陆系统或者运行kinit USERNAME的时候，通过一个明文请求TGT(Ticket Granting Ticket)。其具体内容包括：</p>
+<p>上述定义的消息和内容并未反映他们在TCP、UDP发送中的实际顺序, 下面描述如果访问一个内部的HTTP服务，将会发生什么。</p>
+<h3 id="3-1、You-and-the-Authentication-Server"><a href="#3-1、You-and-the-Authentication-Server" class="headerlink" title="3.1、You and the Authentication Server"></a>3.1、You and the Authentication Server</h3><p>在访问HTTP服务之前，client必须向authentication server介绍自己。当登陆系统或者运行kinit USERNAME的时候，通过一个明文请求TGT(Ticket Granting Ticket)。其具体内容包括：</p>
 <ul>
 <li>Name/ID</li>
 <li>服务ID(有很多的服务ID？)</li>
@@ -2027,8 +2023,7 @@ void tree_update_order(struct tree *parent)
 <p>Client 密钥通过提示client输入密码，再加上一个随机串，最后对整个进行哈希得到。可以用该密钥解密TGS发送过来的第二条消息，以获取TGS 会话密钥。显然，如果密码错误，client 将无法解密该条消息。实际上是完成了对client password的隐性验证。   </p>
 <p><img src="/assets/images/kerberos/Kerb.005.jpg" alt="图片"> </p>
 <p>由于不知道TGS 密钥，无法解密TGT，将此加密的TGT存储于credential cache当中。</p>
-<p>###3.2、You and the Ticket Granting Server</p>
-<p>此时，client拥有TGS session key，但是没有TGS密钥。<br>现在轮到client发送两条消息了：  </p>
+<h3 id="3-2、You-and-the-Ticket-Granting-Server"><a href="#3-2、You-and-the-Ticket-Granting-Server" class="headerlink" title="3.2、You and the Ticket Granting Server"></a>3.2、You and the Ticket Granting Server</h3><p>此时，client拥有TGS session key，但是没有TGS密钥。<br>现在轮到client发送两条消息了：  </p>
 <p>第一条消息为Authenticator 准备，用TGS会话密钥加密如下信息：<br>Client name/ID + timestamp  </p>
 <p>第二条消息是明文，包含请求的HTTP服务名称和HTTP服务的ticket生命周期同时还有加密的Authenticator和TGT。   </p>
 <p><img src="/assets/images/kerberos/Kerb.006.jpg" alt="图片"></p>
@@ -2066,8 +2061,7 @@ void tree_update_order(struct tree *parent)
 </ul>
 <p>Client利用cached的TGS session key解密第二条消息，以获取HTTP服务session key。而无法解密第一条消息，因为其没有HTTP服务密钥。</p>
 <p><img src="/assets/images/kerberos/Kerb.010.jpg" alt="图片"></p>
-<p>###3.3、 You and the HTTP Service  </p>
-<p>为了访问HTTP服务，client准备了另外的Authenticator消息，包括：  </p>
+<h3 id="3-3、-You-and-the-HTTP-Service"><a href="#3-3、-You-and-the-HTTP-Service" class="headerlink" title="3.3、 You and the HTTP Service"></a>3.3、 You and the HTTP Service</h3><p>为了访问HTTP服务，client准备了另外的Authenticator消息，包括：  </p>
 <ul>
 <li>Client name/ID;</li>
 <li>时间戳。  </li>

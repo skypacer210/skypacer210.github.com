@@ -8,13 +8,13 @@
   <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>Kerberos那些事 | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本文将对kerberos的协议细节做一个粗略介绍~   原文链接explain-like-im-5-kerberos    ##1、Nutshell   Kerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。 Kerberos有如下特点：    一种验证协议 采用ticket进行验证 密码通过网络进行传递，避免了本地存储 需要引入第三方机构 基于对称加密算法    一个ticket意">
+  <meta name="description" content="本文将对kerberos的协议细节做一个粗略介绍~   原文链接explain-like-im-5-kerberos    1、NutshellKerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。Kerberos有如下特点：    一种验证协议 采用ticket进行验证 密码通过网络进行传递，避免了本地存储 需要引入第三方机构 基于对称加密算法    一个ticket意味着用特定服">
 <meta name="keywords" content="ACCESS CONTROLS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kerberos那些事">
 <meta property="og:url" content="https://skypacer210.github.io/2014/04/09/kerberos-those-thing/index.html">
 <meta property="og:site_name" content="skypacer的博客">
-<meta property="og:description" content="本文将对kerberos的协议细节做一个粗略介绍~   原文链接explain-like-im-5-kerberos    ##1、Nutshell   Kerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。 Kerberos有如下特点：    一种验证协议 采用ticket进行验证 密码通过网络进行传递，避免了本地存储 需要引入第三方机构 基于对称加密算法    一个ticket意">
+<meta property="og:description" content="本文将对kerberos的协议细节做一个粗略介绍~   原文链接explain-like-im-5-kerberos    1、NutshellKerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。Kerberos有如下特点：    一种验证协议 采用ticket进行验证 密码通过网络进行传递，避免了本地存储 需要引入第三方机构 基于对称加密算法    一个ticket意味着用特定服">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/kerberos/Kerb.001.jpg">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/kerberos/Kerb.002.jpg">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/kerberos/Kerb.003.jpg">
@@ -30,10 +30,10 @@
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/kerberos/Kerb.013.jpg">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/kerberos/Kerb.014.jpg">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/kerberos/Kerb.015.jpg">
-<meta property="og:updated_time" content="2017-08-08T02:18:51.000Z">
+<meta property="og:updated_time" content="2017-08-08T15:03:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kerberos那些事">
-<meta name="twitter:description" content="本文将对kerberos的协议细节做一个粗略介绍~   原文链接explain-like-im-5-kerberos    ##1、Nutshell   Kerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。 Kerberos有如下特点：    一种验证协议 采用ticket进行验证 密码通过网络进行传递，避免了本地存储 需要引入第三方机构 基于对称加密算法    一个ticket意">
+<meta name="twitter:description" content="本文将对kerberos的协议细节做一个粗略介绍~   原文链接explain-like-im-5-kerberos    1、NutshellKerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。Kerberos有如下特点：    一种验证协议 采用ticket进行验证 密码通过网络进行传递，避免了本地存储 需要引入第三方机构 基于对称加密算法    一个ticket意味着用特定服">
 <meta name="twitter:image" content="https://skypacer210.github.io/assets/images/kerberos/Kerb.001.jpg">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
@@ -185,9 +185,7 @@
         <p>本文将对kerberos的协议细节做一个粗略介绍~  </p>
 <p>原文链接<a href="http://www.roguelynn.com/words/explain-like-im-5-kerberos/" target="_blank" rel="external">explain-like-im-5-kerberos</a>  </p>
 <hr>
-<p>##1、Nutshell  </p>
-<p>Kerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。</p>
-<p>Kerberos有如下特点：  </p>
+<h2 id="1、Nutshell"><a href="#1、Nutshell" class="headerlink" title="1、Nutshell"></a>1、Nutshell</h2><p>Kerberos源自古希腊神话中的三头狗，对应引入了第三方验证系统。Kerberos有如下特点：  </p>
 <ul>
 <li>一种验证协议</li>
 <li>采用ticket进行验证</li>
@@ -198,13 +196,11 @@
 <p>一个ticket意味着用特定服务请求所对应的key加密后的身份证明，如果其有效，你可以在一个kerberos域内访问该服务。</p>
 <p>Ticket由很多信息组成，以保证特定服务授权的针对性和实效性。<br>Keberos其目的仍是保证client和client所请求的服务或者主机之间的session key。  </p>
 <p>典型实例：<br>访问内网的工资系统，每次重新输入user/password的时候或者在终端运行kinit USER的时候，用户的ticket会更新。  </p>
-<p>##2、Kerberos Realm </p>
-<p>管理员创建realm，囊括了所有可能的访问，即定义了不同服务和主机的访问策略和授权，其本质为依据谁能够访问什么的原则定义了Kerberos的管理内容。  </p>
+<h2 id="2、Kerberos-Realm"><a href="#2、Kerberos-Realm" class="headerlink" title="2、Kerberos Realm"></a>2、Kerberos Realm</h2><p>管理员创建realm，囊括了所有可能的访问，即定义了不同服务和主机的访问策略和授权，其本质为依据谁能够访问什么的原则定义了Kerberos的管理内容。  </p>
 <p>用户主机位于该realm,同时也包括了所期望访问的服务、KDC(Key Distribution Center)。  </p>
 <p>KDC可以分为Authentication Server 和Ticket Granting Server。  </p>
 <p><img src="/assets/images/kerberos/Kerb.001.jpg" alt="图片"></p>
-<p>##3、Kerberos那些事  </p>
-<p>当访问一个服务或者主机时，存在着三种交互：  </p>
+<h2 id="3、Kerberos那些事"><a href="#3、Kerberos那些事" class="headerlink" title="3、Kerberos那些事"></a>3、Kerberos那些事</h2><p>当访问一个服务或者主机时，存在着三种交互：  </p>
 <ul>
 <li>Client 和Authentication Server</li>
 <li>Client 和Ticket Granting Server</li>
@@ -220,9 +216,8 @@
 <li>KDC本身由主密钥加密；</li>
 <li>已经存在Kerberos的配置和实现采用公钥加密。</li>
 </ul>
-<p>上述定义的消息和内容并未反映他们在TCP、UDP发送中的实际顺序。<br>下面描述如果访问一个内部的HTTP服务，将会发生什么。</p>
-<p>###3.1、You and the Authentication Server  </p>
-<p>在访问HTTP服务之前，client必须向authentication server介绍自己。当登陆系统或者运行kinit USERNAME的时候，通过一个明文请求TGT(Ticket Granting Ticket)。其具体内容包括：</p>
+<p>上述定义的消息和内容并未反映他们在TCP、UDP发送中的实际顺序, 下面描述如果访问一个内部的HTTP服务，将会发生什么。</p>
+<h3 id="3-1、You-and-the-Authentication-Server"><a href="#3-1、You-and-the-Authentication-Server" class="headerlink" title="3.1、You and the Authentication Server"></a>3.1、You and the Authentication Server</h3><p>在访问HTTP服务之前，client必须向authentication server介绍自己。当登陆系统或者运行kinit USERNAME的时候，通过一个明文请求TGT(Ticket Granting Ticket)。其具体内容包括：</p>
 <ul>
 <li>Name/ID</li>
 <li>服务ID(有很多的服务ID？)</li>
@@ -253,8 +248,7 @@
 <p>Client 密钥通过提示client输入密码，再加上一个随机串，最后对整个进行哈希得到。可以用该密钥解密TGS发送过来的第二条消息，以获取TGS 会话密钥。显然，如果密码错误，client 将无法解密该条消息。实际上是完成了对client password的隐性验证。   </p>
 <p><img src="/assets/images/kerberos/Kerb.005.jpg" alt="图片"> </p>
 <p>由于不知道TGS 密钥，无法解密TGT，将此加密的TGT存储于credential cache当中。</p>
-<p>###3.2、You and the Ticket Granting Server</p>
-<p>此时，client拥有TGS session key，但是没有TGS密钥。<br>现在轮到client发送两条消息了：  </p>
+<h3 id="3-2、You-and-the-Ticket-Granting-Server"><a href="#3-2、You-and-the-Ticket-Granting-Server" class="headerlink" title="3.2、You and the Ticket Granting Server"></a>3.2、You and the Ticket Granting Server</h3><p>此时，client拥有TGS session key，但是没有TGS密钥。<br>现在轮到client发送两条消息了：  </p>
 <p>第一条消息为Authenticator 准备，用TGS会话密钥加密如下信息：<br>Client name/ID + timestamp  </p>
 <p>第二条消息是明文，包含请求的HTTP服务名称和HTTP服务的ticket生命周期同时还有加密的Authenticator和TGT。   </p>
 <p><img src="/assets/images/kerberos/Kerb.006.jpg" alt="图片"></p>
@@ -292,8 +286,7 @@
 </ul>
 <p>Client利用cached的TGS session key解密第二条消息，以获取HTTP服务session key。而无法解密第一条消息，因为其没有HTTP服务密钥。</p>
 <p><img src="/assets/images/kerberos/Kerb.010.jpg" alt="图片"></p>
-<p>###3.3、 You and the HTTP Service  </p>
-<p>为了访问HTTP服务，client准备了另外的Authenticator消息，包括：  </p>
+<h3 id="3-3、-You-and-the-HTTP-Service"><a href="#3-3、-You-and-the-HTTP-Service" class="headerlink" title="3.3、 You and the HTTP Service"></a>3.3、 You and the HTTP Service</h3><p>为了访问HTTP服务，client准备了另外的Authenticator消息，包括：  </p>
 <ul>
 <li>Client name/ID;</li>
 <li>时间戳。  </li>
@@ -569,19 +562,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -597,11 +590,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -613,19 +606,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -641,7 +634,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+                <a href="javascript:void(0)" class="js-tag color5">LDAP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">AD</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">database</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -657,23 +658,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LDAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">AD</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">database</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -685,31 +670,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Stack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -722,6 +695,34 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">http authentication</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -741,15 +742,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -777,14 +774,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Timer</a>
               </li>
              
@@ -794,18 +783,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -821,6 +798,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">thread</a>
               </li>
              
@@ -833,15 +822,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">HTTPClient</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">keep-alive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -862,6 +843,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Consumer</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">HTTPClient</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">keep-alive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
               </li>
             
             <div class="clearfix"></div>
