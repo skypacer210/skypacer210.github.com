@@ -146,49 +146,74 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-event-sourcing-pattern" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JAVA-HTTPClient-Config" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/31/event-sourcing-pattern/">Cloud Application设计模式之Event Sourcing Pattern</a>
+      <a class="article-title" href="/2016/07/30/JAVA-HTTPClient-Config/">JAVA HTTP Client Configration</a>
     </h1>
   
 
         
-        <a href="/2014/12/31/event-sourcing-pattern/" class="archive-article-date">
-  	<time datetime="2014-12-30T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-31</time>
+        <a href="/2016/07/30/JAVA-HTTPClient-Config/" class="archive-article-date">
+  	<time datetime="2016-07-29T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-07-30</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本文将对Event Sourcing Pattern的设计细节做一个粗略介绍~  </p>
-<p>原文链接<a href="http://msdn.microsoft.com/en-us/library/dn589792.aspx/" target="_blank" rel="external">Event Sourcing Pattern</a>  </p>
-<hr>
-<h2 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h2><p>大多数的应用处理数据，典型的操作就是通过更新用户的数据维护当前的状态。比如CRUD数据操作模式，即创建、读、更新和删除数据，一般的做法是从数据仓库读取数据，对数据进行修改，然后用最新的值更新数据状态，上述操作往往通过锁实现。  </p>
-<p>CURD方式的不足之处：  </p>
+        <h2 id="1-JAVA-网络相关的类、接口与异常"><a href="#1-JAVA-网络相关的类、接口与异常" class="headerlink" title="1. JAVA 网络相关的类、接口与异常"></a>1. JAVA 网络相关的类、接口与异常</h2><p><strong>类</strong></p>
 <ul>
-<li>CRUD系统直接对数据仓库进行更新操作会导致性能降低、而且不利于系统扩展。  </li>
-<li>在一个协作系统里面，多个并发用户在进行数据更新的时候会发生冲突  </li>
-<li>从审计的角度考虑，每个操作记录在单独的日志中，丢失了历史信息。  </li>
+<li>ConnectionManager</li>
+<li>RegistryBuilder</li>
 </ul>
-<h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>事件源模式（event souring pattern）定义了一种对序列化事件驱动数据的操作方法，每个事件都是以累加方式（append-only）进行存储。APP代码发送一系列事件至数据存储，以命令式方式描述每一个动作。同时，数据一致性在数据存储中完成。每个事件代表了对数据的一个属性的改变。<br>完成一致性处理的事件存储在event store，作为数据当前状态的信任源或系统记录（或者称之为已授权数据源中的给定元素或信息片段）。典型地，Event store发布这些事件，这样能够通知到消费者并做相应的处理。作为消费者也可以对其他系统应用执行事件群的动作，或者是完成该操作所需的关联动作。我们可以看到用于产生事件的APP代码与注册了事件的系统之前是解耦的。<br>通过Event store发布事件的一个典型应用就是当APP改变目录行为后对物化视图的维护，并且能够与外部系统集成。比如一个显示了所有客户订单的物化视图，用于产生UI的部分组件。当APP添加或者删除订单时，描述上述行为的事件能够被处理，以更新物化视图。    </p>
-<p><img src="/assets/images/Event_Sourcing_Pattern_1.jpg" alt="图片"></p>
-<p>The Event Sourcing pattern provides many advantages, including the following:  </p>
+<p><strong>接口</strong></p>
 <ul>
-<li>Events are immutable and so can be stored using an append-only operation. The user interface, workflow, or process that initiated the action that produced the events can continue, and the tasks that handle the events can run in the background. This, combined with the fact that there is no contention during the execution of transactions, can vastly improve performance and scalability for applications, especially for the presentation level or user interface.</li>
-<li>Events are simple objects that describe some action that occurred, together with any associated data required to describe the action represented by the event. Events do not directly update a data store; they are simply recorded for handling at the appropriate time. These factors can simplify implementation and management.</li>
-<li>Events typically have meaning for a domain expert, whereas the complexity of the object-relational impedance mismatch might mean that a database table may not be clearly understood by the domain expert. Tables are artificial constructs that represent the current state of the system, not the events that occurred.</li>
-<li>Event sourcing can help to prevent concurrent updates from causing conflicts because it avoids the requirement to directly update objects in the data store. However, the domain model must still be designed to protect itself from requests that might result in an inconsistent state.</li>
-<li>The append-only storage of events provides an audit trail that can be used to monitor actions taken against a data store, regenerate the current state as materialized views or projections by replaying the events at any time, and assist in testing and debugging the system. In addition, the requirement to use compensating events to cancel changes provides a history of changes that were reversed, which would not be the case if the model simply stored the current state. The list of events can also be used to analyze application performance and detect user behavior trends, or to obtain other useful business information.</li>
-<li>The decoupling of the events from any tasks that perform operations in response to each event raised by the event store provides flexibility and extensibility. For example, the tasks that handle events raised by the event store are aware only of the nature of the event and the data it contains. The way that the task is executed is decoupled from the operation that triggered the event. In addition, multiple tasks can handle each event. This may enable easy integration with other services and systems that need only listen for new events raised by the event store. However, the event sourcing events tend to be very low level, and it may be necessary to generate specific integration events instead.</li>
+<li>ConnectionSocketFactory</li>
 </ul>
-<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p><img src="/assets/images/Event_Sourcing_Pattern_2.jpg" alt="图片"></p>
-<h2 id="应用实例"><a href="#应用实例" class="headerlink" title="应用实例"></a>应用实例</h2><p>TODO</p>
+<p>创建和连接socket；</p>
+<p>可以实现为非加密socket:   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class PlainConnectionSocketFactory implements ConnectionSocketFactory &#123;</div><div class="line"></div><div class="line">``` </div><div class="line"></div><div class="line">也可以实现为加密socket;</div><div class="line"></div><div class="line"></div><div class="line">也可以继续扩展增加新的方法：</div></pre></td></tr></table></figure>
+<p>public interface LayeredConnectionSocketFactory extends ConnectionSocketFactory {</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">**异常**</div><div class="line"></div><div class="line">- ConnectException</div><div class="line">- ProtocolException</div><div class="line"></div><div class="line"></div><div class="line">## 2. 长连接修改</div><div class="line"></div><div class="line"></div><div class="line">将基于HttpURLConnection类的HTTPClient修改为HttpClient4.3.2： </div><div class="line"></div><div class="line">- 重写了HttpRequest类的getHttpConnection()方法和HttpResponse类的getResponse()方法，主要将HttpURLConnection类的操作接口替换为HttpClient4.3.2；</div><div class="line">- 增加ConnectionManager类，主要基于PoolingHttpClientConnectionManager类完成KeepAlive策略配置、连接池管理与socket超时配置，对于HTTPS服务端验证，目前缺省验证通过；</div><div class="line">- 为Client接口增加setConnConfig()方法，客户端可以基于该接口配置如下参数：</div><div class="line">	- maxConnNumber：总的最大并发连接数；</div><div class="line">	- maxConnPerRoute：每个路由的并发连接数，如果不使用代理，该限制实际上就是单个主机的连接数限制，缺省为2；</div><div class="line">	- maxKeepAliveTimeout：设置KeepAlive超时时间，单位为秒；</div><div class="line"></div><div class="line">## 3. 短连接修改</div><div class="line"></div><div class="line"></div><div class="line">### 3.1 连接重用策略</div><div class="line"></div><div class="line">在httpClient中可以自定义连接重用的策略，定义了一个接口类ConnectionReuseStrategy：</div></pre></td></tr></table></figure>
+<p>public interface ConnectionReuseStrategy {<br>    boolean keepAlive(HttpResponse var1, HttpContext var2);<br>}<br>```</p>
+<p>其缺省的实现类为org.apache.http.impl.DefaultConnectionReuseStrategy:   </p>
+<p><img src="/assets/images/javaclient/default_reuse_impl.png" alt="DefaultConnectionReuseStrategy"></p>
+<center>Figure 1: DefaultConnectionReuseStrategy </center>   
+
+
+<p>其中该类似实现了接口类的对外方法keepAlive。当然我们可以自定义一个连接重用策略：</p>
+<h3 id="3-2-调用连接重用"><a href="#3-2-调用连接重用" class="headerlink" title="3.2 调用连接重用"></a>3.2 调用连接重用</h3><p>调用者为org.apache.http.impl.execchain.MainClientExec：</p>
+<p><img src="/assets/images/javaclient/call_reuse_conn.png" alt="call_reuse_conn"></p>
+<center>Figure 2: 连接重用调用过程 </center>   
+
+<ul>
+<li>如果用户没有自定义重用策略，这里会调用缺省的策略，会将connHolder设置为可重用；</li>
+<li>否则设置为不可重用，解析完毕response之后就会关闭该连接;</li>
+</ul>
+<p>连接关闭的调用条件：    </p>
+<p><img src="/assets/images/javaclient/call_release_conn.png" alt="call_release_conn"></p>
+<center>Figure 3: 连接释放条件 </center> 
+
+
+<p>其中内部实现如下：</p>
+<p><img src="/assets/images/javaclient/release_conn_impl.png" alt="release_conn_impl"></p>
+<center>Figure 4: 连接释放实现 </center> 
+
+
+<h2 id="3-SSL-Cipher-Suite配置"><a href="#3-SSL-Cipher-Suite配置" class="headerlink" title="3. SSL Cipher Suite配置"></a>3. SSL Cipher Suite配置</h2><p><img src="/assets/images/javaclient/SSLConnectionSocketFactory.png" alt="SSLConnectionSocketFactory">    </p>
+<center>Figure 5: SSLConnectionSocketFactory结构 </center>
+
+<p>SSLConnectionSocketFactory类可以基于SSLSocketFactory、支持的协议、支持的密码套件进行构造：</p>
+<p><img src="/assets/images/javaclient/SSLConnectionSocketFactory_code.png" alt="SSLConnectionSocketFactory Flow"></p>
+<center>Figure 6: SSLConnectionSocketFactory流程 </center>
+
+
+<p>其中supportCipherSuites作为自定义密码套件在握手过程中检查。</p>
 
       
 
@@ -202,11 +227,15 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Cloud Design Pattern</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">HTTPClient</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Event-Driven</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">keep-alive</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">SSLConnectionSocketFactory</a>
         		</li>
       		
 		</ul>
@@ -218,7 +247,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        			<a href="/categories/JAVA/" class="article-tag-list-link color5">JAVA</a>
         		</li>
       		
 		</ul>
@@ -227,7 +256,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/31/event-sourcing-pattern/">展开全文 >></a>
+          <a class="article-more-a" href="/2016/07/30/JAVA-HTTPClient-Config/">展开全文 >></a>
         </p>
       
 
@@ -257,269 +286,81 @@
 
 
   
-    <article id="post-building-ns-3-on-ubuntu" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Go-Concurrency-Part1" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/26/building-ns-3-on-ubuntu/">Ubuntu上安装NS-3实践</a>
+      <a class="article-title" href="/2015/08/25/Go-Concurrency-Part1/">Go Concurrency Part1: Producer and Consumer</a>
     </h1>
   
 
         
-        <a href="/2014/12/26/building-ns-3-on-ubuntu/" class="archive-article-date">
-  	<time datetime="2014-12-25T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-26</time>
+        <a href="/2015/08/25/Go-Concurrency-Part1/" class="archive-article-date">
+  	<time datetime="2015-08-24T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-08-25</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>##1 概述 ##  </p>
-<p>本文记录了NS-3模拟器在Ubuntu12.04桌面版上的完整安装记录。  </p>
-<h2 id="2-安装"><a href="#2-安装" class="headerlink" title="2 安装"></a>2 安装</h2><p>NS-3的安装方法有两种，一种是利用bake工具自动化安装，另一种是手动安装，安装包的下载可以通过Mercurial或则是直接下载tar包。<br>由于Bake工具安装陷入超时，因此直接采用基于Mercurial的手动安装。</p>
-<h3 id="2-1-依赖软件包安装"><a href="#2-1-依赖软件包安装" class="headerlink" title="2.1 依赖软件包安装"></a>2.1 依赖软件包安装</h3><p>Bake本身提供依赖包检测，这里直接将所需包安装成功。  </p>
-<pre><code>
-apt-get install mercurial
-apt-get install qt4-dev-tools
-apt-get install gdb valgrind
-apt-get install gsl-bin libgsl0-dev libgsl0ldbl
-apt-get install flex bison libfl-dev
-apt-get install tcpdump
-apt-get install sqlite sqlite3 libsqlite3-dev
-apt-get install libxml2 libxml2-dev
-apt-get install libgtk2.0-0 libgtk2.0-dev
-apt-get install vtun lxc
-apt-get install uncrustify
-apt-get install doxygen graphviz imagemagick
-apt-get install python-sphinx dia
-apt-get install python-pygraphviz python-kiwi python-pygoocanvas libgoocanvas-dev
-apt-get install libboost-signals-dev libboost-filesystem-dev
-apt-get install openmpi-bin openmpi-common openmpi-doc libopenmpi-dev
-</code></pre>
-
-
-<h4 id="2-2-建立工作目录"><a href="#2-2-建立工作目录" class="headerlink" title="2.2 建立工作目录"></a>2.2 建立工作目录</h4><pre><code>
-mkdir workspace
-cd workspace
-mkdir repos
-cd repos
-hg clone http://code.nsnam.org/ns-3-allinone
-</code></pre>
-
-<p>过程：</p>
-<pre><code>
-requesting all changes
-adding changesets
-adding manifests
-adding file changes
-</code></pre>
-
-<p>最终生成ns-3-allinone目录。</p>
-<h3 id="2-3-利用Mercurial下载ns-3-dev"><a href="#2-3-利用Mercurial下载ns-3-dev" class="headerlink" title="2.3 利用Mercurial下载ns-3-dev"></a>2.3 利用Mercurial下载ns-3-dev</h3><pre><code>
-./download.py -n ns-3-dev
-</code></pre>
-
-<p>下载过程：  </p>
-<pre><code>
-    #
-    # Get NS-3
-    #
-
-Cloning ns-3 branch
- =>  hg clone http://code.nsnam.org/ns-3-dev ns-3-dev
-requesting all changes
-adding changesets
-adding manifests
-adding file changes
-...
-added 11117 changesets with 52385 changes to 7390 files
-updating to branch default
-2998 files updated, 0 files merged, 0 files removed, 0 files unresolved
-
-    #
-    # Get PyBindGen
-    #
-
-Required pybindgen version:  0.17.0.886
-Trying to fetch pybindgen; this will fail if no network connection is available.  Hit Ctrl-C to skip.
- =>  bzr checkout -rrevno:886 https://launchpad.net/pybindgen pybindgen
-Fetch was successful.                                                                                         
-
-    #
-    # Get NetAnim
-    #
-
-Required NetAnim version:  netanim-3.105
-Retrieving NetAnim from http://code.nsnam.org/netanim
- =>  hg clone http://code.nsnam.org/netanim netanim
-requesting all changes
-adding changesets
-adding manifests
-adding file changes
-added 275 changesets with 1533 changes to 228 files
-updating to branch default
-196 files updated, 0 files merged, 0 files removed, 0 files unresolved
-
-    #
-    # Get bake
-    #
-
-Retrieving bake from http://code.nsnam.org/bake
- =>  hg clone http://code.nsnam.org/bake
-destination directory: bake
-requesting all changes
-adding changesets
-adding manifests
-adding file changes
-added 333 changesets with 790 changes to 63 files
-updating to branch default
-45 files updated, 0 files merged, 0 files removed, 0 files unresol
-</code></pre>
-
-<h3 id="2-4-编译"><a href="#2-4-编译" class="headerlink" title="2.4 编译"></a>2.4 编译</h3><p>NS-3的编译借助build.py脚本工具。</p>
-<pre><code>
-./build.py
-</code></pre>
-
-<p>但是会碰到如下错误：  </p>
-<pre><code>
-[1459/1770] cxx: src/lte/model/lte-ffr-sap.cc -> build/src/lte/model/lte-ffr-sap.cc.1.o
-[1460/1770] cxx: src/lte/model/lte-fr-no-op-algorithm.cc -> build/src/lte/model/lte-fr-no-op-algorithm.cc.1.o
-[1461/1770] cxx: src/lte/model/lte-ffr-soft-algorithm.cc -> build/src/lte/model/lte-ffr-soft-algorithm.cc.1.o
-[1462/1770] cxx: src/lte/model/lte-ue-power-control.cc -> build/src/lte/model/lte-ue-power-control.cc.1.o
-[1463/1770] cxx: build/src/lte/bindings/ns3module.cc -> build/src/lte/bindings/ns3module.cc.7.o
-g++: internal compiler error: Killed (program cc1plus)
-Please submit a full bug report,
-with preprocessed source if appropriate.
-See <file: usr="" share="" doc="" gcc-4.6="" readme.bugs=""> for instructions.
-Waf: Leaving directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
-Build failed
- -> task in 'ns3module_lte' failed (exit status 4): 
-    {task 159048492: cxx ns3module.cc -> ns3module.cc.7.o}
-['/usr/bin/g++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-error=deprecated-declarations', '-fstrict-alid', '-fno-strict-aliasing', '-fwrapv', '-fstack-protector', '-fno-strict-aliasing', '-fvisibility=hidden', '-Wn, '-I..', '-Isrc/lte/bindings', '-I../src/lte/bindings', '-I/usr/include/python2.7', '-I/usr/include/gtk-2.0', -I/usr/include/atk-1.0', '-I/usr/include/cairo', '-I/usr/include/gdk-pixbuf-2.0', '-I/usr/include/pango-1.0', 'glib-2.0', '-I/usr/lib/i386-linux-gnu/glib-2.0/include', '-I/usr/include/pixman-1', '-I/usr/include/freetype2',bxml2', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETTE3=1', '-DHAVE_IF_TUN_H=1', '-DHAVE_GSL=1', '-DNS_DEPRECATED=', '-DNS3_DEPRECATED_H', '-DNDEBUG', 'src/lte/binings/ns3module.cc.7.o']
-Traceback (most recent call last):
-  File "./build.py", line 170, in <module>
-    sys.exit(main(sys.argv))
-  File "./build.py", line 161, in main
-    build_ns3(config, build_examples, build_tests, args, build_options)
-  File "./build.py", line 81, in build_ns3
-    run_command([sys.executable, "waf", "build"] + build_options)
-  File "/home/fyang/project/workspace/repos/ns-3-allinone/util.py", line 24, in run_command
-    raise CommandError("Command %r exited with code %i" % (argv, retval))
-util.CommandError: Command ['/usr/bin/python', 'waf', 'build'] exited with code 1
-</module></file:></code></pre>
-
-<p>似乎是g++编译器自身的问题，解决办法是利用swap:  </p>
-<pre><code>
-sudo dd if=/dev/zero of=/swapfile bs=64M count=16
-sudo mkswap /swapfile
-sudo swapon /swapfile
-</code></pre>
-
-<p>编译完成后删除：  </p>
-<pre><code>
-sudo swapoff /swapfile
-sudo rm /swapfile
-</code></pre>
-
-<p>如果成功，则显示：  </p>
-<pre><code>
-Waf: Leaving directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
-'build' finished successfully (7m31.696s)
-Modules built:
-antenna                   aodv                      applications             
-bridge                    buildings                 config-store             
-core                      csma                      csma-layout              
-dsdv                      dsr                       energy                   
-fd-net-device             flow-monitor              internet                 
-lr-wpan                   lte                       mesh                     
-mobility                  mpi                       netanim (no Python)      
-network                   nix-vector-routing        olsr                     
-point-to-point            point-to-point-layout     propagation              
-sixlowpan                 spectrum                  stats                    
-tap-bridge                test (no Python)          topology-read            
-uan                       virtual-net-device        visualizer               
-wave                      wifi                      wimax                    
-
-Modules not built (see ns-3 tutorial for explanation):
-brite                     click                     openflow                 
-
-Leaving directory `./ns-3-dev
-</code></pre>
-
-<h2 id="3-测试"><a href="#3-测试" class="headerlink" title="3 测试"></a>3 测试</h2><h3 id="3-1-添加实例程序"><a href="#3-1-添加实例程序" class="headerlink" title="3.1 添加实例程序"></a>3.1 添加实例程序</h3><p>Waf工具用于脚本运行，并保证共享库在运行时处在正确位置。 通过修改Waf程序配置，添加实例程序：</p>
-<pre><code>
-$ ./waf clean
-$ ./waf configure --enable-examples --enable-tests --enable-modules=core
-$ ./waf build
-</code></pre>
-
-<h3 id="3-2-单元测试"><a href="#3-2-单元测试" class="headerlink" title="3.2 单元测试"></a>3.2 单元测试</h3><p>NS-3自带单元测试功能，有了上述实程序之后，进行验证：    </p>
-<pre><code>
-fyang@fyang-virtual-machine:~/project/workspace/repos/ns-3-allinone/ns-3-dev$ ./test.py 
-Waf: Entering directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
-Waf: Leaving directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
-'build' finished successfully (0.210s)
-
-Modules built:
-core                     
-
-Modules not built (see ns-3 tutorial for explanation):
-brite                     click                     openflow                 
-
-PASS: TestSuite attributes
-PASS: TestSuite callback
-PASS: TestSuite command-line
-PASS: TestSuite config
-PASS: TestSuite global-value
-PASS: TestSuite int64x64
-PASS: TestSuite object-name-service
-PASS: TestSuite object
-PASS: TestSuite ptr
-PASS: TestSuite event-garbage-collector
-PASS: TestSuite sample
-PASS: TestSuite simulator
-PASS: TestSuite time
-PASS: TestSuite timer
-PASS: TestSuite traced-callback
-PASS: TestSuite type-traits
-PASS: TestSuite watchdog
-PASS: TestSuite hash
-PASS: TestSuite type-id
-PASS: TestSuite threaded-simulator
-PASS: TestSuite random-number-generators
-PASS: TestSuite random-variable-stream-generators
-PASS: Example examples/tutorial/hello-simulator
-PASS: Example examples/tutorial/fourth
-PASS: Example src/core/examples/main-callback
-PASS: Example src/core/examples/sample-simulator
-PASS: Example src/core/examples/main-ptr
-PASS: Example src/core/examples/sample-random-variable
-PASS: Example src/core/examples/sample-simulator.py
-</code></pre>  
-
-<h3 id="3-3-运行测试"><a href="#3-3-运行测试" class="headerlink" title="3.3 运行测试"></a>3.3 运行测试</h3><p>运行模拟器：  </p>
-<pre><code>
-./waf --run hello-simulator
-</code></pre> 
-结果：    
-<pre><code>  
-Waf: Entering directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
-Waf: Leaving directory `/home/fyang/project/workspace/repos/ns-3-allinone/ns-3-dev/build'
-'build' finished successfully (0.202s)
-Hello Simulator
-</code></pre>
-
-
-<h2 id="4-参考文献"><a href="#4-参考文献" class="headerlink" title="4 参考文献"></a>4 参考文献</h2><ol>
-<li><a href="http://www.roguelynn.com/words/explain-like-im-5-kerberos/" target="_blank" rel="external">explain-like-im-5-kerberos</a> </li>
-<li><a href="https://cryptocointalk.com/topic/14840-how-to-solve-g-internal-compiler-error-killed-program-cc1plus/" target="_blank" rel="external">g++ error</a></li>
-<li><a href="https://www.nsnam.org/wiki/HOWTO_enable/disable_examples_and_tests_in_ns-3" target="_blank" rel="external">使能测试程序1</a></li>
-<li><a href="http://www.nsnam.org/docs/manual/html/enable-modules.html" target="_blank" rel="external">使能测试程序2</a><br><a href="http://www.nsnam.org/docs/release/3.10/tutorial/html/getting-started.html" target="_blank" rel="external">getting-started</a></li>
-</ol>
+        <p><div style="text-align:center" markdown="1"><br><img src="/assets/images/Mexican_Standoff.jpg" alt="三个火枪手"></div></p>
+<p>生产者-消费者模式即所谓的Fan-in设计模式，这里建立两个channel，一个由多个生产者将生产的数据写入；另外一个由一个消费者读出。</p>
+<p>线程同步由主线程借助两个channel完成，其本质是利用了阻塞实现同步。</p>
+<h3 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h3><p>一个大loop将每个新的i值循环写入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> 8 func producer(ch chan int, d time.Duration) &#123;</div><div class="line"> 9     var i int</div><div class="line">10</div><div class="line">11     for &#123;</div><div class="line">12         ch &lt;- i</div><div class="line">13         i++</div><div class="line">14         fmt.Printf(&quot;Producer(GID:%v) i:%v\n&quot;, GetGID(), i)</div><div class="line">15         time.Sleep(d)</div><div class="line">16     &#125;</div><div class="line">17 &#125;</div></pre></td></tr></table></figure>
+<h3 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">19 func reader(out chan int) &#123;</div><div class="line">20     for x := range out &#123;</div><div class="line">21         fmt.Printf(&quot;Reader(GID:%v) i:%v\n&quot;, GetGID(), x)</div><div class="line">22     &#125;</div><div class="line">23 &#125;</div></pre></td></tr></table></figure>
+<h3 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h3><p>从写入channel rang loop的读取，塞入输出channel。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">34     //multiplex by main thread range loop</div><div class="line">35     for i := range ch &#123;</div><div class="line">36         out &lt;- i</div><div class="line">37     &#125;</div></pre></td></tr></table></figure>
+<p>这里利用了阻塞channel的特性：如果读取不到则阻塞，可以加入超时。</p>
+<h2 id="死锁的产生"><a href="#死锁的产生" class="headerlink" title="死锁的产生"></a>死锁的产生</h2><p>现象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fatal error: all goroutines are asleep - deadlock!</div></pre></td></tr></table></figure>
+<h3 id="死锁原因1：线程都在接收导致的死锁"><a href="#死锁原因1：线程都在接收导致的死锁" class="headerlink" title="死锁原因1：线程都在接收导致的死锁"></a>死锁原因1：线程都在接收导致的死锁</h3><p>将生产者的loop变成有限次执行后退出。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> 8 func producerReceiveDeadLock(ch chan int, d time.Duration) &#123;</div><div class="line"> 9     var i int</div><div class="line">10</div><div class="line">11     for i &lt; 10 &#123;</div><div class="line">12         ch &lt;- i</div><div class="line">13         i++</div><div class="line">14         fmt.Printf(&quot;Producer(GID:%v) i:%v\n&quot;, GetGID(), i)</div><div class="line">15         time.Sleep(d)</div><div class="line">16     &#125;</div><div class="line">17 &#125;</div></pre></td></tr></table></figure>
+<p>将会导致main线程和reader线程阻塞:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Producer(GID:18) i:10</div><div class="line">Producer(GID:19) i:10</div><div class="line">Reader(GID:17) i:9</div><div class="line">Reader(GID:17) i:9</div><div class="line">fatal error: all goroutines are asleep - deadlock!</div><div class="line"></div><div class="line">goroutine 1 [chan receive]:</div><div class="line">main.main()</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:35 +0xfe</div><div class="line"></div><div class="line">goroutine 17 [chan receive]:</div><div class="line">main.reader(0x82026c060)</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:20 +0x72</div><div class="line">created by main.main</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:29 +0x7a</div><div class="line">exit status 2</div></pre></td></tr></table></figure>
+<ul>
+<li>Step1: 由于producer线程退出，ch没有人给写入数据，此时为空；</li>
+<li>Step2: 此时线程<strong>goroutine 1</strong>从ch中尝试读取数据，发现读不到，因此阻塞在该channel上,该线程ID为1，即main线程,导致out中无法写入数据，此时为0：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">35     for i := range ch &#123;</div></pre></td></tr></table></figure>
+<ul>
+<li>Step3：而读线程<strong>goroutine 17</strong>不知情(该线程由main创建，ID为17)，仍从out读取数据，导致reader最终也处于了阻塞状态。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">20     for x := range out &#123;</div></pre></td></tr></table></figure>
+<h3 id="死锁原因2：线程都在发送导致的死锁"><a href="#死锁原因2：线程都在发送导致的死锁" class="headerlink" title="死锁原因2：线程都在发送导致的死锁"></a>死锁原因2：线程都在发送导致的死锁</h3><p>将消费者行为改为对数据不做消费：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">38 //When reader donothing, out channel keep blocking</div><div class="line">39 func readerSendDeadLock(out chan int) &#123;</div><div class="line">40 &#125;</div></pre></td></tr></table></figure>
+<p>导致多个线程都往channel中写数据，这里channel是不一致的（可以一致）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">Producer(GID:6) i:1</div><div class="line">fatal error: all goroutines are asleep - deadlock!</div><div class="line"></div><div class="line">goroutine 1 [chan send]:</div><div class="line">main.main()</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:54 +0x1ed</div><div class="line"></div><div class="line">goroutine 5 [chan send]:</div><div class="line">main.producer(0x82020e0c0, 0x5f5e100)</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:13 +0x7b</div><div class="line">created by main.main</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:49 +0x15a</div><div class="line"></div><div class="line">goroutine 6 [chan send]:</div><div class="line">main.producer(0x82020e0c0, 0x5f5e100)</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:13 +0x7b</div><div class="line">created by main.main</div><div class="line">	/Users/fyang/work/concurrency_example/LeakDetect/fanin.go:50 +0x185</div><div class="line">exit status 2</div></pre></td></tr></table></figure>
+<ul>
+<li>Step1: producer生产一个数据，塞入ch；</li>
+<li>Step2：线程<strong>goroutine 1</strong>为main线程， 从ch中拿走一个，往out中写数据：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">54         out &lt;- i</div></pre></td></tr></table></figure>
+<p>out无人消费，导致写了一个就已经满了，因此阻塞。</p>
+<ul>
+<li>Step3：线程<strong>goroutine 5</strong>为producer1和线程<strong>goroutine 6</strong>此时仍在往ch中写数据：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">13         ch &lt;- i</div></pre></td></tr></table></figure>
+<p>发现ch数据没有被消费，写不进去而阻塞。</p>
+<h2 id="如何通知退出循环"><a href="#如何通知退出循环" class="headerlink" title="如何通知退出循环"></a>如何通知退出循环</h2><p>Close行为与loop之间通过s.closing</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">type sub struct &#123;</div><div class="line">	closing chan chan error	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>服务的Loop循环监听该channel的请求</li>
+<li>client往channel发送一个请求：退出和响应该error</li>
+<li>差点</li>
+</ul>
+<p>通过一个channel发送消息给待关闭的thread，将channel类型设置为channel，这样loop可以将错误的原因发送过来:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">func (s *sub) Close() error &#123;</div><div class="line">	errc := make(chan error)	//创建一个无缓冲channel，开始是空的</div><div class="line">	s.closing &lt;- errc //向s.closing这个channel发送一个errc(该channel的类型为chanel error)</div><div class="line">	return &lt;-errc	//如果没有收到消息，此时close的调用者阻塞在这里，等待从errc中取出该错误类型并返回。</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Loop的处理：取走error并退出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">var err error //获取失败的时候，设置该error</div><div class="line"></div><div class="line">for &#123;</div><div class="line">	select &#123;</div><div class="line">	case errc := &lt;-s.closing：	//从中取出一个消息</div><div class="line">		errc &lt;- err	//将错误消息塞入该通知性质的channel</div><div class="line">		close(s.updates) //告诉receviver我们done</div><div class="line">		return</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="select-和-nil-channel"><a href="#select-和-nil-channel" class="headerlink" title="select 和 nil channel"></a>select 和 nil channel</h3><p>对于nil channel，无论发送与接收操作都会阻塞；<br>select永远不会选择一个阻塞的case.</p>
+<p>nil channel与空channle的区别：？</p>
+<h2 id="参考代码"><a href="#参考代码" class="headerlink" title="参考代码"></a>参考代码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"> 1 package main</div><div class="line">  2</div><div class="line">  3 import (</div><div class="line">  4     &quot;fmt&quot;</div><div class="line">  5     &quot;runtime&quot;</div><div class="line">  6     &quot;time&quot;</div><div class="line">  7 )</div><div class="line">  8</div><div class="line">  9 func producer(ch chan int, d time.Duration) &#123;</div><div class="line"> 10     var i int</div><div class="line"> 11</div><div class="line"> 12     for &#123;</div><div class="line"> 13         ch &lt;- i</div><div class="line"> 14         i++</div><div class="line"> 15         fmt.Printf(&quot;Producer(GID:%v) i:%v\n&quot;, GetGID(), i)</div><div class="line"> 16         time.Sleep(d)</div><div class="line"> 17     &#125;</div><div class="line"> 18 &#125;</div><div class="line"> 19</div><div class="line"> 20 //When producer thread quit, ch empty and block readers(reader and main)</div><div class="line"> 21 func producerReceiveDeadLock(ch chan int, d time.Duration) &#123;</div><div class="line"> 22     var i int</div><div class="line"> 23</div><div class="line"> 24     for i &lt; 10 &#123;</div><div class="line"> 25         ch &lt;- i</div><div class="line"> 26         i++</div><div class="line"> 27         fmt.Printf(&quot;Producer(GID:%v) i:%v\n&quot;, GetGID(), i)</div><div class="line"> 28         time.Sleep(d)</div><div class="line"> 29     &#125;</div><div class="line"> 30 &#125;</div><div class="line"> 31</div><div class="line"> 32 func reader(out chan int) &#123;</div><div class="line"> 33     for x := range out &#123;</div><div class="line"> 34         fmt.Printf(&quot;Reader(GID:%v) i:%v\n&quot;, GetGID(), x)</div><div class="line"> 35     &#125;</div><div class="line"> 36 &#125;</div><div class="line"> 37</div><div class="line">38 //When reader donothing, out channel keep blocking</div><div class="line"> 39 func readerSendDeadLock(out chan int) &#123;</div><div class="line"> 40 &#125;</div><div class="line"> 41</div><div class="line"> 42 //TODO: add timeout for reader</div><div class="line"> 43 func readerTimeout(out chan int) &#123;</div><div class="line"> 44     for &#123;</div><div class="line"> 45         select &#123;</div><div class="line"> 46         case x := &lt;-out:</div><div class="line"> 47             fmt.Printf(&quot;Reader(GID:%v) i:%v\n&quot;, GetGID(), x)</div><div class="line"> 48         case &lt;-time.After(2 * time.Second):</div><div class="line"> 49             fmt.Printf(&quot;Reader(GID:%v) timeout\n&quot;, GetGID())</div><div class="line"> 50             break</div><div class="line"> 51         &#125;</div><div class="line"> 52         fmt.Printf(&quot;Reader(GID:%v) will sleep %s and retry\n&quot;, GetGID(), 1*time.Second)</div><div class="line"> 53         time.Sleep(1 * time.Second)</div><div class="line"> 54     &#125;</div><div class="line"> 55 &#125;</div><div class="line"> 56</div><div class="line"> 57 func main() &#123;</div><div class="line"> 58     fmt.Println(runtime.NumGoroutine())</div><div class="line"> 59     ch := make(chan int)</div><div class="line"> 60     out := make(chan int)</div><div class="line"> 61     fmt.Printf(&quot;InLen:%v OutLen:%v\n&quot;, len(ch), len(out))</div><div class="line"> 62</div><div class="line"> 63     go reader(out)</div><div class="line"> 64     //go readerSendDeadLock(out)</div><div class="line"> 65     //go readerTimeout(out)</div><div class="line"> 66</div><div class="line"> 67     go producer(ch, 100*time.Millisecond)</div><div class="line"> 68     go producer(ch, 100*time.Millisecond)</div><div class="line"> 69     //go producerReceiveDeadLock(ch, 100*time.Millisecond)</div><div class="line"> 70     //go producerReceiveDeadLock(ch, 100*time.Millisecond)</div><div class="line"> 71</div><div class="line"> 72     //multiplex by main thread range loop</div><div class="line"> 73     for i := range ch &#123;</div><div class="line"> 74         out &lt;- i</div><div class="line"> 75     &#125;</div><div class="line"> 76</div><div class="line"> 77     fmt.Println(runtime.NumGoroutine())</div><div class="line"> 78 &#125;</div></pre></td></tr></table></figure>
+<p>获取goroutine的GID：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"> 1 package main</div><div class="line"> 2</div><div class="line"> 3 import (</div><div class="line"> 4     &quot;bytes&quot;</div><div class="line"> 5     &quot;runtime&quot;</div><div class="line"> 6     &quot;strconv&quot;</div><div class="line"> 7 )</div><div class="line"> 8</div><div class="line"> 9 func GetGID() uint64 &#123;</div><div class="line">10     b := make([]byte, 64)</div><div class="line">11     b = b[:runtime.Stack(b, false)]</div><div class="line">12     b = bytes.TrimPrefix(b, []byte(&quot;goroutine &quot;))</div><div class="line">13     b = b[:bytes.IndexByte(b, &apos; &apos;)]</div><div class="line">14     n, _ := strconv.ParseUint(string(b), 10, 64)</div><div class="line">15     return n</div><div class="line">16 &#125;</div></pre></td></tr></table></figure>
 
       
 
@@ -533,11 +374,15 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">NS-3</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Concurrency</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Python</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Producer</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Consumer</a>
         		</li>
       		
 		</ul>
@@ -549,7 +394,7 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        			<a href="/categories/Golang/" class="article-tag-list-link color2">Golang</a>
         		</li>
       		
 		</ul>
@@ -558,7 +403,7 @@ Hello Simulator
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/26/building-ns-3-on-ubuntu/">展开全文 >></a>
+          <a class="article-more-a" href="/2015/08/25/Go-Concurrency-Part1/">展开全文 >></a>
         </p>
       
 
@@ -588,67 +433,46 @@ Hello Simulator
 
 
   
-    <article id="post-token-vs-cookie" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-C++-feature-callable-obj" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/16/token-vs-cookie/">Token VS Cookie</a>
+      <a class="article-title" href="/2015/06/25/C++-feature-callable-obj/">C++11可调用对象模板类初窥</a>
     </h1>
   
 
         
-        <a href="/2014/12/16/token-vs-cookie/" class="archive-article-date">
-  	<time datetime="2014-12-15T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-16</time>
+        <a href="/2015/06/25/C++-feature-callable-obj/" class="archive-article-date">
+  	<time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-06-25</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>#1 概述<br>Client请求server端应用时，server端的验证方法有两种：  </p>
-<ol>
-<li>最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。  </li>
-<li>基于token的验证：<br>client收到签发的token之后，以后每次登陆需要发送至server端。</li>
-</ol>
-<p>#2 Token相比于cookie的优点</p>
+        <h3 id="初识可调用对象模板类"><a href="#初识可调用对象模板类" class="headerlink" title="初识可调用对象模板类"></a>初识可调用对象模板类</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">79 typedef boost::function&lt;bool (const TcpConnectionPtr&amp;,</div><div class="line">80 									StringPiece,</div><div class="line">81                         		Timestamp)&gt; RawMessageCallback;</div><div class="line">82                  </div><div class="line">83 typedef boost::function&lt;void (const TcpConnectionPtr&amp;,</div><div class="line">84                         		const MessagePtr&amp;,</div><div class="line">85                         		Timestamp)&gt; ProtobufMessageCallback;</div><div class="line">86                  </div><div class="line">87 typedef boost::function&lt;void (const TcpConnectionPtr&amp;,</div><div class="line">88                         		Buffer*,</div><div class="line">89                         		Timestamp,</div><div class="line">90                         		ErrorCode)&gt; ErrorCallback;</div></pre></td></tr></table></figure>
+<p>这里用到了C++11的新特性——<strong>可调用对象模板类</strong>，可调用对象理解为函数，该特性可以用于定义函数指针，相当于是把函数本身做进一步抽象。这里利用该特性定义了三个回调函数，以第一个<code>typedef boost::function&lt;bool (const TcpConnectionPtr&amp;, StringPiece，Timestamp)&gt; RawMessageCallback</code>为例：</p>
 <ul>
-<li>Cross-domain/CORS:<br>Cookie + CORS 在不同的域之间工作的不是很好，token方法允许你利用AJAX调用至任何server和任何域，因为你利用HTTP头传递用户信息。<br>比如说SAML Tokens, SAML(Security Assertion Markup Language) tokens是一种标准化的基于XML的token，可以提供跨平台交互，而且client和server无需再同一个安全域内。  </li>
-<li>无状态：<br>Server端无需维护一个session的存储，token本身是一个包含所有用户信息的实体。Cookie则存在状态，并且必须保存在client端。</li>
-<li>CDN：<br>Sever端可以提供所有的APP特性，只需通过API访问CDN即可。</li>
-<li>解耦：<br>无需绑定某个特定的验证方案，token可以在任何地方产生，因为你能够在任何地方以一种方式调用这些API。  </li>
-<li>性能<br>计算HMAC-SHA256似乎效率更高</li>
-<li>标准化：<br>你的API可以接受标准的JWT(JSON Web Token)。</li>
+<li>其中<code>function&lt;bool (const TcpConnectionPtr&amp;, StringPiece，Timestamp)&gt;</code>意思是定义了一个可调用对象（函数指针），参数是三个<code>const TcpConnectionPtr&amp;, StringPiece，Timestamp</code>。</li>
+<li>再利用typedef，定义了一个函数指针<code>RawMessageCallback</code>，或者说是一个可调用对象。</li>
 </ul>
-<p>#3 Token存储<br>Token可以存储在三个地方：session storage/local storage/client side cookie。 如果存储在cookie中，利用了cookie的存储机制，而不是验证机制。  </p>
-<p>#4 Token的生命周期<br>Token和cookie都有生命周期。  </p>
-<ol>
-<li>对于cookie而言，控制器生命周期有如下选择：  </li>
-</ol>
+<p>该上下文的调用如下：     </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">134		private:</div><div class="line">135   		const ::google::protobuf::Message* prototype_;</div><div class="line">136       const string tag_;</div><div class="line">137       ProtobufMessageCallback messageCallback_;</div><div class="line">138       RawMessageCallback rawCb_;</div><div class="line">139       ErrorCallback errorCallback_;</div></pre></td></tr></table></figure>
+<h3 id="用法实例"><a href="#用法实例" class="headerlink" title="用法实例"></a>用法实例</h3><p>可以结合<code>map</code>容器和该特性定义一张函数表，如下示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line"> 1 #include &lt;string&gt;                                                                                                                                                                               </div><div class="line"> 2 #include &lt;vector&gt;</div><div class="line"> 3 #include &lt;map&gt;   </div><div class="line"> 4 #include &lt;functional&gt;</div><div class="line"> 5 #include &lt;set&gt;      </div><div class="line"> 6 #include &lt;iostream&gt; </div><div class="line"> 7 #include &lt;sstream&gt;  </div><div class="line"> 8 #include &lt;fstream&gt;  </div><div class="line"> 9 #include &lt;cstring&gt;  </div><div class="line">10 #include &lt;cctype&gt;   </div><div class="line">11 #include &lt;stdexcept&gt;</div><div class="line">12                     </div><div class="line">13 #include &lt;typeinfo&gt; </div><div class="line">14                     </div><div class="line">15                     </div><div class="line">16 using namespace std;</div><div class="line">17                     </div><div class="line">18 int add(int i, int j)</div><div class="line">19 &#123;                   </div><div class="line">20     return i + j;   </div><div class="line">21 &#125;                   </div><div class="line">22 auto mod = [ ](int i, int j)</div><div class="line">23 &#123;                   </div><div class="line">24     return i % j;   </div><div class="line">25 &#125;;                  </div><div class="line">26                     </div><div class="line">27                     </div><div class="line">28 struct divide       </div><div class="line">29 &#123;                   </div><div class="line">30     int operator() (int denom, int diveisor)</div><div class="line">31     &#123;               </div><div class="line">32         return denom * diveisor;           </div><div class="line">33     &#125;               </div><div class="line">34 &#125;;                  </div><div class="line">35                     </div><div class="line">36                     </div><div class="line">37 int main(int argc, char *argv[])           </div><div class="line">38 &#123;                   </div><div class="line">39     map&lt;char, int(*)(int, int)&gt; binops_limit;</div><div class="line">40     binops_limit.insert( &#123;&apos;+&apos;, add&#125; );     </div><div class="line">41     binops_limit.insert( &#123;&apos;%&apos;, mod&#125; );     </div><div class="line">42                     </div><div class="line">43     map&lt;char, function&lt;int(int, int)&gt; &gt; binops = </div><div class="line">44     &#123;               </div><div class="line">45         &#123; &apos;+&apos;, add &#125;,      </div><div class="line">46         &#123; &apos;-&apos;, minus&lt;int&gt;() &#125;,             </div><div class="line">47         &#123; &apos;*&apos;, [](int i, int j) &#123; return i - j; &#125; &#125;,</div><div class="line">48         &#123; &apos;/&apos;, divide() &#125;, </div><div class="line">49         &#123; &apos;%&apos;, mod &#125;,      </div><div class="line">50     &#125;; </div><div class="line">51             </div><div class="line">52     map&lt;char, int(*)(int, int)&gt;::const_iterator iter =  </div><div class="line">53                                         binops_limit.begin();      </div><div class="line">54             </div><div class="line">55     for (; iter != binops_limit.end(); ++iter)          </div><div class="line">56     &#123;       </div><div class="line">57         cout &lt;&lt; &quot;Type of iterator: &quot; &lt;&lt; typeid(iter).name() &lt;&lt; endl;</div><div class="line">58         cout &lt;&lt; &quot;Type of iterator-&gt;first : &quot; &lt;&lt; typeid(iter-&gt;firstea.name() &lt;&lt; &quot; &quot; &lt;&lt; &quot;value: &quot; &lt;&lt; iter-&gt;first  &lt;&lt; endl;</div><div class="line">59         cout &lt;&lt; &quot;Type of iterator-&gt;second: &quot; &lt;&lt; typeid(iter-&gt;second).name() &lt;&lt; &quot; &quot; &lt;&lt; &quot;value: &quot; &lt;&lt; iter-&gt;second  &lt;&lt; endl;</div><div class="line">60     &#125;       </div><div class="line">61             </div><div class="line">62     cout &lt;&lt; &quot;FuncTable: + &quot;&lt;&lt; binops[&apos;+&apos;](10, 5) &lt;&lt;endl;</div><div class="line">63     cout &lt;&lt; &quot;FuncTable: - &quot;&lt;&lt; binops[&apos;-&apos;](10, 5) &lt;&lt; endl;</div><div class="line">64     cout &lt;&lt; &quot;FuncTable: * &quot;&lt;&lt; binops[&apos;*&apos;](10, 5) &lt;&lt; endl;</div><div class="line">65     cout &lt;&lt; &quot;FuncTable: / &quot;&lt;&lt; binops[&apos;/&apos;](10, 5) &lt;&lt; endl;</div><div class="line">66     cout &lt;&lt; &quot;FuncTable: % &quot;&lt;&lt; binops[&apos;%&apos;](10, 5) &lt;&lt; endl;</div><div class="line">67             </div><div class="line">68     return 0;</div><div class="line">69 &#125;</div></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">Type of iterator: NSt3__120__map_const_iteratorINS_21__tree_const_iteratorINS_12__value_typeIcPFiiiEEEPNS_11__tree_nodeIS5_PvEElEEEE</div><div class="line">Type of iterator-&gt;first : c value: %</div><div class="line">Type of iterator-&gt;second: PFiiiE value: 1</div><div class="line">Type of iterator: NSt3__120__map_const_iteratorINS_21__tree_const_iteratorINS_12__value_typeIcPFiiiEEEPNS_11__tree_nodeIS5_PvEElEEEE</div><div class="line">Type of iterator-&gt;first : c value: +</div><div class="line">Type of iterator-&gt;second: PFiiiE value: 1</div><div class="line">FuncTable: + 15</div><div class="line">FuncTable: - 5</div><div class="line">FuncTable: * 5</div><div class="line">FuncTable: / 50</div><div class="line">FuncTable: % 0</div></pre></td></tr></table></figure>
+<p>这里面有几个坑要注意： </p>
 <ul>
-<li>Session cookie在浏览器关闭后被销毁；  </li>
-<li>可以实现一个server端的检查，避免过期；  </li>
-<li>Cookie可以在生命周期内是永久的，即浏览器关闭后不销毁。  </li>
+<li><code>auto mod = [ ](int i, int j)</code>定义了一个lamba表达式，即没有函数名的函数，这是什么鬼？注意函数实现最后有分号<code>；</code></li>
+<li>头文件一定包含全面，否则出来一堆错误，特别是<code>#include &lt;stdexcept&gt;</code>；</li>
+<li>如果想打印类型名怎么办？就像gdb中的命令ptype，C++也有类似的方法，首先包含头文件<code>#include &lt;typeinfo&gt;</code>，然后直接<code>typeid(var)</code>即可。从运行结果可以看到迭代器本身的类型和迭代器成员的类型区别。</li>
+<li>迭代器本身为指针，因此访问其成员用<code>-&gt;</code>操作符。</li>
 </ul>
-<ol>
-<li>对Token而言，一旦token过期，你需要一个新的，可以用如下的更新机制：  </li>
-</ol>
-<ul>
-<li>验证留的token；  </li>
-<li>检查用户是否仍旧存在或者访问权限被吊销；  </li>
-<li>签发一个更新了有效期的token</li>
-</ul>
-<p>#5 Token缺点</p>
-<ol>
-<li>对于大公司而言，token可能变得很大  </li>
-<li>开发者的APP或者API变得更加复杂  </li>
-<li>维护的时间成本较高<br>#6 Token VS Certificate VS Ticket<br>三者都是引入了第三方机构,以window的验证模式为例：  </li>
-<li>Token：SAML Token，引入STS(Security Token Service)作为第三方机构  </li>
-<li>Certificate：引入CA，即X.509 PKI架构  </li>
-<li>Ticket：基于Kerberos的验证架构，引入TGS和AS作为KDC  </li>
-</ol>
+<p>TODO: 容器遍历与访问的两种方法：迭代器和容器内部方法之区别。</p>
 
       
 
@@ -662,15 +486,11 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">token</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">可调用对象</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">cookie</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">http authentication</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">迭代器</a>
         		</li>
       		
 		</ul>
@@ -682,7 +502,7 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        			<a href="/categories/C++/" class="article-tag-list-link color4">C++</a>
         		</li>
       		
 		</ul>
@@ -691,7 +511,7 @@ Hello Simulator
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/16/token-vs-cookie/">展开全文 >></a>
+          <a class="article-more-a" href="/2015/06/25/C++-feature-callable-obj/">展开全文 >></a>
         </p>
       
 
@@ -721,44 +541,97 @@ Hello Simulator
 
 
   
-    <article id="post-authorization-code-flow-in-oauth-20" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-web-security-guide" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/08/authorization-code-flow-in-oauth-20/">OAuth 2.0初探</a>
+      <a class="article-title" href="/2015/06/18/web-security-guide/">Web App Security Consideration</a>
     </h1>
   
 
         
-        <a href="/2014/12/08/authorization-code-flow-in-oauth-20/" class="archive-article-date">
-  	<time datetime="2014-12-07T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-08</time>
+        <a href="/2015/06/18/web-security-guide/" class="archive-article-date">
+  	<time datetime="2015-06-17T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-06-18</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="OAuth解决什么问题"><a href="#OAuth解决什么问题" class="headerlink" title="OAuth解决什么问题"></a>OAuth解决什么问题</h3><h3 id="1、场景"><a href="#1、场景" class="headerlink" title="1、场景"></a>1、场景</h3><p>某孕妇Mrs.Lily向她的私人医生Dr.Michael申请做胎心监护，Dr.Michael了解到Mrs.Lily在医院A.Hospital做过类似的检查，因此Dr.Michael希望访问A.Hospital的在线系统获取Mrs.Lily的相关数据，最直接的方法就是向Mrs.Lily索要其在A.Hospital在线系统用户名和密码。<br>那么问题来了，该方法会造成哪些潜在安全威胁？    </p>
+        <p>该文摘自<a href="http://programmers.stackexchange.com/questions/46716/what-technical-details-should-a-programmer-of-a-web-application-consider-before" target="_blank" rel="external">What technical details should a programmer of a web application consider before making the site public?</a>，实际上列出了Web安全的知识体系，也包括了工程开发当中的指导准则。     </p>
+<h3 id="接口与用户体验"><a href="#接口与用户体验" class="headerlink" title="接口与用户体验"></a>接口与用户体验</h3><p>线程安全是多线程程序中的编程理念，一段代码线程安全意味着在多个线程执行的时候能够运行正确。因此，它必须满足： </p>
 <ul>
-<li>Dr.Michael会保存用户Mrs.Lily的密码，很不安全  </li>
-<li>Dr.Michael拥有了获取用户Mrs.Lily在A.Hospital在线系统的所有资料的权利，这样用户无法限制Dr.Michael的授权范围和时间  </li>
-<li>Mrs.Lily只有修改其密码，才能收回赋予Dr.Michael的权力，但同时也使得其他获得Mrs.Lily授权的访问应用失效  </li>
+<li>确保你的网站能够适配所有主流的浏览器。一个最小的测试集必须包括：Firefox采用的Gecko引擎，Safari以及其他手机浏览器采用的WebKit引擎，Chrome，IE(兼容VPC图片)和Opera。同时也需考虑在不同OS上的渲染问题；</li>
+<li>考虑浏览器之外的访问通道，比如蜂窝电话，Sreen Reader以及搜索引擎。这里的要点是如何在不影响用户的情况下更新功能，这里需要版本管理软件和自动化编译机制；</li>
+<li>永远不要呈现给用户不友好的错误提示；</li>
+<li>不要将用户的邮箱地址以明文形式呈现；</li>
+<li>对于用户产生的链接加入<code>rel=&quot;nofollow&quot;</code>属性以避免受到攻击；</li>
+<li>为你的网站加入深思熟虑后的限制；</li>
+<li>POST成功后立即重定向，从而禁止再次提交引发刷新；</li>
+<li>理解并应用渐进增强；</li>
+<li>多元化用户交互，不单单依赖鼠标；</li>
+<li>最后一点：别让用户思考； </li>
 </ul>
-<h3 id="2、OAuth的特点"><a href="#2、OAuth的特点" class="headerlink" title="2、OAuth的特点"></a>2、OAuth的特点</h3><p>OAuth解决了上述问题，即定义了一种允许一个APP访问用户相关的其他APP的验证机制，比如用户可以利用QQ账号登陆其他APP。基本思路如下：   </p>
-<ol>
-<li>OAuth在“客户端”与“服务提供商”之间，设置了一个授权层（authorization layer）。 “客户端”不能直接登陆和访问“服务提供商”，只能登陆授权层，这样就把用户和客户端分隔开来。  </li>
-<li>“客户端”不在使用密码，而是令牌(token),可以在登陆的时候指定授权范围和有效期限。  </li>
-<li>“客户端”登陆授权层之后，“服务提供商”根据令牌的授权范围和有效期限，以决定向客户开放哪些信息。  </li>
-</ol>
-<h3 id="OAuth工作流程"><a href="#OAuth工作流程" class="headerlink" title="OAuth工作流程"></a>OAuth工作流程</h3><p>待续。</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="http://architecture-soa-bpm-eai.blogspot.com/2012/08/oauth-20-for-my-ninth-grader.html" target="_blank" rel="external">oauth-20-for-my-ninth-grader</a>  </li>
-<li><a href="http://liboauth.sourceforge.net/" target="_blank" rel="external">liboauth in C</a></li>
-</ol>
-<hr>
+<h3 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h3><ul>
+<li>参考OWASP development guide，其覆盖了上层到底层的安全架构和知道准则；</li>
+<li>理解SQL注入并知道如何防御；</li>
+<li>永远不信任用户输入或者是来自用户的请求，包括cookie以及隐藏其后的属性值；</li>
+<li>对密码进行”撒盐”哈希，不同列采用不同的“盐”以防御彩虹表攻击；选择计算较慢的哈希算法(比如bcrypt或者scrypt)来存储密码，NIST和FIPS建议采用PBKDF2对密码进行哈希。避免直接使用MD5和SHA；</li>
+<li>不要试图开发你自己的验证系统，相比现有成熟的验证体系，你的方法更容易受到攻击；</li>
+<li>对敏感数据输入相关的页面采用SSL/HTTPS保护；</li>
+<li>预防 session hijacking；</li>
+<li>避免 cross site scripting (XSS)；</li>
+<li>避免 cross site request forgeries (CSRF)；</li>
+<li>避免 Clickjacking；</li>
+<li>确保你的系统及时更新最新的补丁；</li>
+<li>确保你的DB连接信息是安全的；</li>
+<li>及时追踪最新的攻击方法和手段；</li>
+<li>阅读谷歌浏览器的安全手册；</li>
+<li>阅读Web应用攻击者的手册；</li>
+<li>考虑最小权限原则，尝试以非root权限运行你的应用服务器；</li>
+</ul>
+<h3 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h3><ul>
+<li>如有必要实现cache，理解并使用HTTP、HTML5的cache；</li>
+<li>优化图像处理，不要在需要反复使用的场合调用20KB的照片；</li>
+<li>学会如何压缩和deflate；</li>
+<li>组合多个脚本文件以减少浏览器的连接数量；</li>
+<li>参考Yahoo的异常性能站点，包含有多个操作指导；</li>
+<li>采用CSS处理小的有相关度的图片；</li>
+<li>高访问量站点需要考虑跨domain的组件拆分问题；</li>
+<li>静态内容()应该放置于一个单独的域，该域不使用cookie。因为一个域及其子域中的所有cookie在每次请求发送中都会被包含。一个好的方式是采用CDN，但是必须考虑CDN失效的情形；</li>
+<li>最小化渲染页面所需的HTTP请求；</li>
+<li>善假于物，比如Google的Closure JavaScript编译器；</li>
+<li>确保在站点的根目录下有一个<code>favicon.ico</code>文件, 比如. <code>/favicon.ico</code>。浏览器会自动请求该文件，甚至在HTML中无需提及；如果没有这样的文件<code>/favicon.ico</code>，会产生多个404错误，消耗网站带宽；</li>
+</ul>
+<h3 id="搜索引擎优化"><a href="#搜索引擎优化" class="headerlink" title="搜索引擎优化"></a>搜索引擎优化</h3><ul>
+<li>采用搜索引擎友好的URLS，比如采用<code>example.com/pages/45-article-title</code> 而不是<code>example.com/index.php?page=45</code>；  </li>
+<li>对于动态内容修改，将<code>#</code>替换诶<code>#！</code>；  </li>
+<li>不要采用诸如<code>click here</code>的链接；</li>
+<li>设置一个XML sitemap, 缺省位置<code>/sitemap.xml</code>；</li>
+<li>对于多个URL指向同一个内容，采用<code>&lt;link rel=&quot;canonical&quot; ... /&gt;</code>；</li>
+<li>善假于物，这次是Google的 Webmaster Tools 和微软Bing的 Webmaster Tools；</li>
+<li>安装Google的分析器，或者是开源的Piwik；</li>
+<li>知道搜索引擎爬虫的工作原理；</li>
+<li>采用301做永久重定向；</li>
+</ul>
+<h3 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h3><ul>
+<li>理解HTTP相关原理，比如GET、POST、session、cookie以及无状态；</li>
+<li>根据W3C标准编写HTML和CSS，确保准确；</li>
+<li>理解浏览器中JavaScript如何工作；</li>
+<li>理解JavaScript, style sheets以及其他所需资源的加载过程以及对性能的影响；</li>
+<li>理解JavaScript sandbox的工作原理；</li>
+<li>理解JavaScript已逐步被AJAX替代；</li>
+<li>理解301和302重定向的区别；</li>
+<li>尽可能多的理解网站所运行的平台；</li>
+<li>考虑采用Reset Style Sheet 或者normalize.css；</li>
+<li>考虑JavaScript框架；</li>
+<li>综合考虑perceived performance 和 JS 框架；</li>
+<li>不要重复发明轮子；</li>
+<li>尽可能“轻便”；</li>
+</ul>
 
       
 
@@ -772,11 +645,15 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">OAuth</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">WEB</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Authorization</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">HTTP</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">OWASP</a>
         		</li>
       		
 		</ul>
@@ -797,7 +674,7 @@ Hello Simulator
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/08/authorization-code-flow-in-oauth-20/">展开全文 >></a>
+          <a class="article-more-a" href="/2015/06/18/web-security-guide/">展开全文 >></a>
         </p>
       
 
@@ -827,59 +704,122 @@ Hello Simulator
 
 
   
-    <article id="post-client-certificate-vs-server-certificate" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-thread-safe" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/08/client-certificate-vs-server-certificate/">客户端证书与服务端证书</a>
+      <a class="article-title" href="/2015/06/01/thread-safe/">线程安全函数与可重入函数</a>
     </h1>
   
 
         
-        <a href="/2014/12/08/client-certificate-vs-server-certificate/" class="archive-article-date">
-  	<time datetime="2014-12-07T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-08</time>
+        <a href="/2015/06/01/thread-safe/" class="archive-article-date">
+  	<time datetime="2015-05-31T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-06-01</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Server-Certificate"><a href="#Server-Certificate" class="headerlink" title="Server Certificate"></a>Server Certificate</h2><p>服务器端证书用于标识一个Server，典型地被签发给主机名，比如机器名或者host-header(www.baidu.com)。对Server证书而言，”Issued to”域意味着选择哪个签发的hostname。  </p>
-<p><img src="/assets/images/server_certificate.png" alt="图片">    </p>
-<ol>
-<li>目的：加密和解密内容</li>
-<li>真实世界里只有ROOT CA有自签名证书</li>
-<li>存储：对于window IIS，Server certificates are stored in the Personal store of the “Local Computer” account</li>
-<li>证书可以存储在用户账户对应的个人存储目录下，也是IIS缺省的搜索路径</li>
-</ol>
-<h2 id="Client-Certificate"><a href="#Client-Certificate" class="headerlink" title="Client Certificate"></a>Client Certificate</h2><p>服务器端证书用于标识一个Client或者user，意味着向Server验证Client，”Issued to”域采用用户的名字。  </p>
-<p><img src="/assets/images/client_certificate.png" alt="图片">      </p>
-<ol>
-<li>目的：仅用于标识身份</li>
-<li>真实世界里只有ROOT CA有自签名证书</li>
-<li>Client certificate and private key的角色：</li>
-</ol>
+        <h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><p>线程安全是多线程程序中的编程理念，一段代码线程安全意味着在多个线程执行的时候能够运行正确。因此，它必须满足：</p>
 <ul>
-<li>Client证书的证书和私钥作用就是为了在Client authentication中提供Client的数字签名。</li>
-<li>crt后缀名文件仅仅包含证书，证书和私钥一般包含在.p12或者.pfx文件中(PKCS12格式)。</li>
-<li>私钥如果单独存放，一般为.pem后缀名。</li>
-<li>Server端需要client端的数字签名，然后发送至Server，Server利用client的证书（即公钥）解密，以确认client端的身份。其中Client端的数字签名生成过程如下：首先对SSL交互中的随机值进行HASH，然后用client的私钥进行加密。  </li>
+<li>多线程访问共享数据；</li>
+<li>在任一时刻只能被一个线程访问。</li>
 </ul>
-<h2 id="HTTPS下虚拟主机"><a href="#HTTPS下虚拟主机" class="headerlink" title="HTTPS下虚拟主机"></a>HTTPS下虚拟主机</h2><p>在HTTP下有虚拟主机这一概念，其目的是为了在服务端用单个IP支持多个主机名；对应到HTTPS，客户端验证服务器为不同主机配置多个证书，但是客户端需要检查服务器证书的common name,当客户端请求服务器证书的时候，服务器需要决定提供哪个证书，SNI应用而生，其原理如下图：  </p>
-<p><img src="/assets/images/SNI.jpg" alt="图片">  </p>
-<h2 id="中间人攻击与证书"><a href="#中间人攻击与证书" class="headerlink" title="中间人攻击与证书"></a>中间人攻击与证书</h2><p>SSL中间人攻击的形式主要有三种：SSL downgrading，SSL stripping和fake of SSL certs。<br>在SSL协议中，证书是用来进行身份验证的，这里有两个关键的检查点：  </p>
+<p>保证的手段如下：  </p>
 <ul>
-<li>第一个是CA验证，对于客户端而言，验证服务器端证书依赖与本地的trust store，如果本地的trust  store被人篡改，那么避免中间人攻击则无从谈起，事实上这也正是PKI体系的弱点所在。  </li>
-<li>第二个是hostname检查，用来确保所连接的服务器就是其声称的，如果有人劫持了DNS服务器，即利用DNS cache poisoning攻击让你的地址栏看起来很正常，这个时候劫持者就可以让此项检查通过。  </li>
+<li>编写可重入代码</li>
 </ul>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
-<li><a href="http://www.windowsecurity.com/articles-tutorials/authentication_and_encryption/Understanding-Man-in-the-Middle-Attacks-ARP-Part4.html" target="_blank" rel="external">Understanding Man-In-The-Middle Attacks - Part 4: SSL Hijacking</a></li>
-<li><a href="https://blog.cloudflare.com/introducing-strict-ssl-protecting-against-a-man-in-the-middle-attack-on-origin-traffic/" target="_blank" rel="external">Introducing Strict SSL</a></li>
-<li><a href="https://devcentral.f5.com/articles/ssl-profiles-part-7-server-name-indication" target="_blank" rel="external">SNI for TLS</a></li>
-</ol>
+<p>一个任务执行该代码的一部分，此时另外一个任务进来，最后再恢复到原先任务。这就需要保存每一个任务的本地局部变量，一般保证在自己的栈当中，而不是static或者全局变量。  </p>
+<ul>
+<li>Mutual exclusion  </li>
+</ul>
+<p>如果采用某种机制使得序列化访问共享数据，保证在任意时刻只有一个线程读写数据。由此引发条件竞争、死锁、活锁、饥饿等问题。</p>
+<p>使用静态数据或任何其他共享资源的函数（比如文件或终端）必须通过锁使得对这些资源的访问串行化，以便函数变为线程安全。例如，以下函数是线程不安全的：     </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">/* thread-unsafe function */</div><div class="line">int increment_counter()</div><div class="line">&#123;</div><div class="line">	static int counter = 0;</div><div class="line"></div><div class="line">	counter++;</div><div class="line">    return counter;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>要使其变为线程安全的，那么必须通过静态锁将静态变量 counter 保护起来，如以下例子所示：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">/* pseudo-code threadsafe function */</div><div class="line">int increment_counter();</div><div class="line">&#123;</div><div class="line">	static int counter = 0;</div><div class="line">    static lock_type counter_lock = LOCK_INITIALIZER;</div><div class="line"></div><div class="line">    pthread_mutex_lock(counter_lock);</div><div class="line">    counter++;</div><div class="line">    pthread_mutex_unlock(counter_lock);</div><div class="line">    return counter;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在使用线程库的多线程应用程序中，应使用 mutex 来对共享资源进行串行化。独立的库可能需要在线程的上下文以外工作，因此，请使用其他种类的锁。  </p>
+<ul>
+<li>采用TLS(Thread-local storage)  </li>
+</ul>
+<p>其实就是变量本地化，即确保每个thread拥有自己的私有拷贝。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">thread_t &#123;</div><div class="line">	int	tls;</div><div class="line">	void	*t_tls_data;</div><div class="line">	…</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>原子操作  </li>
+</ul>
+<p>采用原子操作保证其他thread无法中断当前操作，通常通过特殊的机器指令，比如xchag和TSL。原子操作构成了多线程锁机制的基础。  </p>
+<p><strong>线程安全函数</strong></p>
+<p>线程安全函数通过锁来保护并发访问中的共享资源。线程安全只与函数的实现有关，并不会影响它的外部接口。</p>
+<p>在C语言中，局部变量是在堆栈中动态分配的。因此，任何不使用静态数据或其他共享资源的函数一般都是线程安全的。  </p>
+<p>全局数据的使用是线程不安全的。全局数据应针对每个线程保存或被封装起来，这样可以使它的访问串行化。线程可以读取对应于由另一个线程引起的错误的错误代码。</p>
+<p>在多线程程序中，所有被多个线程调用的函数必须是线程安全的。但是，对于在多线程程序中使用线程不安全子例程有一个变通方法。虽然非重入函数通常都是线程不安全的，但是将它们变为重入常常也使它们变为线程安全。</p>
+<p><strong>使函数成为重入函数</strong>  </p>
+<p>在多数情况下，必须用带有已修改的将要重入的函数来替代非重入函数。非重入函数不能由多个线程使用。此外，可能也无法使非重入函数变为线程安全。  </p>
+<p>许多非重入函数会返回一个指向静态数据的指针。可以用以下方法来避免这种情况：  </p>
+<ul>
+<li>返回动态分配的数据。在这种情况下，调用程序将负责释放存储量。好处在于无需对接口进行修改。但是，向后兼容性就无法保证了；现有的使用已修改函数的单线程程序在不更改的情况下不会释放存储量，这将导致内存泄漏。</li>
+<li>使用调用程序提供的存储量。虽然必须修改接口，但是推荐使用这种方法。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">/* non-reentrant function */</div><div class="line">char *strtoupper(char *string)</div><div class="line">&#123;</div><div class="line">    static char buffer[MAX_STRING_SIZE];</div><div class="line">    int index;</div><div class="line"></div><div class="line">    for (index = 0; string[index]; index++)</div><div class="line">        buffer[index] = toupper(string[index]);</div><div class="line">        buffer[index] = 0</div><div class="line"></div><div class="line">    return buffer;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该函数不是重入函数（也不是线程安全的函数）。要通过返回动态分配的数据来使该函数重入，那么该函数应类似于以下代码段：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">/* reentrant function (a poor solution) */</div><div class="line">char *strtoupper(char *string)</div><div class="line">&#123;</div><div class="line">    char *buffer;</div><div class="line">    int index;</div><div class="line"></div><div class="line">    /* error-checking should be performed! */</div><div class="line">    buffer = malloc(MAX_STRING_SIZE);</div><div class="line">    </div><div class="line">    for (index = 0; string[index]; index++)</div><div class="line">        buffer[index] = toupper(string[index]);  </div><div class="line">	buffer[index] = 0</div><div class="line"></div><div class="line">    return buffer;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>较好的解决方案是修改接口。调用程序必须为输入和输出字符串提供存储量，如以下代码段所示：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">/* reentrant function (a better solution) */</div><div class="line">char *strtoupper_r(char *in_str, char *out_str)</div><div class="line">&#123;</div><div class="line">	int index;</div><div class="line"></div><div class="line">    for (index = 0; in_str[index]; index++)</div><div class="line">    	out_str[index] = toupper(in_str[index]);</div><div class="line">   </div><div class="line">	out_str[index] = 0</div><div class="line"></div><div class="line">	return out_str;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>使用调用程序提供的存储量使非重入标准 C 库子例程重入。</p>
+<p><strong>在连续调用中保存数据</strong>  </p>
+<p>在连续调用中将不保存任何数据，因为不同的线程可能连续地调用该函数。如果函数必须在连续调用中保存某些数据，比如工作缓存或指针，那么调用程序应提供该数据。  </p>
+<p>如下示例，函数返回了字符串中连续的小写字符。该字符串只在第一次调用时提供，就像strtok子例程。函数在到达字符串的结尾处时返回 0。该函数可通过以下代码段来实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">/* non-reentrant function */</div><div class="line">char lowercase_c(char *string)</div><div class="line">&#123;</div><div class="line">	static char *buffer;</div><div class="line">    static int index;</div><div class="line">	char c = 0;</div><div class="line"></div><div class="line">    /* stores the string on first call */</div><div class="line">    if (string != NULL) &#123;</div><div class="line">    	buffer = string;</div><div class="line">        index = 0;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">    /* searches a lowercase character */</div><div class="line">    for (; c = buffer[index]; index++) &#123;</div><div class="line">    	if (islower(c)) &#123;</div><div class="line">        	index++;</div><div class="line">        break;</div><div class="line">        &#125;</div><div class="line">	&#125;</div><div class="line">    return c;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该函数不是重入函数。要使其变为重入函数，那么调用程序必须保存静态数据和变量 index。该函数的重入版本可通过以下代码段来实现：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">/* reentrant function */</div><div class="line">char reentrant_lowercase_c(char *string, int *p_index)</div><div class="line">&#123;</div><div class="line">	char c = 0;</div><div class="line">    /* no initialization - the caller should have done it */</div><div class="line"></div><div class="line">    /* searches a lowercase character */</div><div class="line">    for (; c = string[*p_index]; (*p_index)++) &#123;</div><div class="line">    	if (islower(c)) &#123;</div><div class="line">			(*p_index)++;</div><div class="line">			break;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">    return c;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该函数的接口和用法都发生了改变。调用程序必须向每次调用提供该字符串，且在首次调用前，必须将索引初始化为 0，如以下代码所示：   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">char *my_string;</div><div class="line">char my_char;</div><div class="line">int my_index;</div><div class="line">...</div><div class="line">my_index = 0;</div><div class="line">while (my_char = reentrant_lowercase_c(my_string, &amp;my_index)) &#123;</div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>TLS库的线程安全</strong></p>
+<p>在TLS实现中，常见的需要保证现场安全的场景主要有：</p>
+<ul>
+<li>SSL收发缓冲区；</li>
+<li>SSL Session Cache context</li>
+<li>CTR-DRBG context</li>
+<li>Entropy context</li>
+<li>RSA key context</li>
+</ul>
+<p>目前的TLS线程安全由pthread_mutex互斥锁保证。 </p>
+<p><strong>编写重入和线程安全代码</strong>  </p>
+<p>在单线程进程中，只存在一个控制流。因此，这些进程所执行的代码无需重入或是线程安全的。在多线程程序中，相同的功能和资源可以通过多个控制流并发访问。  </p>
+<p>要保护资源的完整性，编写的多线程程序代码必须能重入并是线程安全的。重入和线程安全都与函数处理资源的方式相关。重入和线程安全是不同的概念：函数可以重入和/或线程安全化，或者两者都不可行。  </p>
+<p>此部分提供了有关编写重入和线程安全程序的信息。其中不涉及有关编写高效线程程序的主题。高效线程程序是高效率的并行化程序。您必须在设计程序的时候考虑到线程的效率。现有的单线程程序可以成为高效线程程序，但是这需要将这些程序完全重新设计和重新编写。</p>
+<p>除了上述方法，可以有变通方法编写：  </p>
+<p>该变通方法很有用，尤其是在使用多线程程序中的线程不安全库进行测试时，或者同时在等待线程安全的库变成可用时。该变通方法会导致一些开销，因为它是通过对整个函数，甚至一组函数进行串行化来实现的。以下是可能的变通方法：  </p>
+<ul>
+<li>对库使用全局锁定，并在每次使用该库的时候锁定它（通过调用一个库例程或使用一个库全局变量）。该解决方案可以会产生性能瓶颈，由于在任意给定的时间内只有一个线程能够对库的所有部分进行访问。以下伪码的解决方案只有在库很少被访问，或是作为一个初始的、快捷的实现变通方法时才是可接受的。  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">/* this is pseudo code! */</div><div class="line">	</div><div class="line">	lock(library_lock);</div><div class="line">	library_call();</div><div class="line">	unlock(library_lock);</div><div class="line">	</div><div class="line">	lock(library_lock);</div><div class="line">	x = library_var;</div><div class="line">	unlock(library_lock);</div></pre></td></tr></table></figure>
+<ul>
+<li>对每个库组件或组件组使用锁（例程或全局变量）。此种解决方案实现起来比上面的例子略微复杂一些，但是它可以改善性能。因为该变通方法只能在应用程序中使用，而不能在库中使用，所以可以使用 mutex 来锁定库。  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">/* this is pseudo-code! */</div><div class="line"></div><div class="line">lock(library_moduleA_lock);</div><div class="line">library_moduleA_call();</div><div class="line">unlock(library_moduleA_lock);</div><div class="line"></div><div class="line">lock(library_moduleB_lock);</div><div class="line">x = library_moduleB_var;</div><div class="line">unlock(library_moduleB_lock);</div></pre></td></tr></table></figure>
+<h3 id="重入和线程安全库"><a href="#重入和线程安全库" class="headerlink" title="重入和线程安全库"></a>重入和线程安全库</h3><p>重入函数不在连续的调用中保存静态数据，也不返回指向静态数据的指针。所有的数据都是由函数的调用程序提供的。重入函数不得调用非重入函数。  </p>
+<p>一般情况下，非重入函数是由其外部接口和用法标识的，但也并不总是这样。例如，strtok 子例程不是一个重入函数，因为它保存了将分割为多个标记的字符串。ctime 子例程同样不是重入函数；它返回了被每个调用所覆盖的静态数据的指针。  </p>
+<p>重入库和线程安全库并不仅仅在线程中有用，而且在大范围的并行（和异步）编程环境中也很有用。一直使用和编写重入函数和线程安全函数是很好的编程实践。  </p>
+<p><strong>使用库</strong>  </p>
+<p>标准C库 (libc.a)和Berkeley兼容性库(libbsd.a)以下库是线程安全的，有些标准 C 子例程是非重入的，比如 ctime 和 strtok 子例程。  </p>
+<p>在编写多线程程序的时候，请使用子例程的重入版本来替代原来的版本。例如，以下代码段：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">token[0] = strtok(string, separators);</div><div class="line">i = 0;</div><div class="line">do &#123;</div><div class="line">	i++;</div><div class="line">    token[i] = strtok(NULL, separators);</div><div class="line">&#125; while (token[i] != NULL);</div></pre></td></tr></table></figure>
+<p>在多线程程序中应使用以下代码段来代替：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">char *pointer;</div><div class="line">...</div><div class="line">token[0] = strtok_r(string, separators, &amp;pointer);</div><div class="line">i = 0;</div><div class="line">do &#123;</div><div class="line">	i++;</div><div class="line">    token[i] = strtok_r(NULL, separators, &amp;pointer);</div><div class="line">&#125; while (token[i] != NULL);</div></pre></td></tr></table></figure>
+<p>在一个程序中，线程不安全的库可能只由一个线程使用。请确保使用该库的线程的唯一性；否则，程序可出现意外的行为，甚至可能停止。</p>
+<p><strong>转换库</strong>  </p>
+<p>在将一个现有的库转换为重入库和线程安全库的时候，请考虑以下问题。此信息只适用于 C 语言库。  </p>
+<ul>
+<li>确定已导出的全局变量。那些变量通常是用 export 关键字在头文件中定义的。应将已导出的全局变量封装起来。变量应设为专用变量（使用 static 关键字在库源代码中定义），然后应创建访问（读和写）子例程。</li>
+<li>确定静态变量和其他的共享资源。静态变量通常是用 static 关键字定义的。锁应该与任意的共享资源关联。锁定的详细程度，这样对锁数目的选择将影响到库的性能。可使用一次性初始化工具来初始化这些锁。</li>
+<li>确定非重入函数并使之变为重入函数。有关更多信息，请参阅使函数成为重入函数。</li>
+<li>确定线程不安全函数并使之成为线程安全函数。有关更多信息，请参阅使函数成为线程安全函数。   </li>
+</ul>
 
       
 
@@ -893,7 +833,15 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Certificate</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">thread</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">reentrance</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mutex</a>
         		</li>
       		
 		</ul>
@@ -914,7 +862,7 @@ Hello Simulator
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/08/client-certificate-vs-server-certificate/">展开全文 >></a>
+          <a class="article-more-a" href="/2015/06/01/thread-safe/">展开全文 >></a>
         </p>
       
 
@@ -944,426 +892,63 @@ Hello Simulator
 
 
   
-    <article id="post-little-on-tcpip-stack" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-issue-about-tcp-read-timeout-in-ssl-session" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/02/little-on-tcpip-stack/">TCP/IP协议栈中的数据收发</a>
+      <a class="article-title" href="/2015/05/12/issue-about-tcp-read-timeout-in-ssl-session/">从SSL会话中出现TCP超时说起</a>
     </h1>
   
 
         
-        <a href="/2014/12/02/little-on-tcpip-stack/" class="archive-article-date">
-  	<time datetime="2014-12-01T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-02</time>
+        <a href="/2015/05/12/issue-about-tcp-read-timeout-in-ssl-session/" class="archive-article-date">
+  	<time datetime="2015-05-11T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-05-12</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>本文将对TCP/IP的数据收发做一个粗略总结~    </p>
-<hr>
-<h3 id="1、TCP-IP基本特点"><a href="#1、TCP-IP基本特点" class="headerlink" title="1、TCP/IP基本特点"></a>1、TCP/IP基本特点</h3><p>TCP/IP总的设计目的就是保证数据的快速有序的传输，且无丢失，基本特点如下：  </p>
-<ul>
-<li><strong>面向连接</strong>：两端组成一个连接，每端以五元组为标识</li>
-<li><strong>双工字节流</strong>： 采用字节流进行双工数据通信</li>
-<li><strong>有序发送</strong>：利用序列号保证发送的有序性</li>
-<li><strong>可靠性</strong>：利用ACK保证数据的可靠性</li>
-<li><strong>流控</strong>：接收方利用接收窗口通告发送方</li>
-<li><strong>拥塞控制</strong>：接收方利用拥塞窗口通告发送方  </li>
-</ul>
-<h3 id="2、报文发送过程"><a href="#2、报文发送过程" class="headerlink" title="2、报文发送过程"></a>2、报文发送过程</h3><p>TCP/IP网络协议栈包含多个层次，下图以一个TCP连接中的报文发送过程简述其基本流程：</p>
-<p><img src="/assets/images/TCP/tx.jpg" alt="图片">  </p>
-<center>Figure 1: TX flow</center>
-
+        <p>最近将工作中碰到的一个问题记录下，以备查找。该问题的现象是程序在连接某一个APP时失败，日志显示TCP读超时，但是连接其他APP都成功。    </p>
+<p>初步调试发现，此时client与server已经建立SSL连接，但是在读取APP数据时select超时，但为什么单单在连接这个APP的时候出现超时呢？ </p>
+<p>首先看SSL连接的建立过程，如图1所示：<br><img src="/assets/images/SSL/SSL_exchange.png" alt="图片"></p>
 <ol>
-<li>用户层创建数据，调用write系统调用发送数据。</li>
-<li>一旦执行系统调用，系统则进入内核层。对于类Linux系统，通过文件描述符关联socket和应用，内核中socket包含收发两块buffer。</li>
-<li>在系统调用执行数据将被拷贝至内核memory当中，然后添加至发送buffer尾部，即按序发送。</li>
-<li>在TCP层，TCB(TCP Control Block) 关联socket，如果TCP允许数据发送，内核创建TCP segment。否则，由于规则或者流量控制会将该报文丢弃。至于TCP segment报文格式，无外乎一个header加payload，还有个checksum。TCP校验和往往由网卡进行计算。</li>
-<li>继续在TCP segment上封装IP层，再算下IP校验和，就可以扔给网络层了，比如以太网层。</li>
-<li>以太网层开始查找下一跳IP的MAC地址，一旦完成将继续封装Etherent头，最终送往driver层，这里往往也是各大抓包工具进行数据拷贝的地方，比如tcpdump/wirshark，或者是自己写的抓包工具；流量整形也往往在这一层完成。</li>
-<li>driver层在收到发送请求之后，通过DMA将该主存中的数据拷贝至内部RAM之中。在数据拷贝中，同时加入符合以太网协议的相关header，IFG、前导符和CRC。对于以太网网络，物理层发送采用CSMA/CD,即在发送过程中侦听链路冲突；而对于Wi-Fi网络，则采用CSMA/CA，其基本思想是要想占用channel并发言，首先做好聆听（也是做人哲学之一），对于需要ACK的报文，一旦在规定时间内搜不到ACK，则重传该报文。</li>
-<li>一旦网卡完成报文发送，将产生中断通知CPU。</li>
+<li>第一步服务器端创建监听socket等待客户端连接。</li>
+<li>第二步客户端创建SSL上下文数据结构，包括支持的cipher种类，证书以及SSL版本等。</li>
+<li>第三步完成TCP端口的建立。客户端调用connect()发起TCP握手，即SYN，SYN/ACK和ACK这三次握手）。服务器端调用accept()响应客户端的请求。</li>
+<li>第四步客户端和服务器端都会创建一个session，该对象基于SSL上下文，并绑定其至socket。具体实现就是以socket为索引建一张表，该表维护当前所有的SSL session。既然是session，那就是有状态的，一般是CONNECT_DISABLED、CONNECT_CLOSED、CONNECT_NEGOTIATE和CONNECT_OPEN。</li>
+<li>第五步完成SSL层的握手。该过程由客户端发起，主要是负责建立一个安全通道，协商出一个共享秘钥以供后续使用。</li>
+<li>在第六步中数据经由前面建好的加密隧道收发。该过程是密文交互。</li>
+<li>第七步完成SSL连接关闭，客户端和服务器端都可以通过alert类型的记录报文发起关闭请求。</li>
+<li>在正常情况下，TCP关闭由四次握手完成，即FIN/ACK，ACK，FIN/ACK和ACK完成，该过程是明文交互。</li>
+<li>客户端和服务器端释放SSL session资源。</li>
+<li>服务器返回第三步接受另外的socket。  </li>
 </ol>
-<p>对于报文发送过程而言，上层协议栈是生产者，驱动层为消费者。  </p>
-<p>下面以无线网卡驱动为例详述整个报文发送流程的实现细节：      </p>
-<ul>
-<li>上层协议栈（三层及以上）和驱动层之间的数据传递采用队列，一个网络接口绑定一个三层报文发送队列。802.11 MAC层从网络接口的发送队列中拿到三层报文，添加LLC层和802.11 header，此时二层报文已经组好。  </li>
-<li>驱动层同样采用一个二层报文发送队列，可以将上一步组好的二层报文放入该队列。驱动的任务就是把二层报文送入无线网卡的硬件FIFO，最终转为射频信号发送。软硬件交互通过一个循环缓冲区完成，具体而言，首先主存中定义一个TX Ring，包括多个TFD（发送描述符），其中一个TFD可以由多个TB（发送缓冲区）组成，里面除了包含要发送的数据，还包含了发送相关的控制信息；数据在DRAM和硬件FIFO之间的搬迁由DMA完成，搬迁的数量通过TX Ring的两个指针完成，一个是写指针，由软件更新，告诉硬件我已经把这个位置的TFD准备好，你可以拿了，另一个是读指针，由硬件拿走数据后更新该指针，通过中断告诉软件我已经取走数据，你可以继续在该TFD上更新数据。</li>
-</ul>
-<h3 id="3、报文的接收过程"><a href="#3、报文的接收过程" class="headerlink" title="3、报文的接收过程"></a>3、报文的接收过程</h3><p><img src="/assets/images/TCP/rx.jpg" alt="图片">  </p>
-<center>Figure 2: RX flow</center>
-
+<p>注：  </p>
 <ol>
-<li>网卡对报文进行CRC检查，如果合法就写入主存（一般通过DMA完成）。一旦完成写入，网卡发送中断通知CPU。</li>
-<li>驱动层对报文进行检查，在发送至上层协议栈之前，必须封装成OS相关的数据结构，比如Linux对应sk_buff，BSD对应mbuf。</li>
-<li>以太网层同样对报文进行合法性检查，然后发送至网络层，交给不同的协议处理模块，对于IP报文交给IP层，而对于ARP报文则送至ARP模块。</li>
-<li>IP层继续检查报文合法性，判断其是进行IP路由还是本地处理。根据IP头的协议字段，上发至上层，比如6对应TCP层。</li>
-<li>TCP层同样检查TCP检验和，往往由网卡计算完成，而不是内核。</li>
-<li>以TCP报文的五元组作为关键字进行连接查找，查看是否匹配该层的规则，如果符合，则加入接收缓冲区。</li>
+<li>第一、第三和第八步是标准的TCP握手和终止流程，与是否进行SSL连接无关。  </li>
+<li>第二、第四、第五、第七和第八步仅仅在SSL连接建立的情况下发生的流程，SSL开启前后的对比见图3。  </li>
+<li>第六和第九步则SSL相关。   </li>
 </ol>
-<h3 id="4、不是结束语"><a href="#4、不是结束语" class="headerlink" title="4、不是结束语"></a>4、不是结束语</h3><p>理解问题需从根上抓起，TCP/IP也一样，仍有许多细节需要在工作实践中反复体会。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">TCP/IP</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Stack</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/02/little-on-tcpip-stack/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-iot-technology-stack" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/11/20/iot-technology-stack/">一张物联网框图</a>
-    </h1>
-  
-
-        
-        <a href="/2014/11/20/iot-technology-stack/" class="archive-article-date">
-  	<time datetime="2014-11-19T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-11-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#IOT  </p>
-<p><img src="/assets/images/IOT.png" alt="图片">  </p>
-<center>IOT technology stack</center>  
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">IOT</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">物联网</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/11/20/iot-technology-stack/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-oop-review" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/10/25/oop-review/">OOP小记</a>
-    </h1>
-  
-
-        
-        <a href="/2014/10/25/oop-review/" class="archive-article-date">
-  	<time datetime="2014-10-24T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-10-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="OOP中的类"><a href="#OOP中的类" class="headerlink" title="OOP中的类"></a>OOP中的类</h2><ul>
-<li><strong>类即数据结构</strong>：实现新的类库就是定义了新的数据结构。  </li>
-<li><strong>广义的生产者和消费者</strong>：类创建者对应生产者，类使用者即客户端程序员。  </li>
-<li><strong>对象即服务</strong>：关注于该对象能提供给用户那些服务，而不关注其内部实现。  </li>
-<li><strong>类关系表达方法</strong>：基类开始由上至下。  </li>
-</ul>
-<h2 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h2><p>多态用到的技术即后期绑定，由JAVA内部一段程序实现；相反，前期绑定则通过绝对地址调用实现。C++需要用virtual显示声明,JAVA默认支持。</p>
-<h2 id="容器与迭代器"><a href="#容器与迭代器" class="headerlink" title="容器与迭代器"></a>容器与迭代器</h2><p>容器本质提供了各种数据类型的抽象，JAVA中包括List类，MAP类，以及队列、树堆栈等。迭代则提供了对容器成员的抽象化访问，比如设值、取值和遍历等。在C语言中可以利用<strong>函数指针</strong>进行迭代器的设计。</p>
-<h2 id="单根继承结构"><a href="#单根继承结构" class="headerlink" title="单根继承结构"></a>单根继承结构</h2><p>所有对象都具备相同的接口，好处是垃圾回收器可以方便的发送适当的消息给系统中的每一个对象。</p>
-<h2 id="向上转型向下转型"><a href="#向上转型向下转型" class="headerlink" title="向上转型向下转型"></a>向上转型向下转型</h2><p>有待理解。</p>
-<h2 id="真并发与伪并发"><a href="#真并发与伪并发" class="headerlink" title="真并发与伪并发"></a>真并发与伪并发</h2><p>前者即多个线程运行在多个处理器上，后者是多个线程分时复用一个CPU。程序写得不好，会造成在多处理器中出现线程总运行与某个处理器之上。</p>
-<h2 id="为什么会有WEB客户端编程"><a href="#为什么会有WEB客户端编程" class="headerlink" title="为什么会有WEB客户端编程"></a>为什么会有WEB客户端编程</h2><p>WEB客户端编程设计初衷就是期望减轻服务器端压力，将计算和逻辑控制过程置于客户端运行。具体方法包括插件、脚本语言比如JAVAScript、VBScript等、JAVA（利用applet）。相比脚本语言。JAVA applet和前者的本质区别在于其本身是以被编译过的形式存在的，并且利用<strong>数字签名</strong>保障安全性。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">JAVA</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">OOP</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/10/25/oop-review/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-web-application-layer" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/10/19/web-application-layer/">HTTP协议与Web开发</a>
-    </h1>
-  
-
-        
-        <a href="/2014/10/19/web-application-layer/" class="archive-article-date">
-  	<time datetime="2014-10-18T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-10-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="HTTP-Basic"><a href="#HTTP-Basic" class="headerlink" title="HTTP Basic"></a>HTTP Basic</h2><h3 id="HTTP资源"><a href="#HTTP资源" class="headerlink" title="HTTP资源"></a>HTTP资源</h3><p>HTTP用于获取服务器的资源，资源的种类称为MIME，资源的表达方式URI（统一资源标识符）。URI有两种形式，URL和URN：      </p>
-<ul>
-<li>URL精确说明了资源的位置及如何访问它，包括方案（HTTP、FTP），服务器因特网地址和WEB服务器上的某个资源。  </li>
-<li>URN（统一资源名）目的是为了使用同一个名字通过多种网络协议来访问资源。URI几乎都是URL。</li>
-</ul>
-<h3 id="HTTP事务"><a href="#HTTP事务" class="headerlink" title="HTTP事务"></a>HTTP事务</h3><p>一个事务包含一条请求加响应的响应。HTTP方法：    </p>
-<ul>
-<li>GET：从服务器向客户端发送命令资源     </li>
-<li>POST：将客户端数据发送至一个服务器网关应用程序；  </li>
-<li>PUT：将来自客户端的数据存储至一个命名的服务器资源中去；  </li>
-<li>DELETE：从服务器张删除命名资源。  </li>
-</ul>
-<p>HTTP客户端的应用程序为了完成某项任务可以发布多个HTTP事务，而请求的资源可以位于不同的HTTP服务器端。比如JAVA小程序、图像等。</p>
-<h3 id="HTTP报文"><a href="#HTTP报文" class="headerlink" title="HTTP报文"></a>HTTP报文</h3><p>HTTP报文都是纯文本，不是二进制，包含三部分：     </p>
-<ul>
-<li>起始行（start lines）： 典型首部字段比如Content-Type: text/html; charset=utf-8    </li>
-<li>首部 (Header)   </li>
-<li>主体 (entity body)</li>
-</ul>
-<h3 id="HTTP报文传输"><a href="#HTTP报文传输" class="headerlink" title="HTTP报文传输"></a>HTTP报文传输</h3><p>基于TCP/IP传输，因此需要目的IP地址和端口号。HTTP通过URL告诉TCP层IP地址和端口号。其中URL可以直接包含IP地址或者通过DNS查询得到，端口号默认为80。<br>TCP为HTTP提供了一条可靠的比特传输通道，从TCP一端填入的字节会从另外一端以原有顺序、正确的传送出来。  </p>
-<p><img src="/assets/images/tcp_http.jpg" alt="图片"></p>
-<p>HTTP事务的性能在很大程度上决定上取决于底层TCP通道的性能。HTTP时延主要由TCP时延引起。需要考虑如下因素：  </p>
-<ul>
-<li>TCP连接建立握手；  </li>
-<li>TCP慢启动拥塞控制；  </li>
-<li>数据汇聚的Nagle算法；  </li>
-<li>用于捎带确认的TCP延迟确认算法；    </li>
-</ul>
-<h3 id="HTTP连接管理"><a href="#HTTP连接管理" class="headerlink" title="HTTP连接管理"></a>HTTP连接管理</h3><p>在HTTP层的优化方法：      </p>
-<ul>
-<li>并行化连接：HTTP客户端打开多个连接，并行执行HTTP事务，即每个事务对应自己的。  </li>
-<li>持久化连接：通过头部的connection字段完成，client填充keep-alive，如果server同意，就会回复同样的字段和数据内容。  </li>
-<li>管道化连接  </li>
-</ul>
-<h3 id="HTTP验证框架"><a href="#HTTP验证框架" class="headerlink" title="HTTP验证框架"></a>HTTP验证框架</h3><p><strong>Secruity Realm</strong>  </p>
-<p>server通过安全域告诉client授权范围限定在该域内。        </p>
-<p><strong>HTTP Basic Authentication</strong>           </p>
-<p>HTTP的验证框架基于Challenge/Response验证，一般仅用于测试可用性。具体而言，基本的HTTP验证通过GET方法，在首部利用WWW-Authentication字段（GET Response）和Authorization字段（GET Request）完成交互。 </p>
-<p><img src="/assets/images/http_auth.jpg" alt="图片"></p>
-<p>根据client在Authorization字段的对身份凭证（比如用户名密码）的处理方式不同，可以引申出诸多验证方式。    </p>
-<ul>
-<li>基于BASE64编码的基本认证；  </li>
-<li>基于HASH算法的摘要认证；  </li>
-<li>另外，为了防止重放攻击，可以再客户端和服务器端都引入随机数。    </li>
-</ul>
-<p>但是其其缺点也很明显：  </p>
-<ul>
-<li>缺乏对客户端的认证；  </li>
-<li>缺乏对服务器端的认证；  </li>
-<li>无法保证客户端和服务器端数据的完整性；  </li>
-<li>无法保证客户端和服务器端之间数据的私密性；  </li>
-</ul>
-<p>HTTPS应运而生。    </p>
-<p><strong>Token-based HTTP Authentication</strong></p>
-<p>该种验证方式适合于桌面系统和移动设备客户端。</p>
-<p><strong>Session backend for authentication</strong>  </p>
-<p><strong>OAuth-based Authentication</strong>  </p>
-<h2 id="Web应用的层次结构"><a href="#Web应用的层次结构" class="headerlink" title="Web应用的层次结构"></a>Web应用的层次结构</h2><p>Web的基本原理即client向server发起HTTP Requst, server向client回应HTTP Response。client不仅仅局限于浏览器，也不限于人，更一般的情况下client向第三方发起HTTP Requst,得到第三方的HTTP Response。</p>
-<h3 id="Static-website"><a href="#Static-website" class="headerlink" title="Static website"></a>Static website</h3><p>nginx 1.5 + modsecutity + openssl + bootstrap 2</p>
-<h3 id="Background-workers"><a href="#Background-workers" class="headerlink" title="Background workers"></a>Background workers</h3><p>Phython 3.0 + celery + pyedis + libcurl + ffmpeg + libopencv + nodejs + phantomjs</p>
-<h3 id="User-DB"><a href="#User-DB" class="headerlink" title="User DB"></a>User DB</h3><p>postgresql + pgv8 + v8  </p>
-<h3 id="Anaytics-DB"><a href="#Anaytics-DB" class="headerlink" title="Anaytics DB"></a>Anaytics DB</h3><p>hadoop + hive + thrift + OpenJDK  </p>
-<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><p>随着HTTP交互的数据量增长，不可避免会出现请求无法响应的情况，例如Twitter的在宕机时会出现fail whale图片。为了解决这个问题，引入消息队列。    </p>
-<ul>
-<li>可以向第三方应用发送HTTP Request;  </li>
-<li>可以更快的响应浏览器；  </li>
-<li>如果第三方应用失败，不会影响到client；  </li>
-<li>还可以发起重试；  </li>
-<li>可以向对个第三方应用推送数据。  </li>
-</ul>
-<p>目前的消息队列库的实现可以基于多种语言，包括Ruby、Python、Java、Erlang、Scala、C#、Lua、 PHP 等等。  </p>
-<p>消息队列遵循的协议有STOMP、AMQP和Memcache。  </p>
-<p>消息队列相关的软件包括RabbitMQ、Stompserver、ZeroMQ、Morbid、ApacheMQ、Starling、Beanstalk、Kestrel以及MemcacheQ。  </p>
-<p>Redis + redis-sentinel</p>
+<p><img src="/assets/images/SSL/SSL_layer_compare.png" alt="图片">   </p>
+<p>而SSL本身的数据处理如图2所示：  </p>
+<p><img src="/assets/images/SSL/SSL_data_enc.png" alt="图片">   </p>
 <ol>
-<li>Kafka: A Distributed Messaging System</li>
-<li>Redis: A Simple Key-Value Store</li>
+<li>如果需要将应用数据进行分片和组合，每个分片包封装至SSL的记录协议单元（Record Protocol Unit）；</li>
+<li>如果需要压缩则封装至压缩单元；</li>
+<li>对整个报文进行MAC计算，附在原始报文之后，然后进行加密；</li>
+<li>封装至TCP报文。</li>
 </ol>
-<h3 id="API-endpooint"><a href="#API-endpooint" class="headerlink" title="API endpooint"></a>API endpooint</h3><p>Python 2.7 + Flask + pyredis + celery + psycop + postgresql-client</p>
+<p>让我们回到数据读取，这里需要说明的是程序采用的事件处理框架。作为SSL客户端，为了能够处理多个SSL连接建立后对多个socket的并发事件处理，引入了select机制，事实上最多支持32个SSL连接。Select作为一种非阻塞IO接口，在这里用于轮询建立的TCP socket (SSL连接基于TCP socket，当然例外情况是DTLS基于UDP) 事件，结果发现没有数据可读。  </p>
+<p>数据读取在非阻塞模式下遵从能读多少就读多少的原则，同理数据写入在非阻塞模式下也遵从能输出多少就输出多少的原则,其中输出缓冲区如下图所示：  </p>
+<p><img src="/assets/images/SSL/SSL_write.jpg" alt="图片">  </p>
+<p>进一步查看已经建立的SSL连接表，结构如图2所示。SSL连接表本身由一个数组存储，为了加快SSL连接的查找又引入了一张哈希表，该哈希表采用数组作为散列的桶，每个桶是一个单向链表以解决哈希冲突。      </p>
+<p><img src="/assets/images/SSL/SSL_data.png" alt="图片"></p>
+<p>当前的SSL连接表显示多个SSL连接都挂在了一个桶的链表上，看起来是发生了哈希冲突，但细想这概率似乎有点高，那就看看为啥这几个SSL连接都搞出来一个key， 注意到这里的hash key是TCP socket的抽象数据结构指针，再看代码直接把当前进程中的文件描述作为查找键，增加一行代码就好了，即利用getsock拿到真正的socket数据结构指针。</p>
+<p>为了搞清楚错误是怎么发生的，有必要来个情景再现。让我们看看在哈希表插入的时候发生什么。哈希表的插入发生在新建一个SSL连接的时候（每一个SSL连接对应一个TCP socket），当TCP连接建立之后，SSL就以socket作为key插入哈希表当中。由于APP在SSL建立时候打开的一个文件描述符和隧道建立时候打开的文件描述符一些情况下是一样的，这样新旧两个SSL连接描述符产生相同的key,都插入同一个桶，对应依次插入链表尾部，当进行数据读写时根据文件描述符查找到的是旧的SSL连接描述符，此时该连接符已无数据可读写，导致超时。    </p>
 
       
 
@@ -1377,7 +962,15 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SSL/TLS</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">select</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">HashTable</a>
         		</li>
       		
 		</ul>
@@ -1398,7 +991,7 @@ Hello Simulator
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2014/10/19/web-application-layer/">展开全文 >></a>
+          <a class="article-more-a" href="/2015/05/12/issue-about-tcp-read-timeout-in-ssl-session/">展开全文 >></a>
         </p>
       
 
@@ -1428,42 +1021,56 @@ Hello Simulator
 
 
   
-    <article id="post-80211n-tx-aggregation-in-linux" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-tune-timer-implmentation" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/10/10/80211n-tx-aggregation-in-linux/">Linux下802.11n TX aggregation实现框图</a>
+      <a class="article-title" href="/2015/03/01/tune-timer-implmentation/">关于timer实现的优化</a>
     </h1>
   
 
         
-        <a href="/2014/10/10/80211n-tx-aggregation-in-linux/" class="archive-article-date">
-  	<time datetime="2014-10-09T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-10-10</time>
+        <a href="/2015/03/01/tune-timer-implmentation/" class="archive-article-date">
+  	<time datetime="2015-02-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-03-01</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="小引"><a href="#小引" class="headerlink" title="##小引"></a>##小引</h2><h2 id="正文"><a href="#正文" class="headerlink" title="##正文"></a>##正文</h2><p>本文研究了Linux下802.11n TX aggregation过程。</p>
-<p>###1、MAC80211 Framework  </p>
-<p>Linux协议栈中mac80211的整体架构如下图所示：      </p>
-<p><img src="/assets/images/mac80211_framework.png" alt="图片">  </p>
-<center>Figure 1: mac80211 framework</center>
+        <h2 id="1-Timer"><a href="#1-Timer" class="headerlink" title="1. Timer"></a>1. Timer</h2><p>Timer是底层库实现中重要的一部分，其作用主要是实现超时处理，应用的场景有：  </p>
+<ul>
+<li>EAP状态机实现</li>
+<li>事件驱动型模型实现</li>
+<li>SSL握手超时处理</li>
+</ul>
+<p>为了支持实时处理，将Timer的内部实现由原来的单向链表变为红黑树。  </p>
+<h3 id="2-为什么是红黑树"><a href="#2-为什么是红黑树" class="headerlink" title="2. 为什么是红黑树"></a>2. 为什么是红黑树</h3><p>红黑树是一种平衡树，但却不是一种基于高度的平衡树，在STL map和Linux中都作为平衡树来应用，当搜索的要求高或者修改频繁时，其表现效果更是好于AVL树，因为后者是基于高度的，所以在每次修改后都要进行rebalance，开销很大。而红黑树的插入只要两次旋转，删除最多三次旋转，虽然搜索稳定性不及AVL，但是仍不失为一种折中的好办法。</p>
+<p>为保持红黑树的平衡，需要对树进行一些调整，好比为了保证一个黑客集团内部的黑帽子和红帽子的平衡，在成员之间的帽子问题上进行调整，假定只有两种帽子，黑帽子和红帽子，而且等级森严，按照辈分排：  </p>
+<ul>
+<li>根节点必须为黑色，就是说老大必须是黑帽子；</li>
+<li>每个成员非黑即红；</li>
+<li>每个红帽子下面有两个黑帽子；</li>
+<li>从任何一个成员自己数起到自小的下线，黑帽子个数都是一致的。</li>
+</ul>
+<p>当一个新的成员（帽子为暂定为红色）加入后，对家族成员帽子颜色的调整有下面几种情况：  </p>
+<ul>
+<li>CASE1：新加入成员的Uncle辈是个红帽子，调整波及Uncle、Parent和Granparent，全部调整帽子颜色；</li>
+<li>CASE2：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的右孩子或者是右孩子的左孩子，调整波及Uncle和Granparent，以Uncle为轴旋转，交换了Uncle和Granparent的位置。</li>
+<li>CASE3：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的左孩子或者是右孩子的右孩子，调整波及很大，不仅涉及Uncle和Granparent的调整（以Uncle为轴旋转，交换了Uncle和Granparent的位置），还需将Uncle和Granparent的帽子颜色换掉。</li>
+</ul>
+<p>上述规则可用下图表示：  </p>
+<p><img src="/assets/images/rb_rule.png" alt="图片"></p>
+<p>依次插入6个节点123456，建立一颗红黑树如图所示：  </p>
+<p><img src="/assets/images/rb_insert.png" alt="图片"></p>
+<h2 id="3-参考资料"><a href="#3-参考资料" class="headerlink" title="3. 参考资料"></a>3. 参考资料</h2><ol>
+<li><a href="https://www.youtube.com/watch?v=PhY56LpCtP4" target="_blank" rel="external">RB Tree Howto</a>  </li>
+<li><a href="http://kakack.github.io/2014/04/%E9%9D%A2%E8%AF%95%E7%BC%96%E7%A8%8B%EF%BC%9A%E7%BA%A2%E9%BB%91%E6%A0%91/" target="_blank" rel="external">RB Tree Github</a>  </li>
+</ol>
 
-<p>###2、Transmission: kernel-&gt;mac80211-&gt;iwlwifi  </p>
-<p>kernel-&gt;mac80211-&gt;iwlwifi的具体层次如下图所示：      </p>
-<p><img src="/assets/images/tx_agg_1.png" alt="图片">  </p>
-<center>Figure 1: kernel-&gt;mac80211-&gt;iwlwifi flow</center>
-
-
-<p>###3、Transmission: iwlwifi-&gt;hardware  </p>
-<p>iwlwifi-&gt;hardware的具体层次如下图所示：      </p>
-<p><img src="/assets/images/tx_agg_1.png" alt="图片">  </p>
-<center>Figure 1: kernel-&gt;mac80211-&gt;iwlwifi flow</center>
       
 
       
@@ -1476,15 +1083,15 @@ Hello Simulator
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Timer</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">TX Aggregation</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Event Loop</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">mac80211</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RedBlack Tree</a>
         		</li>
       		
 		</ul>
@@ -1505,7 +1112,483 @@ Hello Simulator
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2014/10/10/80211n-tx-aggregation-in-linux/">展开全文 >></a>
+          <a class="article-more-a" href="/2015/03/01/tune-timer-implmentation/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-debug-tool-openssl" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/02/01/debug-tool-openssl/">调试工具杂记之OpenSSL篇</a>
+    </h1>
+  
+
+        
+        <a href="/2015/02/01/debug-tool-openssl/" class="archive-article-date">
+  	<time datetime="2015-01-31T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-02-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>OpenSSL，可以用来公私密钥对产生，证书查看（查看证书整体或者是单个信息），证书格式转化以及网络抓包，很多时候可以用于验证。</p>
+<h3 id="2-利用OpenSSL进行验证"><a href="#2-利用OpenSSL进行验证" class="headerlink" title="2. 利用OpenSSL进行验证"></a>2. 利用OpenSSL进行验证</h3><p><strong>利用OpenSSL验证证书</strong>  </p>
+<p>由于OpenSSL在验证证书时基于PEM格式，因此首先将非PEM格式转化为PEM格式。root证书由对方发送过来，但是server没有给，到是可以从网络抓包中export出来如图所示：  </p>
+<p><img src="/assets/images/tool/extract_cert.png" alt="图片">  </p>
+<ul>
+<li>转化root证书<br><code>openssl x509 -inform der -in FZROOTCA.cer -out FZROOTCA.pem</code></li>
+<li>查看证书<br><code>openssl x509 -in rsa_server.pem -noout –text</code>  </li>
+<li>转化sever证书<br><code>openssl x509 -inform der -in rsa_server.der -out rsa_server.pem</code>  </li>
+<li>利用root证书验证server证书：<br><code>openssl verify -verbose -CAfile FZROOTCA.pem  rsa_server.pem</code><br>结果显示：<br><code>rsa_server.pem: OK</code>，但貌似并不对签名进行验证，继续。</li>
+</ul>
+<p><strong>利用OpenSSL验证签名</strong>   </p>
+<p>为了验证签名，需要将public key从证书中单独抓出来：  </p>
+<p>  <code>openssl x509 -pubkey -noout -in rsa_server.pem &gt; server_pubkey.pem</code></p>
+<p>同时也需要将Signature从证书中抓出来：  </p>
+<p>  <code>openssl asn1parse -in rsa_server.pem -out sig -noout -strparse 614</code>  </p>
+<p>利用抓出来的signature和public key进行该证书的签名验证：  </p>
+<p>  <code>openssl rsautl -in sig -verify -asn1parse -inkey server_pubkey.pem –pubin</code>  </p>
+<p>结果显示：  </p>
+<p>  <code>RSA operation error</code><br>  <code>3177:error:0407006A:rsa routines:RSA_padding_check_PKCS1_type_1:block type is not 01:rsa_pk1.c:100:</code><br>  <code>3177:error:04067072:rsa routines:RSA_EAY_PUBLIC_DECRYPT:padding check failed:rsa_eay.c:699:</code>  </p>
+<p>对应代码如下：    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"> 1 int RSA_padding_check_PKCS1_type_1(unsigned char *to, int tlen,</div><div class="line"> 2 .       .       const unsigned char *from, int flen, int num)</div><div class="line"> 3 &#123;</div><div class="line"> 4 .       int i,j;</div><div class="line"> 5 .       const unsigned char *p;</div><div class="line"> 6 </div><div class="line"> 7 .       p=from;</div><div class="line"> 8 .       if ((num != (flen+1)) || (*(p++) != 01))</div><div class="line"> 9 .       &#123; 10 .       .       RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1,RSA_R_BLOCK_TYPE_IS_NOT_01);</div><div class="line">11 .       .       return(-1);</div><div class="line">12 .       &#125;</div><div class="line">13 </div><div class="line">14 .       /* scan over padding data */</div><div class="line">15 .       j=flen-1; /* one for type. */</div><div class="line">16 .       for (i=0; i&lt;j; i++)</div><div class="line">17 .       &#123;</div></pre></td></tr></table></figure>
+<p>从上面的结果可以得知公钥未能正确对签名解密，严重怀疑server将私钥弄错了。实际上如果解密成功，则应该是下面这个样子：  </p>
+<p><img src="/assets/images/tool/sig_decrypt.png" alt="图片">  </p>
+<p>其实就是遵循PKCS#1标准对数据的封装，整个明文长度和签名长度一致，都是RSA modulus个比特，上图中签名长度为2048 Bits，即256字节。第一个字节<code>00</code>意思是确保该加密块在转化为一个整数的时候其长度小于RSA的modulus。第二个字节<code>01</code>代表了这是一个私钥操作，即签名过程。然后是一大堆<code>FF</code>字节，用来填充结果，最后以<code>00</code>字节结尾。<code>30 21 30 09 06 05 2B 0E 03 02 1A 05 00 04 14</code> 则指明了HASH算法ID是SHA-1。最后的20个字节才是真正对整个证书进行HASH的结果，以此作为验证的比对对象。</p>
+<h3 id="开发新功能"><a href="#开发新功能" class="headerlink" title="开发新功能"></a>开发新功能</h3><p>为了在原有安全库的基础上支持PSSRSA，需要理解此类算法的封装格式，利用OpenSSL直接可以查看此类证书的ASN1编码格式：   </p>
+<p>  <code>openssl asn1parse -in pss_rsa_server.pem</code>    </p>
+<p>当然OpenSSL的功能远不止这些，后续会陆续添加。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ol>
+<li><a href="http://support.citrix.com/article/CTX132907" target="_blank" rel="external">How to Extract an SSL Certificate from a Network Packet Trace File in Wireshark</a>  </li>
+<li><a href="https://www.openssl.org/docs/apps/rsautl.html" target="_blank" rel="external">openssl rsautl</a>  </li>
+<li><a href="https://www.madboa.com/geek/openssl/#digest-verify" target="_blank" rel="external">OpenSSL Command-Line HOWTO 1</a>  </li>
+<li><a href="https://www.madboa.com/geek/openssl/" target="_blank" rel="external">OpenSSL Command-Line HOWTO 2</a>  </li>
+<li><a href="http://www.moserware.com/2009/06/first-few-milliseconds-of-https.html" target="_blank" rel="external">The First Few Milliseconds of an HTTPS Connection</a></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">OpenSSL</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">debug</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/02/01/debug-tool-openssl/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-little-on-performance-tune" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/01/23/little-on-performance-tune/">浅谈VDI优化</a>
+    </h1>
+  
+
+        
+        <a href="/2015/01/23/little-on-performance-tune/" class="archive-article-date">
+  	<time datetime="2015-01-22T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-01-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>VDI优化涉及到诸多系统的方面，整个系统的大框架如图所示：  </p>
+<p><img src="/assets/images/perf/VDI_framework.png" alt="图片"></p>
+<h3 id="VDI-APP层"><a href="#VDI-APP层" class="headerlink" title="VDI APP层"></a>VDI APP层</h3><p>APP内部实现架构选择，比如是采用多进程模型还是单进程模型；  </p>
+<h3 id="HTTP层"><a href="#HTTP层" class="headerlink" title="HTTP层"></a>HTTP层</h3><p>目前整体流程基于过程式交互方式，可以改为基于事情驱动的状态机实现方式；  </p>
+<h3 id="SSL层"><a href="#SSL层" class="headerlink" title="SSL层"></a>SSL层</h3><p>首先评估SSL的overhead到底有多大，以及主要瓶颈，针对性的进行优化；<br>SSL双方采用的版本也影响overhead，目前SSL的版本号有SSL2.0 SSL3.0，TLS1.0(SSL3.1)，TLS1.0(SSL3.2)和TLS1.0(SSL3.3)。版本号的协商基于如下公式：  </p>
+<p><code>min(max. client supported version, max. server supported version)</code>  </p>
+<h3 id="TCP-IP层"><a href="#TCP-IP层" class="headerlink" title="TCP/IP层"></a>TCP/IP层</h3><p><strong>关于序列号</strong>   </p>
+<ol>
+<li>TCP中双方的握手和分手过程，所有报文的<code>TCP Segment Len</code>都为0。  </li>
+<li><code>Window</code>就是滑动窗口，用来解决流控问题，即如何提高网络吐吞率，主要涉及到拥塞控制的参数调整。    </li>
+<li><code>Sequence Number</code>用来解决乱序问题，即我发送了多少加多少（对于三次握手阶段，以报文个数为单位，即在对方<code>Acknowledgment Number</code>基础上递增1；对于数据发送阶段，以字节数为递增单位，即在自己现有的<code>Sequence Number</code>上递增<code>TCP Segment Len</code>）。</li>
+<li><code>Acknowledgment Number</code>用于确认收包，解决丢包问题，即我收到了多少加多少（对于三次握手阶段，同样以报文个数为递增单位，即在对方<code>Sequence Number</code>的基础上上递增1；对于数据发送阶段，也同样以字节数为递增单位，即在自己现有的<code>Acknowledgment Number</code>上递增<code>TCP Segment Len</code>）。如图所示：</li>
+</ol>
+<p><img src="/assets/images/perf/tcp_seq.png" alt="图片"></p>
+<p>其中客户端192.168.69.2和服务器192.168.69.1的三次握手中，服务器的<code>seq</code>是自己产生的，<code>ack</code>则是在收到客户端的SYN报文后递加1（客户端的<code>seq + 1</code>），表示收到了客户端的连接请求；客户端的<code>seq</code>也是自个产生的，发送了一个SYN，就递加1，<code>ack</code>则是在收到服务器的SYN/ACK报文后在服务端的<code>seq + 1</code>。<br>在TCP连接建立后，客户端向服务端发送一个<code>TCP Segment Len</code>为445字节的分片#4，当前<code>seq</code>为1（相对序列号），不管是否送达下一个分片#6发送时，其<code>seq</code>会忠实地递增445字节，变为446。服务端收到分片#4后，将<code>ack</code>递增445字节。</p>
+<p>总之，<code>Sequence Number</code>和<code>Acknowledgment Number</code>像极了人的奋斗过程，前者好比付出，后者好比收获，但是付出不一定有收获（如果得到ACK确认则成功，否则失败）。  </p>
+<p><strong>网络层：</strong>    </p>
+<p>主要涉及到网络接口驱动的实现优化，比如中断轮询模式选择，是否启用DMA等。</p>
+<h3 id="加入LRU-Cache"><a href="#加入LRU-Cache" class="headerlink" title="加入LRU Cache"></a>加入LRU Cache</h3><p>LRU即Least Recently Used，是一种在cache中广泛应用的算法，保持经常访问的数据节点在cache中，如果某块节点很少被访问，在达到某种阈值之后就把它交换出去，这就要求查找和插入删除都要快。本系统采用双向链表和哈希表实现，主要利用了双向链表的插入和删除操作和哈希表的查找操作，数据结构定义如下:   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"> 6 typedef struct __cacheNode &#123;</div><div class="line"> 7 .       ubyte4. .       .       key;</div><div class="line"> 8 .       int.    .       .       value;</div><div class="line"> 9 .       struct list_head.       node;</div><div class="line">10 &#125; cacheNode;</div><div class="line">11 </div><div class="line">12 typedef struct __LRUCache &#123;</div><div class="line">13 .       struct list_head.       first;		//指向链表头部，代表最新访问节点</div><div class="line">14 .       struct list_head.       last;		//指向链表尾部，代表最旧访问节点</div><div class="line">15 .       hashTableOfPtrs..       *cacheMap;	//哈希表</div><div class="line">16 .       int.    .       .       capacity;	//cache容量</div><div class="line">17 .       int.    .       .       curr_size;	//当前节点个数</div><div class="line">18 &#125; LRUCache;</div></pre></td></tr></table></figure>
+<p>对应的操作主要就是get和put。    </p>
+<ul>
+<li>创建LRU cache。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">59 MSTATUS LRU_create(LRUCache **ppNewLRUCache, int capacity)</div><div class="line">60 &#123;</div><div class="line">61 .       MSTATUS..       status = OK;</div><div class="line">62 .       LRUCache.       *pNewLRU = NULL;</div><div class="line">63 .       hashTableOfPtrs.*pCacheMap;</div><div class="line">64         ubyte4. .       remain;</div><div class="line">65         ubyte4. .       count = 0;</div><div class="line">66 </div><div class="line">67 .       if (NULL == (pNewLRU = MALLOC(sizeof(LRUCache)))) &#123;</div><div class="line">68 .       .       status = ERR_MEM_ALLOC_FAIL;</div><div class="line">69 .       .       goto exit;</div><div class="line">70 .       &#125;</div><div class="line">71 </div><div class="line">72 .       MOC_MEMSET((ubyte *)(pNewLRU), 0x00, sizeof(LRUCache));</div><div class="line">73 </div><div class="line">74 .       /*Align capacity*/</div><div class="line">75 .       remain = capacity;</div><div class="line">76 .       while (remain &gt; 0) &#123;</div><div class="line">77 .       .       remain = remain &gt;&gt; 1;</div><div class="line">78 .       .       count++;</div><div class="line">79 .       &#125;</div><div class="line">80 </div><div class="line">81 .       if (OK &gt; (status = HASH_TABLE_createPtrsTable(&amp;pCacheMap, (1 &lt;&lt; count) - 1, NULL, LRU_allocHashPtrElement, LRU_freeHashPtrElement)))</div><div class="line">82 .       .       goto exit;</div><div class="line">83 </div><div class="line">84 .       pNewLRU-&gt;capacity = capacity;</div><div class="line">85 .       pNewLRU-&gt;curr_size = 0;</div><div class="line">86 .       pNewLRU-&gt;cacheMap = pCacheMap;</div><div class="line">87 .       pNewLRU-&gt;first.prev = pNewLRU-&gt;first.prev = &amp;pNewLRU-&gt;first;</div><div class="line">88 .       pNewLRU-&gt;last.prev = pNewLRU-&gt;last.prev = &amp;pNewLRU-&gt;last;</div><div class="line">89 .       *ppNewLRUCache = pNewLRU;</div><div class="line">90 exit:</div><div class="line">91 .       return status;</div><div class="line">92 &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>销毁LRU cache。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"> 94 MSTATUS LRU_release(LRUCache *pLRUCache)</div><div class="line"> 95 &#123;</div><div class="line"> 96 .       MSTATUS status = OK;</div><div class="line"> 97 </div><div class="line"> 98 .       if (NULL == pLRUCache) &#123;</div><div class="line"> 99 .       .       status = ERR_NULL_POINTER;</div><div class="line">100 .       .       goto exit;</div><div class="line">101 .       &#125;</div><div class="line">102 </div><div class="line">103 .       HASH_TABLE_removePtrsTable(pLRUCache-&gt;cacheMap, NULL);</div><div class="line">104 .       FREE(pLRUCache);</div><div class="line">105 .       pLRUCache = NULL;</div><div class="line">106 exit:</div><div class="line">107 .       return status;</div><div class="line">108 &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>插入LRU node。</li>
+</ul>
+<p>基本思路：如果待插入数据在cache中没有（cache miss）且没有超出cache容量,就为其分配节点，插入至链表头部，表示最近访问，同时插入哈希表当中；如果待插入数据已经存在且cache已经满了，那么首先找到最后一个元素，意味着最近没有访问，从哈希表中删除，然后从双链表中删除。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">209 extern MSTATUS</div><div class="line">210 LRU_setNode(LRUCache *pCache, ubyte4 key, int value)</div><div class="line">211 &#123;</div><div class="line">212 .       MSTATUS..       status = OK;</div><div class="line">213 .       cacheNode.      *pNode = NULL, *pNewNode = NULL, *pLastNode = NULL;</div><div class="line">214 .       ubyte4. .       hashValue = 0;</div><div class="line">215 .       intBoolean.     foundHashValue;</div><div class="line">216 .       int.    .       hashData;</div><div class="line">217 </div><div class="line">218 .       hashData = key;</div><div class="line">219 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">220 </div><div class="line">221 .       if (OK &gt; (status = HASH_TABLE_findPtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData, </div><div class="line">222 .       .       .       .       .       LRU_testKey, (void **)pNode, &amp;foundHashValue)))</div><div class="line">223 .       .       goto exit;</div><div class="line">224 </div><div class="line">225 .       if ((TRUE != foundHashValue) || (NULL == pNode)) &#123;</div><div class="line">226 .       .       if (pCache-&gt;curr_size == pCache-&gt;capacity) &#123;</div><div class="line">227 .       .       .       /*Remove last one*/</div><div class="line">228 .       .       .       pLastNode = LIST_ENTRY(pCache-&gt;last.next, cacheNode, node);</div><div class="line">229 .       .       .       hashData = (ubyte4)pLastNode-&gt;key;</div><div class="line">230 .       .       .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">231 </div><div class="line">232 .       .       .       HASH_TABLE_deletePtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData,</div><div class="line">233 .       .       .       .       .       LRU_testKey, (void *)pNode, &amp;foundHashValue);</div><div class="line">234 .       .       .       LRU_removeLast(pCache);</div><div class="line">235 .       .       .       if (pNode)</div><div class="line">236 .       .       .       .       FREE(pNode);</div><div class="line">237 .       .       &#125; else &#123;</div><div class="line">238 .       .       .       pCache-&gt;curr_size++;</div><div class="line">239 .       .       &#125;</div><div class="line">240 .       &#125;</div><div class="line">241 .              </div><div class="line">242 .       pNewNode = MALLOC(sizeof(cacheNode));</div><div class="line">243 .       if (NULL == pNewNode)</div><div class="line">244 .       .       status = ERR_MEM_ALLOC_FAIL;</div><div class="line">245 </div><div class="line">246 .       pNewNode-&gt;key = key;</div><div class="line">247 .       pNewNode-&gt;value = value;</div><div class="line">248 .       pNewNode-&gt;node.prev = pNewNode-&gt;node.prev = &amp;pNewNode-&gt;node;</div><div class="line">249 </div><div class="line">250 .       LRU_moveToHead(pCache, pNewNode);</div><div class="line">251 </div><div class="line">252 .       hashData = pNewNode-&gt;key;</div><div class="line">253 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">254 .       if (OK &gt; (status = HASH_TABLE_addPtr(pCache-&gt;cacheMap, hashValue, (void *)pNewNode)))</div><div class="line">255 .       .       goto exit;</div><div class="line">256 </div><div class="line">257 exit:</div><div class="line">258 .       return status;</div><div class="line">259 &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>查找LRU node。</li>
+</ul>
+<p>如果cache miss也就罢了，如何找到了，在返回该节点之前因此需要将其移到链表的头部，因为查找某个节点意味着对该节点有了最新的访问。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">181 extern MSTATUS</div><div class="line">182 LRU_getNode(LRUCache *pCache, ubyte4 key, int *pValue)</div><div class="line">183 &#123;</div><div class="line">184 .       MSTATUS..       status = OK;</div><div class="line">185 .       cacheNode.      *pNode = NULL;. /*AppData*/</div><div class="line">186 .       ubyte4. .       hashValue = key;</div><div class="line">187 .       intBoolean.     foundHashValue;</div><div class="line">188 .       int.    .       hashData;</div><div class="line">189 </div><div class="line">190 .       hashData = key;</div><div class="line">191 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">192 </div><div class="line">193 .       if (OK &gt; (status = HASH_TABLE_findPtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData, </div><div class="line">194 .       .       .       .       .       LRU_testKey, (void **)&amp;pNode, &amp;foundHashValue)))</div><div class="line">195 .       .       goto exit;</div><div class="line">196 </div><div class="line">197 .       if ((TRUE != foundHashValue) || (NULL == pNode)) &#123;</div><div class="line">198 .       .       status = -1;</div><div class="line">199 .       .       goto exit;</div><div class="line">200 .       &#125;</div><div class="line">201 </div><div class="line">202 .       LRU_moveToHead(pCache, pNode);</div><div class="line">203 </div><div class="line">204 .       *pValue = pNode-&gt;value;</div><div class="line">205 exit:</div><div class="line">206 .       return OK;</div><div class="line">207 &#125;</div></pre></td></tr></table></figure>
+<p>实际上两个辅助函数<code>LRU_moveToHead</code>和<code>LRU_removeLast</code>的实现值得注意：   </p>
+<p>其中<code>LRU_moveToHead</code>的基本实现思路就是先促成当前节点前后两个节点的牵手，然后再往前坐链表头，最后修改<code>first</code>和<code>last</code>节点。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">134 static </div><div class="line">135 void LRU_moveToHead(LRUCache *pCache, cacheNode *pNode)</div><div class="line">136 &#123;</div><div class="line">137 .       struct list_head.       *first = &amp;pCache-&gt;first;</div><div class="line">138 .       struct list_head.       *last  = &amp;pCache-&gt;last;</div><div class="line">139 .       struct list_head.       *curr = &amp;pNode-&gt;node;</div><div class="line">140 </div><div class="line">141 .       if (first == curr)</div><div class="line">142 .       .       return;</div><div class="line">143 </div><div class="line">144 .       if (NULL != curr-&gt;prev)</div><div class="line">145 .       .       curr-&gt;prev-&gt;next = curr-&gt;next;</div><div class="line">146 </div><div class="line">147 .       if (NULL != curr-&gt;next)</div><div class="line">148 .       .       curr-&gt;next-&gt;prev = curr-&gt;prev;</div><div class="line">149 </div><div class="line">150 .       if (curr == last)</div><div class="line">151 .       .       last = curr-&gt;prev;</div><div class="line">152 </div><div class="line">153 .       if (NULL != first) &#123;</div><div class="line">154 .       .       first-&gt;prev = curr;</div><div class="line">155 .       .       curr-&gt;next = first;</div><div class="line">156 .       &#125;</div><div class="line">157 </div><div class="line">158 .       first = curr;</div><div class="line">159 .       curr-&gt;prev = NULL;</div><div class="line">160 </div><div class="line">161 .       if (NULL == last)</div><div class="line">162 .       .       last = first;</div><div class="line">163 &#125;</div></pre></td></tr></table></figure>
+<h3 id="TLS层的优化点"><a href="#TLS层的优化点" class="headerlink" title="TLS层的优化点"></a>TLS层的优化点</h3><p>TLS连接的建立和关闭过程如图：  </p>
+<p><img src="/assets/images/perf/SSL_handshake.png" alt="图片"></p>
+<p>在TLS中频繁分配释放的内存主要有以下几类：   </p>
+<ul>
+<li>哈希描述符和哈希值;  </li>
+<li>密钥，比如masterkey为48字节;  </li>
+<li>典型的小块内存，一般为64字节和96字节;    </li>
+</ul>
+<p>Memory Pool的主要设计思路：  </p>
+<ul>
+<li>每块内存都看做一个对象，预先分配好一定数量的对象，即所谓的内存池；  </li>
+<li>定义get和put方法，一般成对出现，这样保证了预分配的对象数量可控；    </li>
+<li>内存池内的每个对象用单向链表维护，具体操作见图；  </li>
+</ul>
+<p><img src="/assets/images/perf/mem_pool.jpg" alt="图片"></p>
+<p>对SSL的握手过程进行对比测试，结果表明在使用mem pool的性能提升为8%左右，似乎并不理想，看来在SSL握手中此类内存的分配释放并不是影响性能的主要因素。 </p>
+<h3 id="充分利用硬件加速"><a href="#充分利用硬件加速" class="headerlink" title="充分利用硬件加速"></a>充分利用硬件加速</h3><p>对于计算密集型的加解密运算，首先想到的就是利用硬件进行加速，这里有两个方面的考虑：  </p>
+<ul>
+<li>主存和硬件加速单元之间的IO： 数据从主存搬移至硬件，硬件将结果返回给主存  </li>
+<li>对硬件处理结果的查询方式选择： 轮询还是中断？    </li>
+</ul>
+<p>针对上述考虑，采取的措施如下：    </p>
+<ul>
+<li>分析分析硬件加速的实现代码，发现其涉及到非常多固定大小内存的分配与释放，依然采用上文中的cache机制，需要注意的是硬件读写时要求地址对齐，因此对cache实现稍作修改，加入内存对齐处理。测试结果显示，后者能将性能提升50%左右(见下图)。   </li>
+</ul>
+<p><img src="/assets/images/perf/SSL_mcache_test.png" alt="图片"></p>
+<ul>
+<li>利用DMA进行数据拷贝避免动用CPU在主存和硬件加速单元之前拷贝，测试结果表明两者的性能差异大约在2倍左右。</li>
+<li>分别实现中断模式和轮询模式，对比后发现轮询模式下效率更高，因此选择了轮询模式。  </li>
+</ul>
+<p>整体而言，采用硬件加速就是在充分利用压榨硬件计算性能的基础上尽可能减少内存拷贝和IO消耗，最后性能平均提升大约十倍左右。  </p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">TLS</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">performance tune</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">memory pool</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/01/23/little-on-performance-tune/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-synchronization-and-exclusion" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/01/13/synchronization-and-exclusion/">同步与互斥二三事</a>
+    </h1>
+  
+
+        
+        <a href="/2015/01/13/synchronization-and-exclusion/" class="archive-article-date">
+  	<time datetime="2015-01-12T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-01-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="1-进程之间为什么需要同步"><a href="#1-进程之间为什么需要同步" class="headerlink" title="1. 进程之间为什么需要同步"></a>1. 进程之间为什么需要同步</h3><p>在顺序程序设计中，由于代码指令都是顺序执行，重复执行会得到相同的结果，即程序与计算一一对应。    </p>
+<p>并发程序意味着一个程序未执行完，而另外一个程序已经开始执行，这就是所谓的并发性。并发性从宏观上反映了一个时间段内有几个进程都处于运行态但运行尚未结束的状态。从微观上看，任一时刻仅有一个进程的一个操作在处理器上运行。反过来看，并发其实就是处理器在几个进程之间的多路复用器，是对有限物理资源的强制进行多用户共享，消除计算机部件之间的互等，提供系统资源的利用率。   </p>
+<p>由于交互的并发进程共享某些资源，一个进程的执行可能会影响其他或者进程的执行结果，即交互的进程之间<strong>相互制约</strong>。因此，必须对进程的交互过程进行控制，引入了各种同步机制。  </p>
+<h3 id="2-互斥与同步的关系"><a href="#2-互斥与同步的关系" class="headerlink" title="2. 互斥与同步的关系"></a>2. 互斥与同步的关系</h3><h4 id="2-1-互斥"><a href="#2-1-互斥" class="headerlink" title="2.1 互斥"></a>2.1 互斥</h4><p>互斥又称为竞争，并发的引入使得原本没有竞争关系的进程在访问共享资源时发生了冲突，进程之间存在<strong>间接制约关系</strong>。在这种关系下，一个进程获得资源，另一个进程不得不阻塞等待，因此可能会导致两个严重问题：死锁与饥饿。防止不公平，或者饿死某些低优先级的进程，是调度系统必须考虑的问题。    </p>
+<h4 id="2-2-同步"><a href="#2-2-同步" class="headerlink" title="2.2 同步"></a>2.2 同步</h4><p>进程同步是指为完成共同任务的并发进程基于某个条件来协调其活动，因为需要在某些位置上排定执行的<strong>先后次序</strong>而等待、传递信号或者消息所产生的协作制约关系。这种有先后次序的协作是进程之间的直接制约关系。       </p>
+<p>同步是为了几个具备一些依赖性的任务一起协同工作，通信则是为了同步的手段，可以基于共享内存，也可以基于消息传递。进程之间的协作可以是比知道对方名字的协作，比如通过共享内存进行松散式协作；或者进程双方知道对方名字，通过消息机制进行紧密协作。        </p>
+<p>竞争关系从某种意义上可以看成是同步，因为存在竞争关系的进程需要互斥的访问资源，也遵循<strong>互斥的访问次序</strong>。</p>
+<h3 id="3-实现同步的方式"><a href="#3-实现同步的方式" class="headerlink" title="3. 实现同步的方式"></a>3. 实现同步的方式</h3><p>实现同步的方式有多种，可以基于软件，也可以基于硬件。历史上，其演变史大致由自旋锁至信号量，再到互斥锁。</p>
+<h3 id="4-自旋锁"><a href="#4-自旋锁" class="headerlink" title="4. 自旋锁"></a>4. 自旋锁</h3><p>自旋锁可以通过CPU轮询机制实现同步。Spinlock作为一种临界区保护机制，在单处理器和多处理器下的实现不尽相同：  </p>
+<ul>
+<li>对于单处理器系统，实现互斥的最简单办法就是在进程进入临界区之前关闭中断，在进程退出临界区时开中断。因为进程的上下文切换都是由中断引起的，这样进程的执行就会被打断，因此关掉中断可以保证进行互斥的进入临界区。但不适宜作为通用的互斥机制，关中断事件过程会导致系统性能和效率下降，而且在多处理器中不适用，因为在<strong>一个处理器上关闭中断，并不能防止进程在其他处理器上执行同样的临界段代码</strong>。  </li>
+<li>对于多处理器系统，可以基于xchag指令和Test and Set Lock (TSL) instruction: TSL指令这两个指令实现spinlock，因为二者都是原子操作，一个处理器在处理的时候，其余处理器只有等到处理完毕才可获取访问权，实现了对临界区的互斥访问。</li>
+</ul>
+<p>XCHGB的实现：    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">      .globl. xchgb</div><div class="line">xchgb:</div><div class="line">      movl.   4(%esp), %edx   //edx = *((int32 *) (esp + 4));将最后一个参数赋值给ESP</div><div class="line">      movl.   8(%esp), %eax   //eax = *((int32 *) (esp + 8));将第一个参数赋值给寄存器eax</div><div class="line">      lock                    //锁住总线</div><div class="line">      xchgb.  %al, (%edx)     //交换寄存器edx和寄存器al的值</div><div class="line">      ret</div></pre></td></tr></table></figure>
+<p>spinlock的实现：    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">bool lock = false;</div><div class="line">bool keyi = true;</div><div class="line"></div><div class="line">spin_lock()</div><div class="line">&#123;   </div><div class="line">    </div><div class="line">    do &#123;</div><div class="line">        xchgb(&amp;keyi, lock); //xchg保证原子性操作，中间不会有中断进入</div><div class="line">    &#125; while (keyi);</div><div class="line">&#125;</div><div class="line"></div><div class="line">spin_unlock()</div><div class="line">&#123;</div><div class="line">    xchgb(&amp;keyi, lock);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>自旋锁的适用场合与缺点：适用于<strong>临界区代码执行时间较短</strong>的场合；由于自旋锁采取忙式等待，白白浪费了CPU的时间，将能否进入临界区的责任推给了各个竞争的进程，而且<strong>只能解决竞争问题，而不能解决进程之间的协作问题</strong>。</p>
+<h3 id="5-信号量"><a href="#5-信号量" class="headerlink" title="5. 信号量"></a>5. 信号量</h3><p>信号量于1965年由Edsger Dijkstra提出，主要是为了解决并发编程中的竞争问题，其实质是二元信号量，后来Scholten在此基础上提出了通用信号量，也称为计数信号量。不管是哪一种信号量，都加入了进程调度，CPU不再大量的忙等待。</p>
+<p>从信号量的等待队列中唤醒进程的算法有如下：  </p>
+<ul>
+<li>FIFO – 先入先出，唤醒次序由进入次序决定    </li>
+<li>Priority – 优先级排序决定唤醒次序</li>
+<li>Undefined – 未指定的实现算法  </li>
+</ul>
+<h4 id="5-1-Linux中信号量的实现"><a href="#5-1-Linux中信号量的实现" class="headerlink" title="5.1 Linux中信号量的实现"></a>5.1 Linux中信号量的实现</h4><p>Linux的信号量semaphore实质上为计数信号量。</p>
+<ul>
+<li><strong>semaphore定义和初始化</strong>    </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">struct semaphore &#123;</div><div class="line">	raw_spinlock_t		lock;	//自旋锁，用于互斥保护</div><div class="line">	unsigned int		count;	//信号量值，若count为正值，代表进入临界区之前可用的资源总数；若count为负值，意外着在该信号量队列当中注册等待的进程个数</div><div class="line">	struct list_head	wait_list;	//信号量队列，即等待队列</div><div class="line">&#125;;</div><div class="line"></div><div class="line">static inline void sema_init(struct semaphore *sem, int val)</div><div class="line">&#123;</div><div class="line">	static struct lock_class_key __key;</div><div class="line">	*sem = (struct semaphore) __SEMAPHORE_INITIALIZER(*sem, val);	//初始化各个字段</div><div class="line">	lockdep_init_map(&amp;sem-&gt;lock.dep_map, &quot;semaphore-&gt;lock&quot;, &amp;__key, 0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>semaphore的P操作</strong>  </li>
+</ul>
+<p>P操作也称为down操作，即请求一个资源。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">void down(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	unsigned long flags;</div><div class="line"></div><div class="line">	raw_spin_lock_irqsave(&amp;sem-&gt;lock, flags);	//互斥保护信号量计数</div><div class="line">	if (likely(sem-&gt;count &gt; 0))		//如果资源个数大于0，递减</div><div class="line">		sem-&gt;count--;</div><div class="line">	else</div><div class="line">		__down(sem);	//如果资源数不大于0，则将此进程放入该信号量的等待队列。</div><div class="line">	raw_spin_unlock_irqrestore(&amp;sem-&gt;lock, flags);</div><div class="line">&#125;</div><div class="line"></div><div class="line">static noinline void __sched __down(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	__down_common(sem, TASK_UNINTERRUPTIBLE, MAX_SCHEDULE_TIMEOUT);</div><div class="line">&#125;</div><div class="line"></div><div class="line">static inline int __sched __down_common(struct semaphore *sem, long state,</div><div class="line">								long timeout)</div><div class="line">&#123;</div><div class="line">	struct task_struct *task = current;</div><div class="line">	struct semaphore_waiter waiter;</div><div class="line"></div><div class="line">	list_add_tail(&amp;waiter.list, &amp;sem-&gt;wait_list);	//加入信号量的等待队列</div><div class="line">	waiter.task = task;</div><div class="line">	waiter.up = false;	//设置资源释放标志位up为假</div><div class="line"></div><div class="line">	for (;;) &#123;</div><div class="line">		if (signal_pending_state(state, task))</div><div class="line">			goto interrupted;	</div><div class="line">		if (unlikely(timeout &lt;= 0))</div><div class="line">			goto timed_out;</div><div class="line">		__set_task_state(task, state);	//设置当前进程状态为TASK_UNINTERRUPTIBLE</div><div class="line">		raw_spin_unlock_irq(&amp;sem-&gt;lock);</div><div class="line">		timeout = schedule_timeout(timeout);	//当前进程sleep，超时时间为MAX_SCHEDULE_TIMEOUT</div><div class="line">		raw_spin_lock_irq(&amp;sem-&gt;lock);</div><div class="line">		if (waiter.up)	//一旦资源释放标志位up为真，返回0</div><div class="line">			return 0;</div><div class="line">	&#125;</div><div class="line"></div><div class="line"> timed_out:</div><div class="line">	list_del(&amp;waiter.list);		//超时发生，将当前进程从等待队列移除，返回-ETIME</div><div class="line">	return -ETIME;</div><div class="line"></div><div class="line"> interrupted:		//中断发生，将当前进程从等待队列移除，返回-EINTR</div><div class="line">	list_del(&amp;waiter.list);</div><div class="line">	return -EINTR;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>semaphore的V操作，即up操作，尝试释放一个资源</strong>  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">void up(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	unsigned long flags;</div><div class="line"></div><div class="line">	raw_spin_lock_irqsave(&amp;sem-&gt;lock, flags);</div><div class="line">	if (likely(list_empty(&amp;sem-&gt;wait_list)))		//如果等待队列为空，只需将可用资源递加即可</div><div class="line">		sem-&gt;count++;</div><div class="line">	else</div><div class="line">		__up(sem);		//如果在该信号量上有等待队列，以某种调度算法唤醒一个进程。比如遵循FCFS算法</div><div class="line">	raw_spin_unlock_irqrestore(&amp;sem-&gt;lock, flags);</div><div class="line">&#125;</div><div class="line"></div><div class="line">static noinline void __sched __up(struct semaphore *sem)</div><div class="line">&#123;</div><div class="line">	struct semaphore_waiter *waiter = list_first_entry(&amp;sem-&gt;wait_list,</div><div class="line">						struct semaphore_waiter, list);</div><div class="line">	list_del(&amp;waiter-&gt;list);		//将当前进程从等待队列中移除</div><div class="line">	waiter-&gt;up = true;		//设置资源释放标志up为真</div><div class="line">	wake_up_process(waiter-&gt;task);		//唤醒一个进程</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>信号量适用于<strong>等待时间不确定</strong>的场景，但也有其潜在的问题：  </p>
+<ul>
+<li><strong>Accidental release</strong>   </li>
+<li><strong>Recursive deadlock</strong>  </li>
+<li><strong>Task-Death deadlock</strong>  </li>
+<li><strong>Cyclic Deadlock (Deadly Embrace)</strong></li>
+<li><strong>Priority inversion</strong>  </li>
+<li><strong>Semaphore as a signal</strong>  </li>
+</ul>
+<h4 id="5-2-Accidental-release"><a href="#5-2-Accidental-release" class="headerlink" title="5.2 Accidental release"></a>5.2 Accidental release</h4><p>比如没有进程P操作就进行V操作，会导致资源访问错误。    </p>
+<h4 id="5-3-Recursive-deadlock"><a href="#5-3-Recursive-deadlock" class="headerlink" title="5.3 Recursive deadlock"></a>5.3 Recursive deadlock</h4><p>所谓死就是进程都在等一个永远不会为真的条件，进程试图获取一个已经lock的信号量，比如如下锁实现会存在此问题。   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">typedef.char.   binary_semaphore  </div><div class="line"></div><div class="line">void</div><div class="line">init_sem(binary_semaphore *sem)</div><div class="line">&#123;</div><div class="line">.       *sem = 0;	//互斥锁初始化为0, 类型为char</div><div class="line">&#125;</div><div class="line"></div><div class="line">void</div><div class="line">P(binary_semaphore *sem)</div><div class="line">&#123;</div><div class="line">.       int.    s = spl7();	//关中断</div><div class="line"> </div><div class="line">.       while(xchgb(sem, 0xff) != 0) &#123;	//若sem已经不是0，说明已经有进程持有，则转入休眠，注意此时sem = -1;若sem还是0，说明没有进程持有，继续执行。</div><div class="line">.       .       sleep(sem, PZERO);	//1.将调用进程置成等待互斥锁sem的状态（sleep）；2.放入该互斥锁的队列当中；3.转向进程调度</div><div class="line">.       &#125;</div><div class="line">.       if (xchgb(sem, 1) != 0)		//执行前，sem为-1，再次修改sem为0xff</div><div class="line">.       .       *sem = 0xff;</div><div class="line">.       splx(s);	//开中断</div><div class="line">&#125;</div><div class="line"> </div><div class="line">void</div><div class="line">V(binary_semaphore *sem)</div><div class="line">&#123;</div><div class="line">.       binary_semaphore old;</div><div class="line"> </div><div class="line">.       old = xchgb(sem, 0);		//返回sem旧值，并赋予新值0	</div><div class="line">.       if (old &lt; 0) </div><div class="line">.       .       wakeup(sem);		//若旧值小于0，说明有进程在该锁上等待，因此需要：1.从该锁上队列中唤醒一个； 2.放入运行队； 3.自己则继续执行</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果一个进程已经获取该锁，当该进程尝试再次获取该锁的时候，会再次将自己置于等待状态而无法释放。</p>
+<h4 id="5-4-Task-Death-deadlock"><a href="#5-4-Task-Death-deadlock" class="headerlink" title="5.4 Task-Death deadlock"></a>5.4 Task-Death deadlock</h4><p>如果一个拥有信号量的task死亡了或者被终止了，会有什么后果？如果不能检测这种情况，所有正在等待的的task将永远都无法获得信号量从而进入死锁。  </p>
+<p>为了一定程度上解决这个问题，普遍的做法是在获得信号量的函数调用中指定一个可选的超时时间。比如前文提到的Linux实现就指定了超时机制。  </p>
+<h4 id="5-5-Cyclic-Deadlock-Deadly-Embrace"><a href="#5-5-Cyclic-Deadlock-Deadly-Embrace" class="headerlink" title="5.5 Cyclic Deadlock (Deadly Embrace)"></a>5.5 Cyclic Deadlock (Deadly Embrace)</h4><h4 id="5-6-Priority-Inversion"><a href="#5-6-Priority-Inversion" class="headerlink" title="5.6 Priority Inversion"></a>5.6 Priority Inversion</h4><p>大部分RTOS使用了优先级驱动的抢占调度算法。每个task拥有一个优先级，抢占调度中，低优先级的task释放CPU，使高优先级的task得以运行，这是构建一个实时操作系统的核心理念。优先级反转是指高优先级的task被低优先级的task挂起。  </p>
+<h4 id="5-7-Semaphore-as-a-signal"><a href="#5-7-Semaphore-as-a-signal" class="headerlink" title="5.7 Semaphore as a signal"></a>5.7 Semaphore as a signal</h4><p>同步（Synchronization）这个词经常被错误地用于表示互斥（mutual exclusion）。根据定义，同步是：  </p>
+<p><strong>To occur at the same time; be simultaneous</strong><br>一般来说，task之间的同步是指一个task在继续执行前，等待另外一个task的通知。还有一种情况是每个task都可能进入等待状态。互斥是一种保护机制，与此有很大不同。但是，这种错误的使用导致计数信号量可以被用于单向同步：初始化一个信号量，计数值为0。</p>
+<p>需要注意的是，<strong>P和V并不是在同一个task中成对出现的</strong>。在这个例子中，假设Task1调用了P(S)它将被挂起。当Task2之后调用V(S)时，单向同步发生了，两个task都进入就绪状态（高优先级的task先运行）。不过，这种对信号量的误用是存在问题的，会导致调试起来非常困难，并可能导致accidental release类型的问题，因为单独的V(S)调用（不与P(S)配对）现在被编译器认为是合法的。</p>
+<h3 id="6-互斥体"><a href="#6-互斥体" class="headerlink" title="6. 互斥体"></a>6. 互斥体</h3><p>为了解决信号量存在的问题，1980年提出了一种新的概念——互斥（Mutual Exclusion的缩写）。互斥与二元信号量在原理上是相似的，但有一个很大的不同：属主，这就意味着如果一个task获得了互斥体，只有这个task可以释放这个互斥体。如果某个task试图释放另一个task的互斥体，将会触发错误导致操作失败。一个没有属主的“互斥体”不能被称为互斥体。<strong>加锁与解锁只能在一个task中成对出现</strong>。</p>
+<h4 id="6-1-互斥体实现"><a href="#6-1-互斥体实现" class="headerlink" title="6.1 互斥体实现"></a>6.1 互斥体实现</h4><ul>
+<li><p><strong>Mutex的定义和初始化</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">typedef.struct mtx &#123;</div><div class="line">.       spinlock_t.     lock;</div><div class="line">.       struct. thread. *owner;</div><div class="line">.       short.  .       count;</div><div class="line">.       u_char. .       flags;</div><div class="line">.       u_char. .       waiters;</div><div class="line">&#125; mutexlock_t;</div><div class="line"></div><div class="line">int</div><div class="line">mutex_init(mutexlock_t *mtx, int flags)</div><div class="line">&#123;</div><div class="line">.       memset(mtx, 0, sizeof(*mtx));</div><div class="line">.       mtx-&gt;flags = flags;</div><div class="line">.       return(0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Mutex的定义和初始化</strong></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">int</div><div class="line">mutex_lock(mutexlock_t *mtx)</div><div class="line">&#123;</div><div class="line">.       if (mtx-&gt;owner == curthread) &#123;		//如果当前进程就是属主，计数递加即可</div><div class="line">.       .       mtx-&gt;count++;</div><div class="line">.       .       return(0);</div><div class="line">.       &#125;</div><div class="line"></div><div class="line">.       SPIN_LOCK_SPL0(&amp;mtx-&gt;lock);		//自旋锁进行互斥保护</div><div class="line">.       if (mtx-&gt;count &gt; 0 || mtx-&gt;waiters &gt; 0) &#123;	//</div><div class="line">.       .       do &#123;</div><div class="line">.       .       .       mtx-&gt;waiters++;		//等待计数递加</div><div class="line">.       .       .       SLEEP_SPINLOCK_UNLOCK(mtx, PZERO, &amp;mtx-&gt;lock);		//将当前进程放入互斥体的等待队列</div><div class="line">.       .       .       SPIN_LOCK_SPL0(&amp;mtx-&gt;lock);</div><div class="line">.       .       .       mtx-&gt;waiters--;</div><div class="line">.       .       &#125; while(mtx-&gt;count &gt; 0);</div><div class="line">.       &#125;</div><div class="line"></div><div class="line">.       mtx-&gt;owner = curthread;</div><div class="line">.       mtx-&gt;count = 1;</div><div class="line">.       SPIN_UNLOCK_SPL0(&amp;mtx-&gt;lock);</div><div class="line"></div><div class="line">.       return(0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>Mutex的定义和初始化</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">int</div><div class="line">mutex_unlock(mutexlock_t *mtx)</div><div class="line">&#123;</div><div class="line">.       assert(mtx-&gt;count &gt; 0);		//</div><div class="line">.       assert(mtx-&gt;owner == curthread);	//只有当前进程是属主的时候，才可解锁</div><div class="line">.       if (mtx-&gt;count &gt; 1) &#123;</div><div class="line">.       .       mtx-&gt;count--;</div><div class="line">.       .       return(0);</div><div class="line">.       &#125;</div><div class="line">.       SPIN_LOCK_SPL0(&amp;mtx-&gt;lock);		//互斥保护</div><div class="line">.       ASSERT(curthread-&gt;t_mutexcnt &gt; 0);</div><div class="line">.       STAT_DEC(curthread-&gt;t_mutexcnt);</div><div class="line"></div><div class="line">.       ASSERT(mtx-&gt;count == 1);</div><div class="line">.       ASSERT(mtx-&gt;owner == curthread);</div><div class="line">.       mtx-&gt;count = 0;</div><div class="line">.       mtx-&gt;owner = 0;</div><div class="line">.       if (mtx-&gt;waiters &gt; 0)</div><div class="line"> .      .       wakeup1(mtx);	//如果有等待进程，唤醒一个</div><div class="line">.       SPIN_UNLOCK_SPL0(&amp;mtx-&gt;lock);</div><div class="line">.       return(0);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="6-2-解决Accidental-release"><a href="#6-2-解决Accidental-release" class="headerlink" title="6.2 解决Accidental release"></a>6.2 解决Accidental release</h4><h4 id="6-3-解决Recursive-deadlock"><a href="#6-3-解决Recursive-deadlock" class="headerlink" title="6.3 解决Recursive deadlock"></a>6.3 解决Recursive deadlock</h4><p>如果是属主进程递归加锁，只需递加计数，不会导致一直等待。</p>
+<h4 id="6-4-互斥体API"><a href="#6-4-互斥体API" class="headerlink" title="6.4 互斥体API"></a>6.4 互斥体API</h4><p>目前主流的互斥体接口主要有三类：  </p>
+<ul>
+<li>VxWorks Version 5.4  </li>
+<li>POSIX Threads (pThreads) – IEEE Std 1003.1, 2004 Edition  </li>
+<li>Microsoft Windows Win32 – Not .NET  </li>
+</ul>
+<h4 id="1-VxWorks"><a href="#1-VxWorks" class="headerlink" title="1. VxWorks"></a>1. VxWorks</h4><p>VxWorks主要采用VxWorks mutex，支持优先级继承。</p>
+<h4 id="2-POSIX"><a href="#2-POSIX" class="headerlink" title="2. POSIX"></a>2. POSIX</h4><p>缺省的POSIX mutex不支持递归、不支持优先级继承和消亡探测机制。Linux下大多采用POSIX threads编程，支持四种Mutex类型：  </p>
+<ul>
+<li>Fast mutex – non-recursive and will deadlock [default]</li>
+<li>Error checking mutex – non-recursive but will report error</li>
+<li>Recursive mutex – as the name implies</li>
+<li>Adaptive mutex – extra fast for mutli-processor systems  </li>
+</ul>
+<h4 id="3-Win32-API"><a href="#3-Win32-API" class="headerlink" title="3. Win32 API"></a>3. Win32 API</h4><p>window下编程接口遵循win32 API,有如下几种：  </p>
+<ul>
+<li>Semaphore – The counting semaphore</li>
+<li>Critical Section – Mutex between threads in the same process; Recursive, no timeout, queuing order undefined</li>
+<li>Mutex – As per critical sections, but can be used by threads in different processes; Recursive, timeout, queuing order undefined  </li>
+</ul>
+<h3 id="7-参考文献"><a href="#7-参考文献" class="headerlink" title="7. 参考文献"></a>7. 参考文献</h3><p><a href="https://github.com/windflyer/windflyer.github.io/blob/master/_posts/2013/semaphore_mutex.md" target="_blank" rel="external">semaphore_mutex</a><br><a href="https://blog.feabhas.com/2009/09/mutex-vs-semaphores-%E2%80%93-part-1-semaphores/" target="_blank" rel="external">semaphore_mutex2</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Spinlock</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Process</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Synchronization</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Exclusion</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/01/13/synchronization-and-exclusion/">展开全文 >></a>
         </p>
       
 
@@ -1537,7 +1620,7 @@ Hello Simulator
   
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
     </nav>
   
 
@@ -1632,6 +1715,22 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -1644,39 +1743,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1688,7 +1759,35 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1716,39 +1815,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">OOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1760,6 +1831,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
               </li>
              
@@ -1768,11 +1847,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1788,11 +1871,143 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Spinlock</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Process</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Synchronization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Exclusion</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WEB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HTTP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">HTTPClient</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">keep-alive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">可调用对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">迭代器</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Concurrency</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Producer</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Consumer</a>
               </li>
             
             <div class="clearfix"></div>
