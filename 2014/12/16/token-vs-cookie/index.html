@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
   
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>Token VS Cookie | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="#1 概述Client请求server端应用时，server端的验证方法有两种：    最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。   基于token的验证：client收到签发的token之后，以后每次登陆需要发送至ser">
+  <meta name="description" content="1 概述Client请求server端应用时，server端的验证方法有两种：    最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。   基于token的验证：client收到签发的token之后，以后每次登陆需要发送至serv">
 <meta name="keywords" content="token,cookie,http authentication">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Token VS Cookie">
 <meta property="og:url" content="https://skypacer210.github.io/2014/12/16/token-vs-cookie/index.html">
 <meta property="og:site_name" content="skypacer的博客">
-<meta property="og:description" content="#1 概述Client请求server端应用时，server端的验证方法有两种：    最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。   基于token的验证：client收到签发的token之后，以后每次登陆需要发送至ser">
+<meta property="og:description" content="1 概述Client请求server端应用时，server端的验证方法有两种：    最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。   基于token的验证：client收到签发的token之后，以后每次登陆需要发送至serv">
 <meta property="og:updated_time" content="2017-08-09T13:57:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Token VS Cookie">
-<meta name="twitter:description" content="#1 概述Client请求server端应用时，server端的验证方法有两种：    最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。   基于token的验证：client收到签发的token之后，以后每次登陆需要发送至ser">
+<meta name="twitter:description" content="1 概述Client请求server端应用时，server端的验证方法有两种：    最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。   基于token的验证：client收到签发的token之后，以后每次登陆需要发送至serv">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
   
@@ -31,7 +31,7 @@
     #container.show {
       background: linear-gradient(200deg,#a0cfe4,#e8c37e);
     }
-  </style>
+  </style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   
 
   
@@ -39,7 +39,7 @@
 </head>
 
 <body>
-  <div id="container" q-class="show:isCtnShow">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container" q-class="show:isCtnShow">
     <canvas id="anm-canvas" class="anm-canvas"></canvas>
     <div class="left-col" q-class="show:isShow">
       
@@ -166,13 +166,12 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>#1 概述<br>Client请求server端应用时，server端的验证方法有两种：  </p>
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h1><p>Client请求server端应用时，server端的验证方法有两种：  </p>
 <ol>
 <li>最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。  </li>
 <li>基于token的验证：<br>client收到签发的token之后，以后每次登陆需要发送至server端。</li>
 </ol>
-<p>#2 Token相比于cookie的优点</p>
-<ul>
+<h1 id="2-Token相比于cookie的优点"><a href="#2-Token相比于cookie的优点" class="headerlink" title="2 Token相比于cookie的优点"></a>2 Token相比于cookie的优点</h1><ul>
 <li>Cross-domain/CORS:<br>Cookie + CORS 在不同的域之间工作的不是很好，token方法允许你利用AJAX调用至任何server和任何域，因为你利用HTTP头传递用户信息。<br>比如说SAML Tokens, SAML(Security Assertion Markup Language) tokens是一种标准化的基于XML的token，可以提供跨平台交互，而且client和server无需再同一个安全域内。  </li>
 <li>无状态：<br>Server端无需维护一个session的存储，token本身是一个包含所有用户信息的实体。Cookie则存在状态，并且必须保存在client端。</li>
 <li>CDN：<br>Sever端可以提供所有的APP特性，只需通过API访问CDN即可。</li>
@@ -180,8 +179,8 @@
 <li>性能<br>计算HMAC-SHA256似乎效率更高</li>
 <li>标准化：<br>你的API可以接受标准的JWT(JSON Web Token)。</li>
 </ul>
-<p>#3 Token存储<br>Token可以存储在三个地方：session storage/local storage/client side cookie。 如果存储在cookie中，利用了cookie的存储机制，而不是验证机制。  </p>
-<p>#4 Token的生命周期<br>Token和cookie都有生命周期。  </p>
+<h1 id="3-Token存储"><a href="#3-Token存储" class="headerlink" title="3 Token存储"></a>3 Token存储</h1><p>Token可以存储在三个地方：session storage/local storage/client side cookie。 如果存储在cookie中，利用了cookie的存储机制，而不是验证机制。  </p>
+<h1 id="4-Token的生命周期"><a href="#4-Token的生命周期" class="headerlink" title="4 Token的生命周期"></a>4 Token的生命周期</h1><p>Token和cookie都有生命周期。  </p>
 <ol>
 <li>对于cookie而言，控制器生命周期有如下选择：  </li>
 </ol>
@@ -198,11 +197,10 @@
 <li>检查用户是否仍旧存在或者访问权限被吊销；  </li>
 <li>签发一个更新了有效期的token</li>
 </ul>
-<p>#5 Token缺点</p>
-<ol>
+<h1 id="5-Token缺点"><a href="#5-Token缺点" class="headerlink" title="5 Token缺点"></a>5 Token缺点</h1><ol>
 <li>对于大公司而言，token可能变得很大  </li>
 <li>开发者的APP或者API变得更加复杂  </li>
-<li>维护的时间成本较高<br>#6 Token VS Certificate VS Ticket<br>三者都是引入了第三方机构,以window的验证模式为例：  </li>
+<li>维护的时间成本较高    <h1 id="6-Token-VS-Certificate-VS-Ticket"><a href="#6-Token-VS-Certificate-VS-Ticket" class="headerlink" title="6 Token VS Certificate VS Ticket"></a>6 Token VS Certificate VS Ticket</h1>三者都是引入了第三方机构,以window的验证模式为例：  </li>
 <li>Token：SAML Token，引入STS(Security Token Service)作为第三方机构  </li>
 <li>Certificate：引入CA，即X.509 PKI架构  </li>
 <li>Ticket：基于Kerberos的验证架构，引入TGS和AS作为KDC  </li>
@@ -477,43 +475,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">XML</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -525,35 +491,35 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+                <a href="javascript:void(0)" class="js-tag color4">XML</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -569,7 +535,47 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -578,22 +584,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -609,11 +599,51 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">EAP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -629,47 +659,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -689,22 +679,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">thread</a>
               </li>
              
@@ -717,15 +691,27 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WEB</a>
+                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HTTP</a>
+                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
+                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -737,7 +723,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+                <a href="javascript:void(0)" class="js-tag color4">WEB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HTTP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -758,6 +752,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -910,5 +908,21 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
 
 </div>
   </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
   
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
@@ -29,7 +29,7 @@
     #container.show {
       background: linear-gradient(200deg,#a0cfe4,#e8c37e);
     }
-  </style>
+  </style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   
 
   
@@ -37,7 +37,7 @@
 </head>
 
 <body>
-  <div id="container" q-class="show:isCtnShow">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container" q-class="show:isCtnShow">
     <canvas id="anm-canvas" class="anm-canvas"></canvas>
     <div class="left-col" q-class="show:isShow">
       
@@ -169,34 +169,70 @@
         <p>本文将对卡尔曼滤波做一个粗略总结~    </p>
 <hr>
 <h3 id="1、问题描述"><a href="#1、问题描述" class="headerlink" title="1、问题描述"></a>1、问题描述</h3><p>假定一个机器人导航，其状态用$\vec{x_k}$描述：  </p>
-<p>$<br>\vec{x_k}=\left ( \vec{p},\vec{v} \right )<br>$</p>
-<h3 id="2、Kalman-filter如何看待该问题"><a href="#2、Kalman-filter如何看待该问题" class="headerlink" title="2、Kalman filter如何看待该问题"></a>2、Kalman filter如何看待该问题</h3><p>采用一个向量描述状态：</p>
-<p>$<br>\vec{x}=<br>\left [<br>\begin{matrix}<br>        p \<br>        v \<br>        \end{matrix}<br> \right ]<br>$</p>
-<p>两个假设：</p>
+<script type="math/tex; mode=display">
+\vec{x_k}=\left ( \vec{p},\vec{v} \right )</script><h3 id="2、Kalman-filter如何看待该问题"><a href="#2、Kalman-filter如何看待该问题" class="headerlink" title="2、Kalman filter如何看待该问题"></a>2、Kalman filter如何看待该问题</h3><p>采用一个向量描述状态：</p>
+<script type="math/tex; mode=display">
+\vec{x}=
+\left [ 
+\begin{matrix}
+        p \\
+        v \\
+        \end{matrix}
+ \right ]</script><p>两个假设：</p>
 <ul>
 <li>p和v都符合高斯分布，数学期望为$\mu$，方差为$\sigma ^{2}$，</li>
 <li>随机</li>
 </ul>
-<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_1.png" alt="gauss_1">  </p>
+<p><div align="center"><img width="40%" height="40%" src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_1.png"></div></p>
 <center>Figure 1: gauss_1</center>
-
 
 <p>我们考虑速度和位置是有关联的：</p>
 <p><strong>矩阵描述问题</strong></p>
 <p>协方差用于衡量p和v两个变量的总体误差，</p>
-<p>$<br>\begin{equation} \label{eq:statevars}<br>\begin{aligned}<br>\mathbf{\hat{x}}_k &amp;= \begin{bmatrix}<br>\text{position}\<br>\text{velocity}<br>\end{bmatrix}\<br>\mathbf{P}<em>k &amp;=<br>\begin{bmatrix}<br>\Sigma</em>{pp} &amp; \Sigma<em>{pv} \<br>\Sigma</em>{vp} &amp; \Sigma_{vv} \<br>\end{bmatrix}<br>\end{aligned}<br>\end{equation}<br>$</p>
-<p>状态迁移描述：</p>
-<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_7.jpg" alt="状态迁移"></p>
+<script type="math/tex; mode=display">
+\begin{equation} \label{eq:statevars} 
+\begin{aligned} 
+\mathbf{\hat{x}}_k &= \begin{bmatrix} 
+\text{position}\\ 
+\text{velocity} 
+\end{bmatrix}\\ 
+\mathbf{P}_k &= 
+\begin{bmatrix} 
+\Sigma_{pp} & \Sigma_{pv} \\ 
+\Sigma_{vp} & \Sigma_{vv} \\ 
+\end{bmatrix} 
+\end{aligned} 
+\end{equation}</script><p>状态迁移描述：</p>
+<p><div align="center"><img width="40%" height="40%" src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_7.jpg"></div></p>
+<center>Figure 2: 状态迁移</center>
+
 <p>其中的预测过程用一个矩阵描述Fk：</p>
-<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_8.jpg" alt="预测过程"></p>
+<p><div align="center"><img width="40%" height="40%" src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_8.jpg"></div></p>
+<center>Figure 3: 预测过程</center>
+
+
 <p>我们预测速度和位置的迁移公式：</p>
-<p>$<br>\begin{split}<br>\color{deeppink}{p<em>k} &amp;= \color{royalblue}{p</em>{k-1}} + \Delta t &amp;\color{royalblue}{v_{k-1}} \<br>\color{deeppink}{v<em>k} &amp;= &amp;\color{royalblue}{v</em>{k-1}}<br>\end{split}<br>$</p>
-<p>预测矩阵描述：</p>
-<p>$<br>\begin{align}<br>\color{deeppink}{\mathbf{\hat{x}}<em>k} &amp;= \begin{bmatrix}<br>1 &amp; \Delta t \<br>0 &amp; 1<br>\end{bmatrix} \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>&amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \label{statevars}<br>\end{align}<br>$</p>
-<p>虽然有了预测矩阵，但是我们还不知道如何<strong>更新协方差矩阵</strong>；</p>
+<script type="math/tex; mode=display">
+\begin{split} 
+\color{deeppink}{p_k} &= \color{royalblue}{p_{k-1}} + \Delta t &\color{royalblue}{v_{k-1}} \\ 
+\color{deeppink}{v_k} &= &\color{royalblue}{v_{k-1}} 
+\end{split}</script><p>预测矩阵描述：</p>
+<script type="math/tex; mode=display">
+\begin{align} 
+\color{deeppink}{\mathbf{\hat{x}}_k} &= \begin{bmatrix} 
+1 & \Delta t \\ 
+0 & 1 
+\end{bmatrix} \color{royalblue}{\mathbf{\hat{x}}_{k-1}} \\ 
+&= \mathbf{F}_k \color{royalblue}{\mathbf{\hat{x}}_{k-1}} \label{statevars} 
+\end{align}</script><p>虽然有了预测矩阵，但是我们还不知道如何<strong>更新协方差矩阵</strong>；</p>
 <p>这样我们用下面的方法更新协方差矩阵：</p>
-<p>$<br>\begin{equation}<br>\begin{split}<br>\color{deeppink}{\mathbf{\hat{x}}_k} &amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>\color{deeppink}{\mathbf{P}_k} &amp;= \mathbf{F<em>k} \color{royalblue}{\mathbf{P}</em>{k-1}} \mathbf{F}_k^T<br>\end{split}<br>\end{equation}<br>$</p>
-<p>注意这里是大写的P，代表概率，协方差概率；</p>
+<script type="math/tex; mode=display">
+\begin{equation} 
+\begin{split} 
+\color{deeppink}{\mathbf{\hat{x}}_k} &= \mathbf{F}_k \color{royalblue}{\mathbf{\hat{x}}_{k-1}} \\ 
+\color{deeppink}{\mathbf{P}_k} &= \mathbf{F_k} \color{royalblue}{\mathbf{P}_{k-1}} \mathbf{F}_k^T 
+\end{split} 
+\end{equation}</script><p>注意这里是大写的P，代表概率，协方差概率；</p>
 
       
 
@@ -1811,43 +1847,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">XML</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1859,35 +1863,35 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+                <a href="javascript:void(0)" class="js-tag color4">XML</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1903,7 +1907,47 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1912,22 +1956,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1943,11 +1971,51 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">EAP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1963,47 +2031,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2023,22 +2051,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">thread</a>
               </li>
              
@@ -2051,15 +2063,27 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WEB</a>
+                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HTTP</a>
+                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
+                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2071,7 +2095,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+                <a href="javascript:void(0)" class="js-tag color4">WEB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HTTP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2092,6 +2124,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2244,5 +2280,21 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
 
 </div>
   </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 </body>
 </html>

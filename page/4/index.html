@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
   
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
@@ -29,7 +29,7 @@
     #container.show {
       background: linear-gradient(200deg,#a0cfe4,#e8c37e);
     }
-  </style>
+  </style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   
 
   
@@ -37,7 +37,7 @@
 </head>
 
 <body>
-  <div id="container" q-class="show:isCtnShow">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container" q-class="show:isCtnShow">
     <canvas id="anm-canvas" class="anm-canvas"></canvas>
     <div class="left-col" q-class="show:isShow">
       
@@ -289,8 +289,7 @@
         <p>本文将对wireless security的发展做一个粗略介绍，从open system到WPA、WPA2和802.1X，权当做抛砖引玉~</p>
 <p>注：任何一次技术变革不仅仅是技术方案的较量，更多的是市场的博弈。原文链接<a href="http://securityuncorked.com/2008/08/history-of-wireless-security/" target="_blank" rel="external">history of wireless security</a></p>
 <hr>
-<p>##1、Open and SKA</p>
-<p>802.11在发展早期主要采用两类验证方法– Open System Association (OSA) 和Shared Key Authentication (SKA).</p>
+<h2 id="1、Open-and-SKA"><a href="#1、Open-and-SKA" class="headerlink" title="1、Open and SKA"></a>1、Open and SKA</h2><p>802.11在发展早期主要采用两类验证方法— Open System Association (OSA) 和Shared Key Authentication (SKA).</p>
 <ul>
 <li>Open = no authentication</li>
 <li>Shared Key = WEP</li>
@@ -304,18 +303,13 @@
 <li>缺乏对client端的有效认证机制</li>
 <li>易于遭受重放攻击和完整性攻击  </li>
 </ul>
-<p>##2、 从WEP的改造到WPA的崭露头角  </p>
-<p>###2.1、 “i”之初创  </p>
-<p>随着WEP越来越多的漏洞被发现，IEEE决定成立802.11i工作组以改进无线安全。作为一个安全网络的过渡期，WPA应运而生，其目的在于开发一个强健的安全网络。<br>802.11i工作组面临诸多困难，其中之一便是如何在仍旧使用现有硬件的基础上对WEP进行安全加密流程进行改造。作为一个过渡性解决方案，WPA在解决WEP现有不足的基础上同时考虑长期的无线安全。  </p>
-<p>###2.2、 WPA与TKIP  </p>
-<p>Wi-Fi联盟(Wi-Fi Alliance)的目的在于创建一个在主流厂家之间互通的安全平台；而WPA源于‘Wi-Fi Protected Access’其本身不是一个标准甚至不能称之为框架，仅仅是一个由无线厂商为达到相互之间的互通而形成的ad-hoc联合。<br>WPA作为802.11i的一个准标准，既采用了特定的密钥管理，也遵循了802.11i中的验证架构-802.1X。由于当时的硬件不支持AES算法，WPA采用TKIP((Temporal Key Integrity Protocol))作为替代算法。</p>
-<p>###2.3、WPA中的密钥建立机制  </p>
-<p>WPA采用PMK建立PTKs，即会话密钥，其目的在于保护每个会话。伪随机数函数PSF (pseudo-random function)确保PTKs包含nonces、MAC地址计数、时间以及随机数。密钥建立机制的重新设计目的在于最大程度地降低主密钥被窃取的可能性。见图1。  </p>
+<h2 id="2、-从WEP的改造到WPA的崭露头角"><a href="#2、-从WEP的改造到WPA的崭露头角" class="headerlink" title="2、 从WEP的改造到WPA的崭露头角"></a>2、 从WEP的改造到WPA的崭露头角</h2><h3 id="2-1、-“i”之初创"><a href="#2-1、-“i”之初创" class="headerlink" title="2.1、 “i”之初创"></a>2.1、 “i”之初创</h3><p>随着WEP越来越多的漏洞被发现，IEEE决定成立802.11i工作组以改进无线安全。作为一个安全网络的过渡期，WPA应运而生，其目的在于开发一个强健的安全网络。<br>802.11i工作组面临诸多困难，其中之一便是如何在仍旧使用现有硬件的基础上对WEP进行安全加密流程进行改造。作为一个过渡性解决方案，WPA在解决WEP现有不足的基础上同时考虑长期的无线安全。  </p>
+<h3 id="2-2、-WPA与TKIP"><a href="#2-2、-WPA与TKIP" class="headerlink" title="2.2、 WPA与TKIP"></a>2.2、 WPA与TKIP</h3><p>Wi-Fi联盟(Wi-Fi Alliance)的目的在于创建一个在主流厂家之间互通的安全平台；而WPA源于‘Wi-Fi Protected Access’其本身不是一个标准甚至不能称之为框架，仅仅是一个由无线厂商为达到相互之间的互通而形成的ad-hoc联合。<br>WPA作为802.11i的一个准标准，既采用了特定的密钥管理，也遵循了802.11i中的验证架构-802.1X。由于当时的硬件不支持AES算法，WPA采用TKIP((Temporal Key Integrity Protocol))作为替代算法。</p>
+<h3 id="2-3、WPA中的密钥建立机制"><a href="#2-3、WPA中的密钥建立机制" class="headerlink" title="2.3、WPA中的密钥建立机制"></a>2.3、WPA中的密钥建立机制</h3><p>WPA采用PMK建立PTKs，即会话密钥，其目的在于保护每个会话。伪随机数函数PSF (pseudo-random function)确保PTKs包含nonces、MAC地址计数、时间以及随机数。密钥建立机制的重新设计目的在于最大程度地降低主密钥被窃取的可能性。见图1。  </p>
 <p><img src="/assets/images/wireless_brief_fig_1.png" alt="图片">  </p>
 <center>Figure 1. WEP vs WPA</center>  
 
-<p>###2.4、WPA的其他改进点  </p>
-<p>WPA在安全性方面的改进之处主要有以下几点:</p>
+<h3 id="2-4、WPA的其他改进点"><a href="#2-4、WPA的其他改进点" class="headerlink" title="2.4、WPA的其他改进点"></a>2.4、WPA的其他改进点</h3><p>WPA在安全性方面的改进之处主要有以下几点:</p>
 <ul>
 <li>IV扩展至56bit（对于弱密钥可以允许8bit的密钥扩展空间）</li>
 <li>采用PTKs（再一次扩展了有效的密钥空间）</li>
@@ -325,25 +319,20 @@
 <li>增加了序列号以防止重放攻击</li>
 <li>报文头和负载的完整性检查以防止重定向攻击</li>
 </ul>
-<p>###2.5、WPA小结<br>WPA作为一种安全架构主要包含两类组件：第一类是加密组件TKIP；第二类是验证组件，可以是PSK也可以是RADIUS。除了安全性相比WEP有提升之外，更重要的是保证了向前兼容。</p>
-<p>##3、 WPA2一统天下   </p>
-<p>2008年WPA的漏洞被发现，即TKIP exploit,该漏洞通过改变验证组件无法修正，唯一的解决方法是用AES替代TKIP。WPA2应运而生，这就要求硬件进行改变。TKIP可以作为WPA2的可选项。<br>802.11i和WPA2指的是同一件事情，这样一来，在现有的硬件上可以用统一的的加密方式-AES，这正是IEEE标准下所谓的强健网络。<br>作为当前无线安全的标准，802.11i/WPA2又像极了当年的WPA准标准，仅在一些细微处有所不同。随着802.11i完成最终的业界应用，现有的硬件将AES加密算法作为内置算法。<br>WPA2相比WPA有如下两大改变：</p>
+<h3 id="2-5、WPA小结"><a href="#2-5、WPA小结" class="headerlink" title="2.5、WPA小结"></a>2.5、WPA小结</h3><p>WPA作为一种安全架构主要包含两类组件：第一类是加密组件TKIP；第二类是验证组件，可以是PSK也可以是RADIUS。除了安全性相比WEP有提升之外，更重要的是保证了向前兼容。</p>
+<h2 id="3、-WPA2一统天下"><a href="#3、-WPA2一统天下" class="headerlink" title="3、 WPA2一统天下"></a>3、 WPA2一统天下</h2><p>2008年WPA的漏洞被发现，即TKIP exploit,该漏洞通过改变验证组件无法修正，唯一的解决方法是用AES替代TKIP。WPA2应运而生，这就要求硬件进行改变。TKIP可以作为WPA2的可选项。<br>802.11i和WPA2指的是同一件事情，这样一来，在现有的硬件上可以用统一的的加密方式-AES，这正是IEEE标准下所谓的强健网络。<br>作为当前无线安全的标准，802.11i/WPA2又像极了当年的WPA准标准，仅在一些细微处有所不同。随着802.11i完成最终的业界应用，现有的硬件将AES加密算法作为内置算法。<br>WPA2相比WPA有如下两大改变：</p>
 <ol>
 <li>AES加密算法替代WEP被内置进硬件</li>
 <li>加强了完整性检查  </li>
 </ol>
-<p>###3.1、802.11i与802.1x     </p>
-<p>802.11i采用802.1x保证密钥的建立与验证。EAPoL虽然本身是基于有线设计的，但是很容易适用于无线。802.1X相比之前的验证方法的最大不同之处在于验证过程发生在station和RADIUS server之间，而不是station和AP之间。由于AP不参与密钥产生，所以session key（由PTK导出）和每包密钥需要和AP共享，这些密钥由一个安全通道TLS传输。  </p>
+<h3 id="3-1、802-11i与802-1x"><a href="#3-1、802-11i与802-1x" class="headerlink" title="3.1、802.11i与802.1x"></a>3.1、802.11i与802.1x</h3><p>802.11i采用802.1x保证密钥的建立与验证。EAPoL虽然本身是基于有线设计的，但是很容易适用于无线。802.1X相比之前的验证方法的最大不同之处在于验证过程发生在station和RADIUS server之间，而不是station和AP之间。由于AP不参与密钥产生，所以session key（由PTK导出）和每包密钥需要和AP共享，这些密钥由一个安全通道TLS传输。  </p>
 <p>图2描述了多种通信流，用不同的颜色予以标记。EAPoL通信由黑色标记，而EAP握手由蓝色区分。RADIUS采用绿色，TLS则使用了橙色。从该图可以清晰地看到station、AP以及RADIUS server之间的交互流程。</p>
 <p><img src="/assets/images/wireless_brief_fig_2.png" alt="图片">  </p>
 <center>Figure 2. 802.1X in Wireless</center>
 
-<p>###3.2、源自RADIUS的TLS隧道    </p>
-<p>802.11i利用802.1X不仅建立密钥同时也完成了验证， 相应地，RADIUS服务器也通过该途径向client验证其自身。这条从RADIUS服务器端到客户端的隧道提供了安全通信的机制，从而保证了验证过程中的密钥交互。</p>
-<p>###3.3、WPA2的安全性  </p>
-<p>WPA2也同样包含两类组件，一是基于AES的加密组件，二是基于PSK或者是RADIUS的验证组件。但并不意味着WPA2就没有漏洞，比如可以通过错误配置PEAP验证组件进行攻击。</p>
-<p>##4、 后记</p>
-<p>尽管业界对于802.1X仍然有一些争议，但其已经成为主流的安全无线验证机制并被广泛接受。总之，802.1X囊括了安全密钥交换、密钥轮转、主密钥保护以及AES加密等，成为目前一种具有单项优势的技术。</p>
+<h3 id="3-2、源自RADIUS的TLS隧道"><a href="#3-2、源自RADIUS的TLS隧道" class="headerlink" title="3.2、源自RADIUS的TLS隧道"></a>3.2、源自RADIUS的TLS隧道</h3><p>802.11i利用802.1X不仅建立密钥同时也完成了验证， 相应地，RADIUS服务器也通过该途径向client验证其自身。这条从RADIUS服务器端到客户端的隧道提供了安全通信的机制，从而保证了验证过程中的密钥交互。</p>
+<h3 id="3-3、WPA2的安全性"><a href="#3-3、WPA2的安全性" class="headerlink" title="3.3、WPA2的安全性"></a>3.3、WPA2的安全性</h3><p>WPA2也同样包含两类组件，一是基于AES的加密组件，二是基于PSK或者是RADIUS的验证组件。但并不意味着WPA2就没有漏洞，比如可以通过错误配置PEAP验证组件进行攻击。</p>
+<h2 id="4、-后记"><a href="#4、-后记" class="headerlink" title="4、 后记"></a>4、 后记</h2><p>尽管业界对于802.1X仍然有一些争议，但其已经成为主流的安全无线验证机制并被广泛接受。总之，802.1X囊括了安全密钥交换、密钥轮转、主密钥保护以及AES加密等，成为目前一种具有单项优势的技术。</p>
 <hr>
 
       
@@ -434,8 +423,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>本文由<a href="http://skypacer210.github.io/">skypacer</a>根据<a href="http://docs.openstack.org/trunk/install-guide/install/apt/content/" target="_blank" rel="external">OpenStack Installation Guide for Ubuntu 12.04 (LTS)</a>在自己的环境中实际部署情况整理而成。转载请注明出处！</p>
-<p>###1、安装准备  </p>
-<h4 id="网络设置"><a href="#网络设置" class="headerlink" title="网络设置"></a>网络设置</h4><ul>
+<h3 id="1、安装准备"><a href="#1、安装准备" class="headerlink" title="1、安装准备"></a>1、安装准备</h3><h4 id="网络设置"><a href="#网络设置" class="headerlink" title="网络设置"></a>网络设置</h4><ul>
 <li>安装双网卡：通过vsphere client安装两个网卡，一个内网，一个外网。<br>修改文件/etc/network/interfaces如下：    </li>
 </ul>
 <pre><code>
@@ -491,30 +479,25 @@ ff02::2 ip6-allrouters
 <li>重启网络：service networking restart  </li>
 <li>测试网络：通过hostname命令检查主机名设置；通过ping检查主机解析  </li>
 </ul>
-<p>####1.2、安装数据库    </p>
-<ul>
+<h4 id="1-2、安装数据库"><a href="#1-2、安装数据库" class="headerlink" title="1.2、安装数据库"></a>1.2、安装数据库</h4><ul>
 <li>apt-get install python-mysqldb mysql-server</li>
 <li>修改/etc/mysql/my.cnf：将mysql的绑定地址改为内网IP：1<br>bind-address            = 10.151.122.138  </li>
 <li>重启MYSQL：service mysql restart</li>
-<li>删除匿名用户：<br><pre><code>  <h1 id="mysql-install-db"><a href="#mysql-install-db" class="headerlink" title="mysql_install_db"></a>mysql_install_db</h1><h1 id="mysql-secure-installation"><a href="#mysql-secure-installation" class="headerlink" title="mysql_secure_installation"></a>mysql_secure_installation</h1></code></pre> }</li>
+<li>删除匿名用户：<br><pre><code>  <h1 id="mysql-install-db"><a href="#mysql-install-db" class="headerlink" title="mysql_install_db"></a>mysql_install_db</h1><h1 id="mysql-secure-installation"><a href="#mysql-secure-installation" class="headerlink" title="mysql_secure_installation"></a>mysql_secure_installation</h1>&lt;/code&gt;&lt;/pre&gt; }</code></pre></li>
 </ul>
-<p>####1.3、安装时间服务器  </p>
-<ul>
+<h4 id="1-3、安装时间服务器"><a href="#1-3、安装时间服务器" class="headerlink" title="1.3、安装时间服务器"></a>1.3、安装时间服务器</h4><ul>
 <li>安装NTP服务器用于同步时间：apt-get install ntp</li>
 <li>创建各自密码：暂时不考虑安全性，为了方便暂时保存在.bashrc中的环境变量中</li>
 </ul>
-<p>###2、Identity services配置</p>
-<p><a id="single_res" name="single_res"> </a></p>
+<h3 id="2、Identity-services配置"><a href="#2、Identity-services配置" class="headerlink" title="2、Identity services配置"></a>2、Identity services配置</h3><p><a id="single_res" name="single_res"> </a></p>
 <p>单一责任原则，即一个类只能有一种原因去驱动改变，该原则的是同open-closed原则有异曲同工之妙：尽量避免现有代码的修改。当违反了单一原则的时候，一个模块有多种原因需要去修改。更糟的是，多个不同的责任集中于一个模块当中会耦合在一起，使得测试与修改变得非常复杂。  </p>
 <p>单一责任原则本质是集中性，便于进行多层抽象，而不仅仅是一个过程上下文，简单地讲类替换为函数将有利于我们在此原则基础上分析算法。  </p>
-<p>####2.1、验证机制  </p>
-<p>####2.2、定义用户、租户和角色  </p>
-<p>由于在/etc/keystone/keystone.conf中定义了admin_token，这是一个keystone和other openstack services的预共享密钥，在创建租户时会用到。  </p>
+<h4 id="2-1、验证机制"><a href="#2-1、验证机制" class="headerlink" title="2.1、验证机制"></a>2.1、验证机制</h4><h4 id="2-2、定义用户、租户和角色"><a href="#2-2、定义用户、租户和角色" class="headerlink" title="2.2、定义用户、租户和角色"></a>2.2、定义用户、租户和角色</h4><p>由于在/etc/keystone/keystone.conf中定义了admin_token，这是一个keystone和other openstack services的预共享密钥，在创建租户时会用到。  </p>
 <ul>
 <li>通过设置两个环境变量指定token和identity service运行的路径<br>export OS_SERVICE_TOKEN=ADMIN_TOKEN<br>export OS_SERVICE_ENDPOINT=<a href="http://controller:35357/v2.0" target="_blank" rel="external">http://controller:35357/v2.0</a></li>
 <li>创建租户  </li>
 </ul>
-<p>keystone tenant-create –name=admin –description=”Admin Tenant”  </p>
+<p>keystone tenant-create —name=admin —description=”Admin Tenant”  </p>
 <pre><code>  
 
 +-------------+----------------------------------+
@@ -680,10 +663,8 @@ keystone user-list
 +----------------------------------+-------+---------+---------------------------+
 </code></pre> 
 
-<p>###3、OpenStack clients安装与配置  </p>
-<p>通过命令行客户端进行API调用，可以设置在脚本中自动执行。在OpenStack内部，可以运行cURL命令执行内嵌API请求。OpenStack是一种基于HTTP协议REST风格的API，包括方法、URI、介质类型和响应代码。<br>每个Openstack服务都有自己的命令行客户端。</p>
-<p>####3.1、基于python的开源客户端  </p>
-<ul>
+<h3 id="3、OpenStack-clients安装与配置"><a href="#3、OpenStack-clients安装与配置" class="headerlink" title="3、OpenStack clients安装与配置"></a>3、OpenStack clients安装与配置</h3><p>通过命令行客户端进行API调用，可以设置在脚本中自动执行。在OpenStack内部，可以运行cURL命令执行内嵌API请求。OpenStack是一种基于HTTP协议REST风格的API，包括方法、URI、介质类型和响应代码。<br>每个Openstack服务都有自己的命令行客户端。</p>
+<h4 id="3-1、基于python的开源客户端"><a href="#3-1、基于python的开源客户端" class="headerlink" title="3.1、基于python的开源客户端"></a>3.1、基于python的开源客户端</h4><ul>
 <li>ceilometer：度量openStack</li>
 <li>cinder：创建和管理volume</li>
 <li>glance:创建和管理图片</li>
@@ -694,12 +675,10 @@ keystone user-list
 <li>swift：统计Object Storage服务的元数据</li>
 <li>充电</li>
 </ul>
-<p>###4、验证Identity Services安装     </p>
-<p>####4.1、安装Image Service  </p>
-<ul>
+<h3 id="4、验证Identity-Services安装"><a href="#4、验证Identity-Services安装" class="headerlink" title="4、验证Identity Services安装"></a>4、验证Identity Services安装</h3><h4 id="4-1、安装Image-Service"><a href="#4-1、安装Image-Service" class="headerlink" title="4.1、安装Image Service"></a>4.1、安装Image Service</h4><ul>
 <li>注册Image服务和Identity服务，这样其他的OpenStack服务可以定位到它  </li>
 </ul>
-<p>keystone service-create –name=glance –type=image \<br>    –description=”Glance Image Service”</p>
+<p>keystone service-create —name=glance —type=image \<br>    —description=”Glance Image Service”</p>
 <pre><code> 
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -714,7 +693,7 @@ keystone user-list
 <ul>
 <li>利用serveice id创建endpoint</li>
 </ul>
-<p>keystone endpoint-create –service-id=21b15dc9b1d846149883e953af08d906 –publicurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> –internalurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> \<br>    –adminurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a></p>
+<p>keystone endpoint-create —service-id=21b15dc9b1d846149883e953af08d906 —publicurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> —internalurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> \<br>    —adminurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a></p>
 <pre><code> 
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -728,13 +707,12 @@ keystone user-list
 +-------------+----------------------------------+
 </code></pre>  
 
-<p>####4.2、安装Image Service</p>
-<p>验证安装：  </p>
+<h4 id="4-2、安装Image-Service"><a href="#4-2、安装Image-Service" class="headerlink" title="4.2、安装Image Service"></a>4.2、安装Image Service</h4><p>验证安装：  </p>
 <ul>
 <li>上传Image</li>
 </ul>
-<p>root@controller:/home/fyang/project/images# glance image-create –name=”CirrOS 0.3.0” –disk-format=qcow2 –container-format=bare –is-public=true &lt; cirros-0.3.0-x86_64-disk.img   </p>
-<p>root@controller:/home/fyang/project/images# glance image-create –name=”CirrOS 0.3.0” –disk-format=qcow2 –container-format=bare –is-public=true &lt; cirros-0.3.0-x86_64-disk.img  </p>
+<p>root@controller:/home/fyang/project/images# glance image-create —name=”CirrOS 0.3.0” —disk-format=qcow2 —container-format=bare —is-public=true &lt; cirros-0.3.0-x86_64-disk.img   </p>
+<p>root@controller:/home/fyang/project/images# glance image-create —name=”CirrOS 0.3.0” —disk-format=qcow2 —container-format=bare —is-public=true &lt; cirros-0.3.0-x86_64-disk.img  </p>
 <ul>
 <li>显示Image列表  </li>
 </ul>
@@ -748,10 +726,7 @@ keystone user-list
 +--------------------------------------+--------------+-------------+------------------+---------+--------+
 </code></pre>  
 
-<p>###5、计算控制服务安装与配置  </p>
-<p>####5.1、概述  </p>
-<p>####5.1、安装Image Service  </p>
-<ul>
+<h3 id="5、计算控制服务安装与配置"><a href="#5、计算控制服务安装与配置" class="headerlink" title="5、计算控制服务安装与配置"></a>5、计算控制服务安装与配置</h3><h4 id="5-1、概述"><a href="#5-1、概述" class="headerlink" title="5.1、概述"></a>5.1、概述</h4><h4 id="5-1、安装Image-Service"><a href="#5-1、安装Image-Service" class="headerlink" title="5.1、安装Image Service"></a>5.1、安装Image Service</h4><ul>
 <li>创建计算服务表：</li>
 </ul>
 <p>nova-manage db sync  </p>
@@ -763,7 +738,7 @@ keystone user-list
 <ul>
 <li>创建用户</li>
 </ul>
-<p>keystone user-create –name=nova –pass=NOVA_PASS –email=nova@example.</p>
+<p>keystone user-create —name=nova —pass=NOVA_PASS —email=nova@example.</p>
 <pre><code>
 +----------+----------------------------------+
 | Property |              Value               |
@@ -778,7 +753,7 @@ keystone user-list
 <ul>
 <li>充电</li>
 </ul>
-<p>root@controller:/home/fyang/project/images# keystone service-create –name=nova –type=compute –description=”Nova Compute service”  </p>
+<p>root@controller:/home/fyang/project/images# keystone service-create —name=nova —type=compute —description=”Nova Compute service”  </p>
 <pre><code>
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -794,7 +769,7 @@ keystone user-list
 <ul>
 <li>创建endpoint</li>
 </ul>
-<p>root@controller:/home/fyang/project# keystone endpoint-create –service-id=0d67dd130ebc4de2ba8e54ac241e92d0 –publicurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> –internalurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> –adminurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a>  </p>
+<p>root@controller:/home/fyang/project# keystone endpoint-create —service-id=0d67dd130ebc4de2ba8e54ac241e92d0 —publicurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> —internalurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> —adminurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a>  </p>
 <pre><code>
 +-------------+-----------------------------------------+
 |   Property  |                  Value                  |
@@ -1479,43 +1454,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">XML</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1527,35 +1470,35 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+                <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+                <a href="javascript:void(0)" class="js-tag color5">openstack</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+                <a href="javascript:void(0)" class="js-tag color4">XML</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1571,7 +1514,47 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1580,22 +1563,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1611,11 +1578,51 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">EAP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1631,47 +1638,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1691,22 +1658,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">thread</a>
               </li>
              
@@ -1719,15 +1670,27 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WEB</a>
+                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HTTP</a>
+                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
+                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1739,7 +1702,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+                <a href="javascript:void(0)" class="js-tag color4">WEB</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HTTP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1760,6 +1731,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1912,5 +1887,21 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
 
 </div>
   </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 </body>
 </html>

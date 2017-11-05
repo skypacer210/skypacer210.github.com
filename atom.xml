@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://skypacer210.github.io/"/>
-  <updated>2017-11-05T02:17:40.000Z</updated>
+  <updated>2017-11-05T08:19:05.000Z</updated>
   <id>https://skypacer210.github.io/</id>
   
   <author>
@@ -20,39 +20,75 @@
     <link href="https://skypacer210.github.io/2017/11/01/little-on-karman-filter/"/>
     <id>https://skypacer210.github.io/2017/11/01/little-on-karman-filter/</id>
     <published>2017-10-31T16:00:00.000Z</published>
-    <updated>2017-11-05T02:17:40.000Z</updated>
+    <updated>2017-11-05T08:19:05.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文将对卡尔曼滤波做一个粗略总结~    </p>
 <hr>
 <h3 id="1、问题描述"><a href="#1、问题描述" class="headerlink" title="1、问题描述"></a>1、问题描述</h3><p>假定一个机器人导航，其状态用$\vec{x_k}$描述：  </p>
-<p>$<br>\vec{x_k}=\left ( \vec{p},\vec{v} \right )<br>$</p>
-<h3 id="2、Kalman-filter如何看待该问题"><a href="#2、Kalman-filter如何看待该问题" class="headerlink" title="2、Kalman filter如何看待该问题"></a>2、Kalman filter如何看待该问题</h3><p>采用一个向量描述状态：</p>
-<p>$<br>\vec{x}=<br>\left [<br>\begin{matrix}<br>        p \<br>        v \<br>        \end{matrix}<br> \right ]<br>$</p>
-<p>两个假设：</p>
+<script type="math/tex; mode=display">
+\vec{x_k}=\left ( \vec{p},\vec{v} \right )</script><h3 id="2、Kalman-filter如何看待该问题"><a href="#2、Kalman-filter如何看待该问题" class="headerlink" title="2、Kalman filter如何看待该问题"></a>2、Kalman filter如何看待该问题</h3><p>采用一个向量描述状态：</p>
+<script type="math/tex; mode=display">
+\vec{x}=
+\left [ 
+\begin{matrix}
+        p \\
+        v \\
+        \end{matrix}
+ \right ]</script><p>两个假设：</p>
 <ul>
 <li>p和v都符合高斯分布，数学期望为$\mu$，方差为$\sigma ^{2}$，</li>
 <li>随机</li>
 </ul>
-<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_1.png" alt="gauss_1">  </p>
+<p><div align="center"><img width="40%" height="40%" src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_1.png"></div></p>
 <center>Figure 1: gauss_1</center>
-
 
 <p>我们考虑速度和位置是有关联的：</p>
 <p><strong>矩阵描述问题</strong></p>
 <p>协方差用于衡量p和v两个变量的总体误差，</p>
-<p>$<br>\begin{equation} \label{eq:statevars}<br>\begin{aligned}<br>\mathbf{\hat{x}}_k &amp;= \begin{bmatrix}<br>\text{position}\<br>\text{velocity}<br>\end{bmatrix}\<br>\mathbf{P}<em>k &amp;=<br>\begin{bmatrix}<br>\Sigma</em>{pp} &amp; \Sigma<em>{pv} \<br>\Sigma</em>{vp} &amp; \Sigma_{vv} \<br>\end{bmatrix}<br>\end{aligned}<br>\end{equation}<br>$</p>
-<p>状态迁移描述：</p>
-<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_7.jpg" alt="状态迁移"></p>
+<script type="math/tex; mode=display">
+\begin{equation} \label{eq:statevars} 
+\begin{aligned} 
+\mathbf{\hat{x}}_k &= \begin{bmatrix} 
+\text{position}\\ 
+\text{velocity} 
+\end{bmatrix}\\ 
+\mathbf{P}_k &= 
+\begin{bmatrix} 
+\Sigma_{pp} & \Sigma_{pv} \\ 
+\Sigma_{vp} & \Sigma_{vv} \\ 
+\end{bmatrix} 
+\end{aligned} 
+\end{equation}</script><p>状态迁移描述：</p>
+<p><div align="center"><img width="40%" height="40%" src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_7.jpg"></div></p>
+<center>Figure 2: 状态迁移</center>
+
 <p>其中的预测过程用一个矩阵描述Fk：</p>
-<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_8.jpg" alt="预测过程"></p>
+<p><div align="center"><img width="40%" height="40%" src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_8.jpg"></div></p>
+<center>Figure 3: 预测过程</center>
+
+
 <p>我们预测速度和位置的迁移公式：</p>
-<p>$<br>\begin{split}<br>\color{deeppink}{p<em>k} &amp;= \color{royalblue}{p</em>{k-1}} + \Delta t &amp;\color{royalblue}{v_{k-1}} \<br>\color{deeppink}{v<em>k} &amp;= &amp;\color{royalblue}{v</em>{k-1}}<br>\end{split}<br>$</p>
-<p>预测矩阵描述：</p>
-<p>$<br>\begin{align}<br>\color{deeppink}{\mathbf{\hat{x}}<em>k} &amp;= \begin{bmatrix}<br>1 &amp; \Delta t \<br>0 &amp; 1<br>\end{bmatrix} \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>&amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \label{statevars}<br>\end{align}<br>$</p>
-<p>虽然有了预测矩阵，但是我们还不知道如何<strong>更新协方差矩阵</strong>；</p>
+<script type="math/tex; mode=display">
+\begin{split} 
+\color{deeppink}{p_k} &= \color{royalblue}{p_{k-1}} + \Delta t &\color{royalblue}{v_{k-1}} \\ 
+\color{deeppink}{v_k} &= &\color{royalblue}{v_{k-1}} 
+\end{split}</script><p>预测矩阵描述：</p>
+<script type="math/tex; mode=display">
+\begin{align} 
+\color{deeppink}{\mathbf{\hat{x}}_k} &= \begin{bmatrix} 
+1 & \Delta t \\ 
+0 & 1 
+\end{bmatrix} \color{royalblue}{\mathbf{\hat{x}}_{k-1}} \\ 
+&= \mathbf{F}_k \color{royalblue}{\mathbf{\hat{x}}_{k-1}} \label{statevars} 
+\end{align}</script><p>虽然有了预测矩阵，但是我们还不知道如何<strong>更新协方差矩阵</strong>；</p>
 <p>这样我们用下面的方法更新协方差矩阵：</p>
-<p>$<br>\begin{equation}<br>\begin{split}<br>\color{deeppink}{\mathbf{\hat{x}}_k} &amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>\color{deeppink}{\mathbf{P}_k} &amp;= \mathbf{F<em>k} \color{royalblue}{\mathbf{P}</em>{k-1}} \mathbf{F}_k^T<br>\end{split}<br>\end{equation}<br>$</p>
-<p>注意这里是大写的P，代表概率，协方差概率；</p>
+<script type="math/tex; mode=display">
+\begin{equation} 
+\begin{split} 
+\color{deeppink}{\mathbf{\hat{x}}_k} &= \mathbf{F}_k \color{royalblue}{\mathbf{\hat{x}}_{k-1}} \\ 
+\color{deeppink}{\mathbf{P}_k} &= \mathbf{F_k} \color{royalblue}{\mathbf{P}_{k-1}} \mathbf{F}_k^T 
+\end{split} 
+\end{equation}</script><p>注意这里是大写的P，代表概率，协方差概率；</p>
 ]]></content>
     
     <summary type="html">
@@ -1436,8 +1472,7 @@
     <published>2014-12-25T16:00:00.000Z</published>
     <updated>2017-08-09T13:57:49.000Z</updated>
     
-    <content type="html"><![CDATA[<p>##1 概述 ##  </p>
-<p>本文记录了NS-3模拟器在Ubuntu12.04桌面版上的完整安装记录。  </p>
+    <content type="html"><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h2><p>本文记录了NS-3模拟器在Ubuntu12.04桌面版上的完整安装记录。  </p>
 <h2 id="2-安装"><a href="#2-安装" class="headerlink" title="2 安装"></a>2 安装</h2><p>NS-3的安装方法有两种，一种是利用bake工具自动化安装，另一种是手动安装，安装包的下载可以通过Mercurial或则是直接下载tar包。<br>由于Bake工具安装陷入超时，因此直接采用基于Mercurial的手动安装。</p>
 <h3 id="2-1-依赖软件包安装"><a href="#2-1-依赖软件包安装" class="headerlink" title="2.1 依赖软件包安装"></a>2.1 依赖软件包安装</h3><p>Bake本身提供依赖包检测，这里直接将所需包安装成功。  </p>
 <pre><code>
@@ -1683,9 +1718,8 @@ Hello Simulator
     
     <summary type="html">
     
-      &lt;p&gt;##1 概述 ##  &lt;/p&gt;
-&lt;p&gt;本文记录了NS-3模拟器在Ubuntu12.04桌面版上的完整安装记录。  &lt;/p&gt;
-&lt;h2 id=&quot;2-安装&quot;&gt;&lt;a href=&quot;#2-安装&quot; class=&quot;headerlink&quot; title=&quot;2 安装&quot;&gt;&lt;/a&gt;2 安装&lt;/h2&gt;
+      &lt;h2 id=&quot;1-概述&quot;&gt;&lt;a href=&quot;#1-概述&quot; class=&quot;headerlink&quot; title=&quot;1 概述&quot;&gt;&lt;/a&gt;1 概述&lt;/h2&gt;&lt;p&gt;本文记录了NS-3模拟器在Ubuntu12.04桌面版上的完整安装记录。  &lt;/p&gt;
+&lt;h2 id=&quot;2-安装&quot;&gt;&lt;a hr
     
     </summary>
     
@@ -1705,13 +1739,12 @@ Hello Simulator
     <published>2014-12-15T16:00:00.000Z</published>
     <updated>2017-08-09T13:57:49.000Z</updated>
     
-    <content type="html"><![CDATA[<p>#1 概述<br>Client请求server端应用时，server端的验证方法有两种：  </p>
+    <content type="html"><![CDATA[<h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h1><p>Client请求server端应用时，server端的验证方法有两种：  </p>
 <ol>
 <li>最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候server只需验证cookie即可。Cookie可以存在内存或者硬盘中。  </li>
 <li>基于token的验证：<br>client收到签发的token之后，以后每次登陆需要发送至server端。</li>
 </ol>
-<p>#2 Token相比于cookie的优点</p>
-<ul>
+<h1 id="2-Token相比于cookie的优点"><a href="#2-Token相比于cookie的优点" class="headerlink" title="2 Token相比于cookie的优点"></a>2 Token相比于cookie的优点</h1><ul>
 <li>Cross-domain/CORS:<br>Cookie + CORS 在不同的域之间工作的不是很好，token方法允许你利用AJAX调用至任何server和任何域，因为你利用HTTP头传递用户信息。<br>比如说SAML Tokens, SAML(Security Assertion Markup Language) tokens是一种标准化的基于XML的token，可以提供跨平台交互，而且client和server无需再同一个安全域内。  </li>
 <li>无状态：<br>Server端无需维护一个session的存储，token本身是一个包含所有用户信息的实体。Cookie则存在状态，并且必须保存在client端。</li>
 <li>CDN：<br>Sever端可以提供所有的APP特性，只需通过API访问CDN即可。</li>
@@ -1719,8 +1752,8 @@ Hello Simulator
 <li>性能<br>计算HMAC-SHA256似乎效率更高</li>
 <li>标准化：<br>你的API可以接受标准的JWT(JSON Web Token)。</li>
 </ul>
-<p>#3 Token存储<br>Token可以存储在三个地方：session storage/local storage/client side cookie。 如果存储在cookie中，利用了cookie的存储机制，而不是验证机制。  </p>
-<p>#4 Token的生命周期<br>Token和cookie都有生命周期。  </p>
+<h1 id="3-Token存储"><a href="#3-Token存储" class="headerlink" title="3 Token存储"></a>3 Token存储</h1><p>Token可以存储在三个地方：session storage/local storage/client side cookie。 如果存储在cookie中，利用了cookie的存储机制，而不是验证机制。  </p>
+<h1 id="4-Token的生命周期"><a href="#4-Token的生命周期" class="headerlink" title="4 Token的生命周期"></a>4 Token的生命周期</h1><p>Token和cookie都有生命周期。  </p>
 <ol>
 <li>对于cookie而言，控制器生命周期有如下选择：  </li>
 </ol>
@@ -1737,11 +1770,10 @@ Hello Simulator
 <li>检查用户是否仍旧存在或者访问权限被吊销；  </li>
 <li>签发一个更新了有效期的token</li>
 </ul>
-<p>#5 Token缺点</p>
-<ol>
+<h1 id="5-Token缺点"><a href="#5-Token缺点" class="headerlink" title="5 Token缺点"></a>5 Token缺点</h1><ol>
 <li>对于大公司而言，token可能变得很大  </li>
 <li>开发者的APP或者API变得更加复杂  </li>
-<li>维护的时间成本较高<br>#6 Token VS Certificate VS Ticket<br>三者都是引入了第三方机构,以window的验证模式为例：  </li>
+<li>维护的时间成本较高    <h1 id="6-Token-VS-Certificate-VS-Ticket"><a href="#6-Token-VS-Certificate-VS-Ticket" class="headerlink" title="6 Token VS Certificate VS Ticket"></a>6 Token VS Certificate VS Ticket</h1>三者都是引入了第三方机构,以window的验证模式为例：  </li>
 <li>Token：SAML Token，引入STS(Security Token Service)作为第三方机构  </li>
 <li>Certificate：引入CA，即X.509 PKI架构  </li>
 <li>Ticket：基于Kerberos的验证架构，引入TGS和AS作为KDC  </li>
@@ -1750,9 +1782,9 @@ Hello Simulator
     
     <summary type="html">
     
-      &lt;p&gt;#1 概述&lt;br&gt;Client请求server端应用时，server端的验证方法有两种：  &lt;/p&gt;
+      &lt;h1 id=&quot;1-概述&quot;&gt;&lt;a href=&quot;#1-概述&quot; class=&quot;headerlink&quot; title=&quot;1 概述&quot;&gt;&lt;/a&gt;1 概述&lt;/h1&gt;&lt;p&gt;Client请求server端应用时，server端的验证方法有两种：  &lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;最常见的cookie-based Authentication：  Serve端发送给client的cookie，这样client每次登陆的时候serve
+&lt;li&gt;最常见的cookie-
     
     </summary>
     
@@ -1885,15 +1917,13 @@ Hello Simulator
     <published>2014-11-19T16:00:00.000Z</published>
     <updated>2017-08-09T13:57:49.000Z</updated>
     
-    <content type="html"><![CDATA[<p>#IOT  </p>
-<p><img src="/assets/images/IOT.png" alt="图片">  </p>
+    <content type="html"><![CDATA[<h1 id="IOT"><a href="#IOT" class="headerlink" title="IOT"></a>IOT</h1><p><img src="/assets/images/IOT.png" alt="图片">  </p>
 <center>IOT technology stack</center>  ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;#IOT  &lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/assets/images/IOT.png&quot; alt=&quot;图片&quot;&gt;  &lt;/p&gt;
-&lt;center&gt;IOT technology stack&lt;/center&gt;  
+      &lt;h1 id=&quot;IOT&quot;&gt;&lt;a href=&quot;#IOT&quot; class=&quot;headerlink&quot; title=&quot;IOT&quot;&gt;&lt;/a&gt;IOT&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;/assets/images/IOT.png&quot; alt=&quot;图片&quot;&gt;  &lt;/p&gt;
+&lt;center&gt;IOT tech
     
     </summary>
     
@@ -2051,26 +2081,26 @@ Hello Simulator
     <published>2014-10-09T16:00:00.000Z</published>
     <updated>2017-08-09T13:57:49.000Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="小引"><a href="#小引" class="headerlink" title="##小引"></a>##小引</h2><h2 id="正文"><a href="#正文" class="headerlink" title="##正文"></a>##正文</h2><p>本文研究了Linux下802.11n TX aggregation过程。</p>
-<p>###1、MAC80211 Framework  </p>
-<p>Linux协议栈中mac80211的整体架构如下图所示：      </p>
+    <content type="html"><![CDATA[<h2 id="小引"><a href="#小引" class="headerlink" title="小引"></a>小引</h2><hr>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
+<p>本文研究了Linux下802.11n TX aggregation过程。</p>
+<h3 id="1、MAC80211-Framework"><a href="#1、MAC80211-Framework" class="headerlink" title="1、MAC80211 Framework"></a>1、MAC80211 Framework</h3><p>Linux协议栈中mac80211的整体架构如下图所示：      </p>
 <p><img src="/assets/images/mac80211_framework.png" alt="图片">  </p>
 <center>Figure 1: mac80211 framework</center>
 
-<p>###2、Transmission: kernel-&gt;mac80211-&gt;iwlwifi  </p>
-<p>kernel-&gt;mac80211-&gt;iwlwifi的具体层次如下图所示：      </p>
+<h3 id="2、Transmission-kernel-gt-mac80211-gt-iwlwifi"><a href="#2、Transmission-kernel-gt-mac80211-gt-iwlwifi" class="headerlink" title="2、Transmission: kernel-&gt;mac80211-&gt;iwlwifi"></a>2、Transmission: kernel-&gt;mac80211-&gt;iwlwifi</h3><p>kernel-&gt;mac80211-&gt;iwlwifi的具体层次如下图所示：      </p>
 <p><img src="/assets/images/tx_agg_1.png" alt="图片">  </p>
-<center>Figure 1: kernel-&gt;mac80211-&gt;iwlwifi flow</center>
+<center>Figure 1: kernel->mac80211->iwlwifi flow</center>
 
 
-<p>###3、Transmission: iwlwifi-&gt;hardware  </p>
-<p>iwlwifi-&gt;hardware的具体层次如下图所示：      </p>
+<h3 id="3、Transmission-iwlwifi-gt-hardware"><a href="#3、Transmission-iwlwifi-gt-hardware" class="headerlink" title="3、Transmission: iwlwifi-&gt;hardware"></a>3、Transmission: iwlwifi-&gt;hardware</h3><p>iwlwifi-&gt;hardware的具体层次如下图所示：      </p>
 <p><img src="/assets/images/tx_agg_1.png" alt="图片">  </p>
-<center>Figure 1: kernel-&gt;mac80211-&gt;iwlwifi flow</center>]]></content>
+<center>Figure 1: kernel->mac80211->iwlwifi flow</center>]]></content>
     
     <summary type="html">
     
-      &lt;h2 id=&quot;小引&quot;&gt;&lt;a href=&quot;#小引&quot; class=&quot;headerlink&quot; title=&quot;##小引&quot;&gt;&lt;/a&gt;##小引&lt;/h2&gt;&lt;h2 id=&quot;正文&quot;&gt;&lt;a href=&quot;#正文&quot; class=&quot;headerlink&quot; title=&quot;##正文&quot;&gt;&lt;/a&gt;##正文&lt;/h
+      &lt;h2 id=&quot;小引&quot;&gt;&lt;a href=&quot;#小引&quot; class=&quot;headerlink&quot; title=&quot;小引&quot;&gt;&lt;/a&gt;小引&lt;/h2&gt;&lt;hr&gt;
+&lt;h2 id=&quot;正文&quot;&gt;&lt;a href=&quot;#正文&quot; class=&quot;headerlink&quot; title=&quot;正文&quot;&gt;&lt;/a&gt;正文&lt;/h2&gt;&lt;
     
     </summary>
     
@@ -2292,17 +2322,14 @@ void tree_update_order(struct tree *parent)
     <updated>2017-08-09T13:57:49.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="LDAP-概述"><a href="#LDAP-概述" class="headerlink" title="LDAP 概述"></a>LDAP 概述</h2><p>由DAP发展而来，相比DAP，其基于TCP/IP，在功能上有所减少。LDAP本质上就是一种定义了如何访问目录数据的方法的协议，同时定义了在目录服务中数据是如何表达的。<br>对于数据操作，LDAP只定义了数据如何加载至目录服务和如何从目录服务导出数据，并未定义如何存储数据和操作，厂家可以有自己的back-end的具体实现，比如OpenLDAP提供了选择back-end数据库的支持。事实上很多商业DB都提供了LDAP视图。  </p>
-<p>###1. LDAP与DB  </p>
-<p>LDAP可以看做是一种读优化的数据库。LDAP Server可以基于multi-master架构，也可以基于Multi-master架构。  </p>
+<h3 id="1-LDAP与DB"><a href="#1-LDAP与DB" class="headerlink" title="1. LDAP与DB"></a>1. LDAP与DB</h3><p>LDAP可以看做是一种读优化的数据库。LDAP Server可以基于multi-master架构，也可以基于Multi-master架构。  </p>
 <ol>
 <li>LDAP提供了一种标准化的远程和本地数据的访问方法。可以在不影响外部数据访问接口的前提下替换LDAP的实现。  </li>
 <li>由于标准化了数据访问，LDAP客户端和服务器端可以独立开发。  </li>
 <li>可以不影响外部数据访问的前提下转移数据至多个地点。  </li>
 </ol>
-<p>###2. LDAP信息模式  </p>
-<p>LDAP是面向对象的数据库，定义了基础原语（read/delete/modify），以继承性对象的方式表示数据。  </p>
-<p>###3. LDAP与AD  </p>
-<p>LDAP提供了一种可以查询和修改目录服务的应用协议。AD本质就是一种数据库的系统，在window环境中提供验证、目录、策略和其他服务。<br>LDAP是一个标准，AD则是微软的基于目录服务器的一中LDAP实现。</p>
+<h3 id="2-LDAP信息模式"><a href="#2-LDAP信息模式" class="headerlink" title="2. LDAP信息模式"></a>2. LDAP信息模式</h3><p>LDAP是面向对象的数据库，定义了基础原语（read/delete/modify），以继承性对象的方式表示数据。  </p>
+<h3 id="3-LDAP与AD"><a href="#3-LDAP与AD" class="headerlink" title="3. LDAP与AD"></a>3. LDAP与AD</h3><p>LDAP提供了一种可以查询和修改目录服务的应用协议。AD本质就是一种数据库的系统，在window环境中提供验证、目录、策略和其他服务。<br>LDAP是一个标准，AD则是微软的基于目录服务器的一中LDAP实现。</p>
 ]]></content>
     
     <summary type="html">
@@ -2457,8 +2484,7 @@ void tree_update_order(struct tree *parent)
 <p><img src="/assets/images/kerberos/Kerb.014.jpg" alt="图片"></p>
 <p>这里有个前提，HTTP服务本身必须支持Kerberos。同时，client必须要有一个支持SPNEGO/Negotiate的浏览器。  </p>
 <p><img src="/assets/images/kerberos/Kerb.015.jpg" alt="图片"></p>
-<p>##4、后续</p>
-<p>token VS ticket</p>
+<h2 id="4、后续"><a href="#4、后续" class="headerlink" title="4、后续"></a>4、后续</h2><p>token VS ticket</p>
 ]]></content>
     
     <summary type="html">
@@ -2482,14 +2508,10 @@ void tree_update_order(struct tree *parent)
     <published>2014-01-29T16:00:00.000Z</published>
     <updated>2017-08-09T13:57:49.000Z</updated>
     
-    <content type="html"><![CDATA[<p>##问题提出  </p>
-<p>设计一个数据库的API，可供不同的WEB前端服务存储和获取数据。一些存储图像，一些存储文本、声音、图像等，如何控制API对数据的上述访问方法？  </p>
-<p>##解决方案  </p>
-<p>###1、瘦API  </p>
-<p>void <em>do_as_i_say(…)  ，其参数是void </em>  </p>
+    <content type="html"><![CDATA[<h2 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h2><p>设计一个数据库的API，可供不同的WEB前端服务存储和获取数据。一些存储图像，一些存储文本、声音、图像等，如何控制API对数据的上述访问方法？  </p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="1、瘦API"><a href="#1、瘦API" class="headerlink" title="1、瘦API"></a>1、瘦API</h3><p>void <em>do_as_i_say(…)  ，其参数是void </em>  </p>
 <p>函数的目的在于提高访问复杂软件的接口，通过隐藏复杂性，提高软件的易用性, 但是该API并不能直观的告诉调用者如何使用。</p>
-<p>###2、Fat APIs  </p>
-<pre><code>
+<h3 id="2、Fat-APIs"><a href="#2、Fat-APIs" class="headerlink" title="2、Fat APIs"></a>2、Fat APIs</h3><pre><code>
 int store_jpeg_image(string name, image data);
 image get_jpeg_image(string name); 
 int delete_jpeg_image(string name); 
@@ -2507,30 +2529,21 @@ int delete_text(string name);
 <li>很多信息应该作为参数，而不是一个个罗列为API</li>
 <li>尽量提供少的名字和用法，因为人类的记忆有限，不可靠记住如此多的用法</li>
 </ul>
-<p>###3、Good Example<br>Unix的文件IO操作为我们提供了一个良好的示例，该接口只有五个API：open、close、read、write、ioctl，其中最重要的API是ioctl,它为程序提供了访问系统底层的能力，以备为设计者预先没有想到的需要，相当于提供了一个后门。  </p>
-<p>##奇淫巧计  </p>
-<p>###1、instance  </p>
-<p>该概念类似面向对象设计中的对象，用于维护一个实体，即可以创建、查找、销毁一个Instance。</p>
-<p>###2、Cookie  </p>
-<p>cookie的含义很广，在分层设计中，cookie可以用于保存上层的数据，包括配置数据和配置行为(往往通过回调函数定义)，这样底层可以无需知道上层的配置细节，直接调用其配置方法即可。  </p>
-<p>###3、Callback  </p>
-<ul>
+<h3 id="3、Good-Example"><a href="#3、Good-Example" class="headerlink" title="3、Good Example"></a>3、Good Example</h3><p>Unix的文件IO操作为我们提供了一个良好的示例，该接口只有五个API：open、close、read、write、ioctl，其中最重要的API是ioctl,它为程序提供了访问系统底层的能力，以备为设计者预先没有想到的需要，相当于提供了一个后门。  </p>
+<h2 id="奇淫巧计"><a href="#奇淫巧计" class="headerlink" title="奇淫巧计"></a>奇淫巧计</h2><h3 id="1、instance"><a href="#1、instance" class="headerlink" title="1、instance"></a>1、instance</h3><p>该概念类似面向对象设计中的对象，用于维护一个实体，即可以创建、查找、销毁一个Instance。</p>
+<h3 id="2、Cookie"><a href="#2、Cookie" class="headerlink" title="2、Cookie"></a>2、Cookie</h3><p>cookie的含义很广，在分层设计中，cookie可以用于保存上层的数据，包括配置数据和配置行为(往往通过回调函数定义)，这样底层可以无需知道上层的配置细节，直接调用其配置方法即可。  </p>
+<h3 id="3、Callback"><a href="#3、Callback" class="headerlink" title="3、Callback"></a>3、Callback</h3><ul>
 <li><p>Callback可以实现底层调用上层，这里无需赘述  </p>
 </li>
 <li><p>Callback可以用于实现异步通知机制，比如在一个异步事件通知系统中，可以将事件处理方法和ID组成事件对象加入事件队列，其中事件处理方法采用callback函数，在事件注册时定义，实现处理系统轮询该事件队列，逐个调用，当然也可以加入优先级以改变响应次序。</p>
 </li>
 </ul>
-<p>##结论  </p>
-<p>API设计应该是一个迭代的过程，首先你提供你认为用户需要的，同时流出后门。然后观察用户在使用过程中利用后门所做的操作，再在API全集中添加给API，依次类推。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>API设计应该是一个迭代的过程，首先你提供你认为用户需要的，同时流出后门。然后观察用户在使用过程中利用后门所做的操作，再在API全集中添加给API，依次类推。</p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;##问题提出  &lt;/p&gt;
-&lt;p&gt;设计一个数据库的API，可供不同的WEB前端服务存储和获取数据。一些存储图像，一些存储文本、声音、图像等，如何控制API对数据的上述访问方法？  &lt;/p&gt;
-&lt;p&gt;##解决方案  &lt;/p&gt;
-&lt;p&gt;###1、瘦API  &lt;/p&gt;
-&lt;p&gt;void 
+      &lt;h2 id=&quot;问题提出&quot;&gt;&lt;a href=&quot;#问题提出&quot; class=&quot;headerlink&quot; title=&quot;问题提出&quot;&gt;&lt;/a&gt;问题提出&lt;/h2&gt;&lt;p&gt;设计一个数据库的API，可供不同的WEB前端服务存储和获取数据。一些存储图像，一些存储文本、声音、图像等，如何控制API对数
     
     </summary>
     
@@ -2647,8 +2660,7 @@ int delete_text(string name);
     <content type="html"><![CDATA[<p>本文将对wireless security的发展做一个粗略介绍，从open system到WPA、WPA2和802.1X，权当做抛砖引玉~</p>
 <p>注：任何一次技术变革不仅仅是技术方案的较量，更多的是市场的博弈。原文链接<a href="http://securityuncorked.com/2008/08/history-of-wireless-security/" target="_blank" rel="external">history of wireless security</a></p>
 <hr>
-<p>##1、Open and SKA</p>
-<p>802.11在发展早期主要采用两类验证方法– Open System Association (OSA) 和Shared Key Authentication (SKA).</p>
+<h2 id="1、Open-and-SKA"><a href="#1、Open-and-SKA" class="headerlink" title="1、Open and SKA"></a>1、Open and SKA</h2><p>802.11在发展早期主要采用两类验证方法— Open System Association (OSA) 和Shared Key Authentication (SKA).</p>
 <ul>
 <li>Open = no authentication</li>
 <li>Shared Key = WEP</li>
@@ -2662,18 +2674,13 @@ int delete_text(string name);
 <li>缺乏对client端的有效认证机制</li>
 <li>易于遭受重放攻击和完整性攻击  </li>
 </ul>
-<p>##2、 从WEP的改造到WPA的崭露头角  </p>
-<p>###2.1、 “i”之初创  </p>
-<p>随着WEP越来越多的漏洞被发现，IEEE决定成立802.11i工作组以改进无线安全。作为一个安全网络的过渡期，WPA应运而生，其目的在于开发一个强健的安全网络。<br>802.11i工作组面临诸多困难，其中之一便是如何在仍旧使用现有硬件的基础上对WEP进行安全加密流程进行改造。作为一个过渡性解决方案，WPA在解决WEP现有不足的基础上同时考虑长期的无线安全。  </p>
-<p>###2.2、 WPA与TKIP  </p>
-<p>Wi-Fi联盟(Wi-Fi Alliance)的目的在于创建一个在主流厂家之间互通的安全平台；而WPA源于‘Wi-Fi Protected Access’其本身不是一个标准甚至不能称之为框架，仅仅是一个由无线厂商为达到相互之间的互通而形成的ad-hoc联合。<br>WPA作为802.11i的一个准标准，既采用了特定的密钥管理，也遵循了802.11i中的验证架构-802.1X。由于当时的硬件不支持AES算法，WPA采用TKIP((Temporal Key Integrity Protocol))作为替代算法。</p>
-<p>###2.3、WPA中的密钥建立机制  </p>
-<p>WPA采用PMK建立PTKs，即会话密钥，其目的在于保护每个会话。伪随机数函数PSF (pseudo-random function)确保PTKs包含nonces、MAC地址计数、时间以及随机数。密钥建立机制的重新设计目的在于最大程度地降低主密钥被窃取的可能性。见图1。  </p>
+<h2 id="2、-从WEP的改造到WPA的崭露头角"><a href="#2、-从WEP的改造到WPA的崭露头角" class="headerlink" title="2、 从WEP的改造到WPA的崭露头角"></a>2、 从WEP的改造到WPA的崭露头角</h2><h3 id="2-1、-“i”之初创"><a href="#2-1、-“i”之初创" class="headerlink" title="2.1、 “i”之初创"></a>2.1、 “i”之初创</h3><p>随着WEP越来越多的漏洞被发现，IEEE决定成立802.11i工作组以改进无线安全。作为一个安全网络的过渡期，WPA应运而生，其目的在于开发一个强健的安全网络。<br>802.11i工作组面临诸多困难，其中之一便是如何在仍旧使用现有硬件的基础上对WEP进行安全加密流程进行改造。作为一个过渡性解决方案，WPA在解决WEP现有不足的基础上同时考虑长期的无线安全。  </p>
+<h3 id="2-2、-WPA与TKIP"><a href="#2-2、-WPA与TKIP" class="headerlink" title="2.2、 WPA与TKIP"></a>2.2、 WPA与TKIP</h3><p>Wi-Fi联盟(Wi-Fi Alliance)的目的在于创建一个在主流厂家之间互通的安全平台；而WPA源于‘Wi-Fi Protected Access’其本身不是一个标准甚至不能称之为框架，仅仅是一个由无线厂商为达到相互之间的互通而形成的ad-hoc联合。<br>WPA作为802.11i的一个准标准，既采用了特定的密钥管理，也遵循了802.11i中的验证架构-802.1X。由于当时的硬件不支持AES算法，WPA采用TKIP((Temporal Key Integrity Protocol))作为替代算法。</p>
+<h3 id="2-3、WPA中的密钥建立机制"><a href="#2-3、WPA中的密钥建立机制" class="headerlink" title="2.3、WPA中的密钥建立机制"></a>2.3、WPA中的密钥建立机制</h3><p>WPA采用PMK建立PTKs，即会话密钥，其目的在于保护每个会话。伪随机数函数PSF (pseudo-random function)确保PTKs包含nonces、MAC地址计数、时间以及随机数。密钥建立机制的重新设计目的在于最大程度地降低主密钥被窃取的可能性。见图1。  </p>
 <p><img src="/assets/images/wireless_brief_fig_1.png" alt="图片">  </p>
 <center>Figure 1. WEP vs WPA</center>  
 
-<p>###2.4、WPA的其他改进点  </p>
-<p>WPA在安全性方面的改进之处主要有以下几点:</p>
+<h3 id="2-4、WPA的其他改进点"><a href="#2-4、WPA的其他改进点" class="headerlink" title="2.4、WPA的其他改进点"></a>2.4、WPA的其他改进点</h3><p>WPA在安全性方面的改进之处主要有以下几点:</p>
 <ul>
 <li>IV扩展至56bit（对于弱密钥可以允许8bit的密钥扩展空间）</li>
 <li>采用PTKs（再一次扩展了有效的密钥空间）</li>
@@ -2683,25 +2690,20 @@ int delete_text(string name);
 <li>增加了序列号以防止重放攻击</li>
 <li>报文头和负载的完整性检查以防止重定向攻击</li>
 </ul>
-<p>###2.5、WPA小结<br>WPA作为一种安全架构主要包含两类组件：第一类是加密组件TKIP；第二类是验证组件，可以是PSK也可以是RADIUS。除了安全性相比WEP有提升之外，更重要的是保证了向前兼容。</p>
-<p>##3、 WPA2一统天下   </p>
-<p>2008年WPA的漏洞被发现，即TKIP exploit,该漏洞通过改变验证组件无法修正，唯一的解决方法是用AES替代TKIP。WPA2应运而生，这就要求硬件进行改变。TKIP可以作为WPA2的可选项。<br>802.11i和WPA2指的是同一件事情，这样一来，在现有的硬件上可以用统一的的加密方式-AES，这正是IEEE标准下所谓的强健网络。<br>作为当前无线安全的标准，802.11i/WPA2又像极了当年的WPA准标准，仅在一些细微处有所不同。随着802.11i完成最终的业界应用，现有的硬件将AES加密算法作为内置算法。<br>WPA2相比WPA有如下两大改变：</p>
+<h3 id="2-5、WPA小结"><a href="#2-5、WPA小结" class="headerlink" title="2.5、WPA小结"></a>2.5、WPA小结</h3><p>WPA作为一种安全架构主要包含两类组件：第一类是加密组件TKIP；第二类是验证组件，可以是PSK也可以是RADIUS。除了安全性相比WEP有提升之外，更重要的是保证了向前兼容。</p>
+<h2 id="3、-WPA2一统天下"><a href="#3、-WPA2一统天下" class="headerlink" title="3、 WPA2一统天下"></a>3、 WPA2一统天下</h2><p>2008年WPA的漏洞被发现，即TKIP exploit,该漏洞通过改变验证组件无法修正，唯一的解决方法是用AES替代TKIP。WPA2应运而生，这就要求硬件进行改变。TKIP可以作为WPA2的可选项。<br>802.11i和WPA2指的是同一件事情，这样一来，在现有的硬件上可以用统一的的加密方式-AES，这正是IEEE标准下所谓的强健网络。<br>作为当前无线安全的标准，802.11i/WPA2又像极了当年的WPA准标准，仅在一些细微处有所不同。随着802.11i完成最终的业界应用，现有的硬件将AES加密算法作为内置算法。<br>WPA2相比WPA有如下两大改变：</p>
 <ol>
 <li>AES加密算法替代WEP被内置进硬件</li>
 <li>加强了完整性检查  </li>
 </ol>
-<p>###3.1、802.11i与802.1x     </p>
-<p>802.11i采用802.1x保证密钥的建立与验证。EAPoL虽然本身是基于有线设计的，但是很容易适用于无线。802.1X相比之前的验证方法的最大不同之处在于验证过程发生在station和RADIUS server之间，而不是station和AP之间。由于AP不参与密钥产生，所以session key（由PTK导出）和每包密钥需要和AP共享，这些密钥由一个安全通道TLS传输。  </p>
+<h3 id="3-1、802-11i与802-1x"><a href="#3-1、802-11i与802-1x" class="headerlink" title="3.1、802.11i与802.1x"></a>3.1、802.11i与802.1x</h3><p>802.11i采用802.1x保证密钥的建立与验证。EAPoL虽然本身是基于有线设计的，但是很容易适用于无线。802.1X相比之前的验证方法的最大不同之处在于验证过程发生在station和RADIUS server之间，而不是station和AP之间。由于AP不参与密钥产生，所以session key（由PTK导出）和每包密钥需要和AP共享，这些密钥由一个安全通道TLS传输。  </p>
 <p>图2描述了多种通信流，用不同的颜色予以标记。EAPoL通信由黑色标记，而EAP握手由蓝色区分。RADIUS采用绿色，TLS则使用了橙色。从该图可以清晰地看到station、AP以及RADIUS server之间的交互流程。</p>
 <p><img src="/assets/images/wireless_brief_fig_2.png" alt="图片">  </p>
 <center>Figure 2. 802.1X in Wireless</center>
 
-<p>###3.2、源自RADIUS的TLS隧道    </p>
-<p>802.11i利用802.1X不仅建立密钥同时也完成了验证， 相应地，RADIUS服务器也通过该途径向client验证其自身。这条从RADIUS服务器端到客户端的隧道提供了安全通信的机制，从而保证了验证过程中的密钥交互。</p>
-<p>###3.3、WPA2的安全性  </p>
-<p>WPA2也同样包含两类组件，一是基于AES的加密组件，二是基于PSK或者是RADIUS的验证组件。但并不意味着WPA2就没有漏洞，比如可以通过错误配置PEAP验证组件进行攻击。</p>
-<p>##4、 后记</p>
-<p>尽管业界对于802.1X仍然有一些争议，但其已经成为主流的安全无线验证机制并被广泛接受。总之，802.1X囊括了安全密钥交换、密钥轮转、主密钥保护以及AES加密等，成为目前一种具有单项优势的技术。</p>
+<h3 id="3-2、源自RADIUS的TLS隧道"><a href="#3-2、源自RADIUS的TLS隧道" class="headerlink" title="3.2、源自RADIUS的TLS隧道"></a>3.2、源自RADIUS的TLS隧道</h3><p>802.11i利用802.1X不仅建立密钥同时也完成了验证， 相应地，RADIUS服务器也通过该途径向client验证其自身。这条从RADIUS服务器端到客户端的隧道提供了安全通信的机制，从而保证了验证过程中的密钥交互。</p>
+<h3 id="3-3、WPA2的安全性"><a href="#3-3、WPA2的安全性" class="headerlink" title="3.3、WPA2的安全性"></a>3.3、WPA2的安全性</h3><p>WPA2也同样包含两类组件，一是基于AES的加密组件，二是基于PSK或者是RADIUS的验证组件。但并不意味着WPA2就没有漏洞，比如可以通过错误配置PEAP验证组件进行攻击。</p>
+<h2 id="4、-后记"><a href="#4、-后记" class="headerlink" title="4、 后记"></a>4、 后记</h2><p>尽管业界对于802.1X仍然有一些争议，但其已经成为主流的安全无线验证机制并被广泛接受。总之，802.1X囊括了安全密钥交换、密钥轮转、主密钥保护以及AES加密等，成为目前一种具有单项优势的技术。</p>
 <hr>
 ]]></content>
     
@@ -2729,8 +2731,7 @@ int delete_text(string name);
     <updated>2017-08-09T13:57:49.000Z</updated>
     
     <content type="html"><![CDATA[<p>本文由<a href="http://skypacer210.github.io/">skypacer</a>根据<a href="http://docs.openstack.org/trunk/install-guide/install/apt/content/" target="_blank" rel="external">OpenStack Installation Guide for Ubuntu 12.04 (LTS)</a>在自己的环境中实际部署情况整理而成。转载请注明出处！</p>
-<p>###1、安装准备  </p>
-<h4 id="网络设置"><a href="#网络设置" class="headerlink" title="网络设置"></a>网络设置</h4><ul>
+<h3 id="1、安装准备"><a href="#1、安装准备" class="headerlink" title="1、安装准备"></a>1、安装准备</h3><h4 id="网络设置"><a href="#网络设置" class="headerlink" title="网络设置"></a>网络设置</h4><ul>
 <li>安装双网卡：通过vsphere client安装两个网卡，一个内网，一个外网。<br>修改文件/etc/network/interfaces如下：    </li>
 </ul>
 <pre><code>
@@ -2786,30 +2787,25 @@ ff02::2 ip6-allrouters
 <li>重启网络：service networking restart  </li>
 <li>测试网络：通过hostname命令检查主机名设置；通过ping检查主机解析  </li>
 </ul>
-<p>####1.2、安装数据库    </p>
-<ul>
+<h4 id="1-2、安装数据库"><a href="#1-2、安装数据库" class="headerlink" title="1.2、安装数据库"></a>1.2、安装数据库</h4><ul>
 <li>apt-get install python-mysqldb mysql-server</li>
 <li>修改/etc/mysql/my.cnf：将mysql的绑定地址改为内网IP：1<br>bind-address            = 10.151.122.138  </li>
 <li>重启MYSQL：service mysql restart</li>
-<li>删除匿名用户：<br><pre><code>  <h1 id="mysql-install-db"><a href="#mysql-install-db" class="headerlink" title="mysql_install_db"></a>mysql_install_db</h1><h1 id="mysql-secure-installation"><a href="#mysql-secure-installation" class="headerlink" title="mysql_secure_installation"></a>mysql_secure_installation</h1></code></pre> }</li>
+<li>删除匿名用户：<br><pre><code>  <h1 id="mysql-install-db"><a href="#mysql-install-db" class="headerlink" title="mysql_install_db"></a>mysql_install_db</h1><h1 id="mysql-secure-installation"><a href="#mysql-secure-installation" class="headerlink" title="mysql_secure_installation"></a>mysql_secure_installation</h1>&lt;/code&gt;&lt;/pre&gt; }</code></pre></li>
 </ul>
-<p>####1.3、安装时间服务器  </p>
-<ul>
+<h4 id="1-3、安装时间服务器"><a href="#1-3、安装时间服务器" class="headerlink" title="1.3、安装时间服务器"></a>1.3、安装时间服务器</h4><ul>
 <li>安装NTP服务器用于同步时间：apt-get install ntp</li>
 <li>创建各自密码：暂时不考虑安全性，为了方便暂时保存在.bashrc中的环境变量中</li>
 </ul>
-<p>###2、Identity services配置</p>
-<p><a id="single_res" name="single_res"> </a></p>
+<h3 id="2、Identity-services配置"><a href="#2、Identity-services配置" class="headerlink" title="2、Identity services配置"></a>2、Identity services配置</h3><p><a id="single_res" name="single_res"> </a></p>
 <p>单一责任原则，即一个类只能有一种原因去驱动改变，该原则的是同open-closed原则有异曲同工之妙：尽量避免现有代码的修改。当违反了单一原则的时候，一个模块有多种原因需要去修改。更糟的是，多个不同的责任集中于一个模块当中会耦合在一起，使得测试与修改变得非常复杂。  </p>
 <p>单一责任原则本质是集中性，便于进行多层抽象，而不仅仅是一个过程上下文，简单地讲类替换为函数将有利于我们在此原则基础上分析算法。  </p>
-<p>####2.1、验证机制  </p>
-<p>####2.2、定义用户、租户和角色  </p>
-<p>由于在/etc/keystone/keystone.conf中定义了admin_token，这是一个keystone和other openstack services的预共享密钥，在创建租户时会用到。  </p>
+<h4 id="2-1、验证机制"><a href="#2-1、验证机制" class="headerlink" title="2.1、验证机制"></a>2.1、验证机制</h4><h4 id="2-2、定义用户、租户和角色"><a href="#2-2、定义用户、租户和角色" class="headerlink" title="2.2、定义用户、租户和角色"></a>2.2、定义用户、租户和角色</h4><p>由于在/etc/keystone/keystone.conf中定义了admin_token，这是一个keystone和other openstack services的预共享密钥，在创建租户时会用到。  </p>
 <ul>
 <li>通过设置两个环境变量指定token和identity service运行的路径<br>export OS_SERVICE_TOKEN=ADMIN_TOKEN<br>export OS_SERVICE_ENDPOINT=<a href="http://controller:35357/v2.0" target="_blank" rel="external">http://controller:35357/v2.0</a></li>
 <li>创建租户  </li>
 </ul>
-<p>keystone tenant-create –name=admin –description=”Admin Tenant”  </p>
+<p>keystone tenant-create —name=admin —description=”Admin Tenant”  </p>
 <pre><code>  
 
 +-------------+----------------------------------+
@@ -2975,10 +2971,8 @@ keystone user-list
 +----------------------------------+-------+---------+---------------------------+
 </code></pre> 
 
-<p>###3、OpenStack clients安装与配置  </p>
-<p>通过命令行客户端进行API调用，可以设置在脚本中自动执行。在OpenStack内部，可以运行cURL命令执行内嵌API请求。OpenStack是一种基于HTTP协议REST风格的API，包括方法、URI、介质类型和响应代码。<br>每个Openstack服务都有自己的命令行客户端。</p>
-<p>####3.1、基于python的开源客户端  </p>
-<ul>
+<h3 id="3、OpenStack-clients安装与配置"><a href="#3、OpenStack-clients安装与配置" class="headerlink" title="3、OpenStack clients安装与配置"></a>3、OpenStack clients安装与配置</h3><p>通过命令行客户端进行API调用，可以设置在脚本中自动执行。在OpenStack内部，可以运行cURL命令执行内嵌API请求。OpenStack是一种基于HTTP协议REST风格的API，包括方法、URI、介质类型和响应代码。<br>每个Openstack服务都有自己的命令行客户端。</p>
+<h4 id="3-1、基于python的开源客户端"><a href="#3-1、基于python的开源客户端" class="headerlink" title="3.1、基于python的开源客户端"></a>3.1、基于python的开源客户端</h4><ul>
 <li>ceilometer：度量openStack</li>
 <li>cinder：创建和管理volume</li>
 <li>glance:创建和管理图片</li>
@@ -2989,12 +2983,10 @@ keystone user-list
 <li>swift：统计Object Storage服务的元数据</li>
 <li>充电</li>
 </ul>
-<p>###4、验证Identity Services安装     </p>
-<p>####4.1、安装Image Service  </p>
-<ul>
+<h3 id="4、验证Identity-Services安装"><a href="#4、验证Identity-Services安装" class="headerlink" title="4、验证Identity Services安装"></a>4、验证Identity Services安装</h3><h4 id="4-1、安装Image-Service"><a href="#4-1、安装Image-Service" class="headerlink" title="4.1、安装Image Service"></a>4.1、安装Image Service</h4><ul>
 <li>注册Image服务和Identity服务，这样其他的OpenStack服务可以定位到它  </li>
 </ul>
-<p>keystone service-create –name=glance –type=image \<br>    –description=”Glance Image Service”</p>
+<p>keystone service-create —name=glance —type=image \<br>    —description=”Glance Image Service”</p>
 <pre><code> 
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -3009,7 +3001,7 @@ keystone user-list
 <ul>
 <li>利用serveice id创建endpoint</li>
 </ul>
-<p>keystone endpoint-create –service-id=21b15dc9b1d846149883e953af08d906 –publicurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> –internalurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> \<br>    –adminurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a></p>
+<p>keystone endpoint-create —service-id=21b15dc9b1d846149883e953af08d906 —publicurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> —internalurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> \<br>    —adminurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a></p>
 <pre><code> 
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -3023,13 +3015,12 @@ keystone user-list
 +-------------+----------------------------------+
 </code></pre>  
 
-<p>####4.2、安装Image Service</p>
-<p>验证安装：  </p>
+<h4 id="4-2、安装Image-Service"><a href="#4-2、安装Image-Service" class="headerlink" title="4.2、安装Image Service"></a>4.2、安装Image Service</h4><p>验证安装：  </p>
 <ul>
 <li>上传Image</li>
 </ul>
-<p>root@controller:/home/fyang/project/images# glance image-create –name=”CirrOS 0.3.0” –disk-format=qcow2 –container-format=bare –is-public=true &lt; cirros-0.3.0-x86_64-disk.img   </p>
-<p>root@controller:/home/fyang/project/images# glance image-create –name=”CirrOS 0.3.0” –disk-format=qcow2 –container-format=bare –is-public=true &lt; cirros-0.3.0-x86_64-disk.img  </p>
+<p>root@controller:/home/fyang/project/images# glance image-create —name=”CirrOS 0.3.0” —disk-format=qcow2 —container-format=bare —is-public=true &lt; cirros-0.3.0-x86_64-disk.img   </p>
+<p>root@controller:/home/fyang/project/images# glance image-create —name=”CirrOS 0.3.0” —disk-format=qcow2 —container-format=bare —is-public=true &lt; cirros-0.3.0-x86_64-disk.img  </p>
 <ul>
 <li>显示Image列表  </li>
 </ul>
@@ -3043,10 +3034,7 @@ keystone user-list
 +--------------------------------------+--------------+-------------+------------------+---------+--------+
 </code></pre>  
 
-<p>###5、计算控制服务安装与配置  </p>
-<p>####5.1、概述  </p>
-<p>####5.1、安装Image Service  </p>
-<ul>
+<h3 id="5、计算控制服务安装与配置"><a href="#5、计算控制服务安装与配置" class="headerlink" title="5、计算控制服务安装与配置"></a>5、计算控制服务安装与配置</h3><h4 id="5-1、概述"><a href="#5-1、概述" class="headerlink" title="5.1、概述"></a>5.1、概述</h4><h4 id="5-1、安装Image-Service"><a href="#5-1、安装Image-Service" class="headerlink" title="5.1、安装Image Service"></a>5.1、安装Image Service</h4><ul>
 <li>创建计算服务表：</li>
 </ul>
 <p>nova-manage db sync  </p>
@@ -3058,7 +3046,7 @@ keystone user-list
 <ul>
 <li>创建用户</li>
 </ul>
-<p>keystone user-create –name=nova –pass=NOVA_PASS –email=nova@example.</p>
+<p>keystone user-create —name=nova —pass=NOVA_PASS —email=nova@example.</p>
 <pre><code>
 +----------+----------------------------------+
 | Property |              Value               |
@@ -3073,7 +3061,7 @@ keystone user-list
 <ul>
 <li>充电</li>
 </ul>
-<p>root@controller:/home/fyang/project/images# keystone service-create –name=nova –type=compute –description=”Nova Compute service”  </p>
+<p>root@controller:/home/fyang/project/images# keystone service-create —name=nova —type=compute —description=”Nova Compute service”  </p>
 <pre><code>
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -3089,7 +3077,7 @@ keystone user-list
 <ul>
 <li>创建endpoint</li>
 </ul>
-<p>root@controller:/home/fyang/project# keystone endpoint-create –service-id=0d67dd130ebc4de2ba8e54ac241e92d0 –publicurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> –internalurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> –adminurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a>  </p>
+<p>root@controller:/home/fyang/project# keystone endpoint-create —service-id=0d67dd130ebc4de2ba8e54ac241e92d0 —publicurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> —internalurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> —adminurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a>  </p>
 <pre><code>
 +-------------+-----------------------------------------+
 |   Property  |                  Value                  |
