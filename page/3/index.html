@@ -146,137 +146,6 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-little-on-tcpip-stack" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/02/little-on-tcpip-stack/">TCP/IP协议栈中的数据收发</a>
-    </h1>
-  
-
-        
-        <a href="/2014/12/02/little-on-tcpip-stack/" class="archive-article-date">
-  	<time datetime="2014-12-01T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-02</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文将对TCP/IP的数据收发做一个粗略总结~    </p>
-<hr>
-<h3 id="1、TCP-IP基本特点"><a href="#1、TCP-IP基本特点" class="headerlink" title="1、TCP/IP基本特点"></a>1、TCP/IP基本特点</h3><p>TCP/IP总的设计目的就是保证数据的快速有序的传输，且无丢失，基本特点如下：  </p>
-<ul>
-<li><strong>面向连接</strong>：两端组成一个连接，每端以五元组为标识</li>
-<li><strong>双工字节流</strong>： 采用字节流进行双工数据通信</li>
-<li><strong>有序发送</strong>：利用序列号保证发送的有序性</li>
-<li><strong>可靠性</strong>：利用ACK保证数据的可靠性</li>
-<li><strong>流控</strong>：接收方利用接收窗口通告发送方</li>
-<li><strong>拥塞控制</strong>：接收方利用拥塞窗口通告发送方  </li>
-</ul>
-<h3 id="2、报文发送过程"><a href="#2、报文发送过程" class="headerlink" title="2、报文发送过程"></a>2、报文发送过程</h3><p>TCP/IP网络协议栈包含多个层次，下图以一个TCP连接中的报文发送过程简述其基本流程：</p>
-<p><img src="/assets/images/TCP/tx.jpg" alt="图片">  </p>
-<center>Figure 1: TX flow</center>
-
-<ol>
-<li>用户层创建数据，调用write系统调用发送数据。</li>
-<li>一旦执行系统调用，系统则进入内核层。对于类Linux系统，通过文件描述符关联socket和应用，内核中socket包含收发两块buffer。</li>
-<li>在系统调用执行数据将被拷贝至内核memory当中，然后添加至发送buffer尾部，即按序发送。</li>
-<li>在TCP层，TCB(TCP Control Block) 关联socket，如果TCP允许数据发送，内核创建TCP segment。否则，由于规则或者流量控制会将该报文丢弃。至于TCP segment报文格式，无外乎一个header加payload，还有个checksum。TCP校验和往往由网卡进行计算。</li>
-<li>继续在TCP segment上封装IP层，再算下IP校验和，就可以扔给网络层了，比如以太网层。</li>
-<li>以太网层开始查找下一跳IP的MAC地址，一旦完成将继续封装Etherent头，最终送往driver层，这里往往也是各大抓包工具进行数据拷贝的地方，比如tcpdump/wirshark，或者是自己写的抓包工具；流量整形也往往在这一层完成。</li>
-<li>driver层在收到发送请求之后，通过DMA将该主存中的数据拷贝至内部RAM之中。在数据拷贝中，同时加入符合以太网协议的相关header，IFG、前导符和CRC。对于以太网网络，物理层发送采用CSMA/CD,即在发送过程中侦听链路冲突；而对于Wi-Fi网络，则采用CSMA/CA，其基本思想是要想占用channel并发言，首先做好聆听（也是做人哲学之一），对于需要ACK的报文，一旦在规定时间内搜不到ACK，则重传该报文。</li>
-<li>一旦网卡完成报文发送，将产生中断通知CPU。</li>
-</ol>
-<p>对于报文发送过程而言，上层协议栈是生产者，驱动层为消费者。  </p>
-<p>下面以无线网卡驱动为例详述整个报文发送流程的实现细节：      </p>
-<ul>
-<li>上层协议栈（三层及以上）和驱动层之间的数据传递采用队列，一个网络接口绑定一个三层报文发送队列。802.11 MAC层从网络接口的发送队列中拿到三层报文，添加LLC层和802.11 header，此时二层报文已经组好。  </li>
-<li>驱动层同样采用一个二层报文发送队列，可以将上一步组好的二层报文放入该队列。驱动的任务就是把二层报文送入无线网卡的硬件FIFO，最终转为射频信号发送。软硬件交互通过一个循环缓冲区完成，具体而言，首先主存中定义一个TX Ring，包括多个TFD（发送描述符），其中一个TFD可以由多个TB（发送缓冲区）组成，里面除了包含要发送的数据，还包含了发送相关的控制信息；数据在DRAM和硬件FIFO之间的搬迁由DMA完成，搬迁的数量通过TX Ring的两个指针完成，一个是写指针，由软件更新，告诉硬件我已经把这个位置的TFD准备好，你可以拿了，另一个是读指针，由硬件拿走数据后更新该指针，通过中断告诉软件我已经取走数据，你可以继续在该TFD上更新数据。</li>
-</ul>
-<h3 id="3、报文的接收过程"><a href="#3、报文的接收过程" class="headerlink" title="3、报文的接收过程"></a>3、报文的接收过程</h3><p><img src="/assets/images/TCP/rx.jpg" alt="图片">  </p>
-<center>Figure 2: RX flow</center>
-
-<ol>
-<li>网卡对报文进行CRC检查，如果合法就写入主存（一般通过DMA完成）。一旦完成写入，网卡发送中断通知CPU。</li>
-<li>驱动层对报文进行检查，在发送至上层协议栈之前，必须封装成OS相关的数据结构，比如Linux对应sk_buff，BSD对应mbuf。</li>
-<li>以太网层同样对报文进行合法性检查，然后发送至网络层，交给不同的协议处理模块，对于IP报文交给IP层，而对于ARP报文则送至ARP模块。</li>
-<li>IP层继续检查报文合法性，判断其是进行IP路由还是本地处理。根据IP头的协议字段，上发至上层，比如6对应TCP层。</li>
-<li>TCP层同样检查TCP检验和，往往由网卡计算完成，而不是内核。</li>
-<li>以TCP报文的五元组作为关键字进行连接查找，查看是否匹配该层的规则，如果符合，则加入接收缓冲区。</li>
-</ol>
-<h3 id="4、不是结束语"><a href="#4、不是结束语" class="headerlink" title="4、不是结束语"></a>4、不是结束语</h3><p>理解问题需从根上抓起，TCP/IP也一样，仍有许多细节需要在工作实践中反复体会。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">TCP/IP</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Stack</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/02/little-on-tcpip-stack/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-iot-technology-stack" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1543,6 +1412,126 @@ int delete_text(string name);
 
 
   
+    <article id="post-little-about-DH" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/01/15/little-about-DH/">再谈Diffie-Hellman算法</a>
+    </h1>
+  
+
+        
+        <a href="/2014/01/15/little-about-DH/" class="archive-article-date">
+  	<time datetime="2014-01-14T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-01-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近在工作中又碰到了DH(Diffie-Hellman)算法，鉴于之前对该算法理解地支离破碎，因此在博文中总结归纳下。  </p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>DH算法用于在不安全的公共通道中协商密钥，安全性体现在：在有限域上计算离散代数非常困难。上两位大牛Whitfield Diffie 和 Martin Hellman的照片：  </p>
+<p><img src="/assets/images/DH/DH_master.jpg" alt="图片"></p>
+<p>算法描述：<br>假定Alice和Bob期望在一个不安全的网络中协商一个共同的密钥，那么进行如下步骤：</p>
+<ul>
+<li>两人先说好大素数（质数）p和它的原始根g。</li>
+<li>Alice随机产生一个数a，并计算<code>A = p^a mod g</code>, 发送给Bob。</li>
+<li>Bob随机产生一个数b，并计算B= pb mod g，发送给Alice。    </li>
+</ul>
+<p>此时， Alice手握Bob发过来的B，结合自己产生的a开始这样计算：</p>
+<p><code>B^a mod p = (p^b mod g)^a mod p = p^ab mod g</code>。  </p>
+<p>Bob也拿到了Alice发来的A，同时结合自己的b，也开始计算：</p>
+<p> <code>B^a mod p = (p^b mod g)^a mod p = p^ab mod g</code>。</p>
+<p>这样Alice和Bob都得到了相同的密钥。     </p>
+<h3 id="DH的安全缺陷"><a href="#DH的安全缺陷" class="headerlink" title="DH的安全缺陷"></a>DH的安全缺陷</h3><p>DH不仅支持两点密钥交互，也可以支持多点密钥交互。但是DH算法本身存在安全性缺陷，即没有对交互双方进行身份验证，容易遭受中间人攻击。攻击思路具体如下：    </p>
+<ul>
+<li>Alice本来想发送A给Bob，被EVE截胡，EVE自己选择一个私有数c，计算出<code>C = p^c mod g</code>，发送给Bob。</li>
+<li>Bob本来想发送B给Alice，也被EVE截胡，EVE再把<code>C = p^c mod g</code>发送给Alice。</li>
+<li>此时，Alice和EVE计算出共同的密钥<code>K1 = p^ac mod g</code>，Bob和EVE计算出共同的密钥<code>K2 = p^bc mod g</code>。</li>
+<li>Alice和Bob都以为是和对方协商好了共享密钥，于是开始发送数据，Alice用K1加密数据后发送给Bob，又被该死的EVE截胡，EVE用K1解密，不仅可以看到Alice想对Bob发送的信息，还可以修改，然后再用K2加密该篡改之后的信息，发给蒙在鼓里的Bob。Bob当然可以用K2解开，但是已经被EVE窥探甚至修改。  </li>
+</ul>
+<p>因此必须引入身份验证以防范此类攻击，利用RSA数字签名即可达到此目的。</p>
+<h3 id="DH在TLS中的应用"><a href="#DH在TLS中的应用" class="headerlink" title="DH在TLS中的应用"></a>DH在TLS中的应用</h3><p>DH算法作为一种密钥协商机制，可以用于TLS协议当中。  </p>
+<p>如果在DH交互过程中Alice和Bob始终使用相同的私钥，就会导致后续产生的共享密钥是一样的，如果有嗅探者截获通信双方的所有数据，由于都是同一个密钥加密所得，一旦被破解，后续的通信将全部暴露。</p>
+<p>为了保证安全性，必须引入前向保密，即Forward Secrecy。其基本实现思路就是在Alice和Bob在选择各自的私钥是引入随机性，也印证了那句话：要用发展的眼光看问题，不能一成不变。  </p>
+<p>事实上FS在诸多加密协议中应用广泛，比如IKEv2和802.11i密钥分发中的4-way握手，无一不引入此方法。</p>
+<p>那么问题来了，TLS中哪一个才是最安全的cipher呢？就目前而言，最安全的三个候选者如下：  </p>
+<ul>
+<li><code>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P521</code></li>
+<li><code>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384</code></li>
+<li><code>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256</code></li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">DH</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">TLS</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Reading/" class="article-tag-list-link color3">Reading</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2014/01/15/little-about-DH/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
@@ -1640,6 +1629,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -1668,11 +1665,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1684,7 +1685,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1700,11 +1701,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
+                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1728,19 +1737,27 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">ACCESS CONTROLS</a>
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">TX Aggregation</a>
+                <a href="javascript:void(0)" class="js-tag color4">IOT</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mac80211</a>
+                <a href="javascript:void(0)" class="js-tag color4">物联网</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1756,11 +1773,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1772,19 +1789,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TCP/IP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Stack</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1797,22 +1806,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Spinlock</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Process</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Synchronization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Exclusion</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1829,6 +1822,22 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Spinlock</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Process</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Synchronization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Exclusion</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1860,6 +1869,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">WEB</a>
               </li>
              
@@ -1869,22 +1890,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">可调用对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">迭代器</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1900,23 +1905,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+                <a href="javascript:void(0)" class="js-tag color1">可调用对象</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">karman filter</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+                <a href="javascript:void(0)" class="js-tag color4">迭代器</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1933,18 +1926,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JWT</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">IOT</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">物联网</a>
               </li>
             
             <div class="clearfix"></div>
