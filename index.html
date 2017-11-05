@@ -146,6 +146,125 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-little-on-karman-filter" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/01/little-on-karman-filter/">Karman滤波器</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/01/little-on-karman-filter/" class="archive-article-date">
+  	<time datetime="2017-10-31T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文将对卡尔曼滤波做一个粗略总结~    </p>
+<hr>
+<h3 id="1、问题描述"><a href="#1、问题描述" class="headerlink" title="1、问题描述"></a>1、问题描述</h3><p>假定一个机器人导航，其状态用$\vec{x_k}$描述：  </p>
+<p>$<br>\vec{x_k}=\left ( \vec{p},\vec{v} \right )<br>$</p>
+<h3 id="2、Kalman-filter如何看待该问题"><a href="#2、Kalman-filter如何看待该问题" class="headerlink" title="2、Kalman filter如何看待该问题"></a>2、Kalman filter如何看待该问题</h3><p>采用一个向量描述状态：</p>
+<p>$<br>\vec{x}=<br>\left [<br>\begin{matrix}<br>        p \<br>        v \<br>        \end{matrix}<br> \right ]<br>$</p>
+<p>两个假设：</p>
+<ul>
+<li>p和v都符合高斯分布，数学期望为$\mu$，方差为$\sigma ^{2}$，</li>
+<li>随机</li>
+</ul>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_1.png" alt="gauss_1">  </p>
+<center>Figure 1: gauss_1</center>
+
+
+<p>我们考虑速度和位置是有关联的：</p>
+<p><strong>矩阵描述问题</strong></p>
+<p>协方差用于衡量p和v两个变量的总体误差，</p>
+<p>$<br>\begin{equation} \label{eq:statevars}<br>\begin{aligned}<br>\mathbf{\hat{x}}_k &amp;= \begin{bmatrix}<br>\text{position}\<br>\text{velocity}<br>\end{bmatrix}\<br>\mathbf{P}<em>k &amp;=<br>\begin{bmatrix}<br>\Sigma</em>{pp} &amp; \Sigma<em>{pv} \<br>\Sigma</em>{vp} &amp; \Sigma_{vv} \<br>\end{bmatrix}<br>\end{aligned}<br>\end{equation}<br>$</p>
+<p>状态迁移描述：</p>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_7.jpg" alt="状态迁移"></p>
+<p>其中的预测过程用一个矩阵描述Fk：</p>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_8.jpg" alt="预测过程"></p>
+<p>我们预测速度和位置的迁移公式：</p>
+<p>$<br>\begin{split}<br>\color{deeppink}{p<em>k} &amp;= \color{royalblue}{p</em>{k-1}} + \Delta t &amp;\color{royalblue}{v_{k-1}} \<br>\color{deeppink}{v<em>k} &amp;= &amp;\color{royalblue}{v</em>{k-1}}<br>\end{split}<br>$</p>
+<p>预测矩阵描述：</p>
+<p>$<br>\begin{align}<br>\color{deeppink}{\mathbf{\hat{x}}<em>k} &amp;= \begin{bmatrix}<br>1 &amp; \Delta t \<br>0 &amp; 1<br>\end{bmatrix} \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>&amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \label{statevars}<br>\end{align}<br>$</p>
+<p>虽然有了预测矩阵，但是我们还不知道如何<strong>更新协方差矩阵</strong>；</p>
+<p>这样我们用下面的方法更新协方差矩阵：</p>
+<p>$<br>\begin{equation}<br>\begin{split}<br>\color{deeppink}{\mathbf{\hat{x}}_k} &amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>\color{deeppink}{\mathbf{P}_k} &amp;= \mathbf{F<em>k} \color{royalblue}{\mathbf{P}</em>{k-1}} \mathbf{F}_k^T<br>\end{split}<br>\end{equation}<br>$</p>
+<p>注意这里是大写的P，代表概率，协方差概率；</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">karman filter</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">tracking</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/algorithm/" class="article-tag-list-link color5">algorithm</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/01/little-on-karman-filter/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-api-security" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1583,127 +1702,6 @@
 
 
   
-    <article id="post-tune-timer-implmentation" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/03/01/tune-timer-implmentation/">关于timer实现的优化</a>
-    </h1>
-  
-
-        
-        <a href="/2015/03/01/tune-timer-implmentation/" class="archive-article-date">
-  	<time datetime="2015-02-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-03-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-Timer"><a href="#1-Timer" class="headerlink" title="1. Timer"></a>1. Timer</h2><p>Timer是底层库实现中重要的一部分，其作用主要是实现超时处理，应用的场景有：  </p>
-<ul>
-<li>EAP状态机实现</li>
-<li>事件驱动型模型实现</li>
-<li>SSL握手超时处理</li>
-</ul>
-<p>为了支持实时处理，将Timer的内部实现由原来的单向链表变为红黑树。  </p>
-<h3 id="2-为什么是红黑树"><a href="#2-为什么是红黑树" class="headerlink" title="2. 为什么是红黑树"></a>2. 为什么是红黑树</h3><p>红黑树是一种平衡树，但却不是一种基于高度的平衡树，在STL map和Linux中都作为平衡树来应用，当搜索的要求高或者修改频繁时，其表现效果更是好于AVL树，因为后者是基于高度的，所以在每次修改后都要进行rebalance，开销很大。而红黑树的插入只要两次旋转，删除最多三次旋转，虽然搜索稳定性不及AVL，但是仍不失为一种折中的好办法。</p>
-<p>为保持红黑树的平衡，需要对树进行一些调整，好比为了保证一个黑客集团内部的黑帽子和红帽子的平衡，在成员之间的帽子问题上进行调整，假定只有两种帽子，黑帽子和红帽子，而且等级森严，按照辈分排：  </p>
-<ul>
-<li>根节点必须为黑色，就是说老大必须是黑帽子；</li>
-<li>每个成员非黑即红；</li>
-<li>每个红帽子下面有两个黑帽子；</li>
-<li>从任何一个成员自己数起到自小的下线，黑帽子个数都是一致的。</li>
-</ul>
-<p>当一个新的成员（帽子为暂定为红色）加入后，对家族成员帽子颜色的调整有下面几种情况：  </p>
-<ul>
-<li>CASE1：新加入成员的Uncle辈是个红帽子，调整波及Uncle、Parent和Granparent，全部调整帽子颜色；</li>
-<li>CASE2：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的右孩子或者是右孩子的左孩子，调整波及Uncle和Granparent，以Uncle为轴旋转，交换了Uncle和Granparent的位置。</li>
-<li>CASE3：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的左孩子或者是右孩子的右孩子，调整波及很大，不仅涉及Uncle和Granparent的调整（以Uncle为轴旋转，交换了Uncle和Granparent的位置），还需将Uncle和Granparent的帽子颜色换掉。</li>
-</ul>
-<p>上述规则可用下图表示：  </p>
-<p><img src="/assets/images/rb_rule.png" alt="图片"></p>
-<p>依次插入6个节点123456，建立一颗红黑树如图所示：  </p>
-<p><img src="/assets/images/rb_insert.png" alt="图片"></p>
-<h2 id="3-参考资料"><a href="#3-参考资料" class="headerlink" title="3. 参考资料"></a>3. 参考资料</h2><ol>
-<li><a href="https://www.youtube.com/watch?v=PhY56LpCtP4" target="_blank" rel="external">RB Tree Howto</a>  </li>
-<li><a href="http://kakack.github.io/2014/04/%E9%9D%A2%E8%AF%95%E7%BC%96%E7%A8%8B%EF%BC%9A%E7%BA%A2%E9%BB%91%E6%A0%91/" target="_blank" rel="external">RB Tree Github</a>  </li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Timer</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Event Loop</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RedBlack Tree</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2015/03/01/tune-timer-implmentation/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1801,14 +1799,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -1821,19 +1811,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">deploy</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">openstack</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1861,6 +1851,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
               </li>
              
@@ -1870,6 +1868,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1885,10 +1891,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">LDAP</a>
               </li>
              
@@ -1901,19 +1903,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1922,6 +1912,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1953,22 +1951,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">WPA</a>
               </li>
              
@@ -1981,11 +1963,39 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Cloud Design Pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Event-Driven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2013,22 +2023,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Timer</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Event Loop</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">RedBlack Tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
               </li>
              
@@ -2038,6 +2032,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2065,6 +2063,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">可调用对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">迭代器</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Concurrency</a>
               </li>
              
@@ -2077,11 +2087,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">可调用对象</a>
+                <a href="javascript:void(0)" class="js-tag color4">karman filter</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">迭代器</a>
+                <a href="javascript:void(0)" class="js-tag color4">tracking</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2094,10 +2104,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
               </li>
             
             <div class="clearfix"></div>

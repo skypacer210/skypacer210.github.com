@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://skypacer210.github.io/"/>
-  <updated>2017-09-19T16:34:07.000Z</updated>
+  <updated>2017-11-05T02:17:40.000Z</updated>
   <id>https://skypacer210.github.io/</id>
   
   <author>
@@ -14,6 +14,63 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Karman滤波器</title>
+    <link href="https://skypacer210.github.io/2017/11/01/little-on-karman-filter/"/>
+    <id>https://skypacer210.github.io/2017/11/01/little-on-karman-filter/</id>
+    <published>2017-10-31T16:00:00.000Z</published>
+    <updated>2017-11-05T02:17:40.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文将对卡尔曼滤波做一个粗略总结~    </p>
+<hr>
+<h3 id="1、问题描述"><a href="#1、问题描述" class="headerlink" title="1、问题描述"></a>1、问题描述</h3><p>假定一个机器人导航，其状态用$\vec{x_k}$描述：  </p>
+<p>$<br>\vec{x_k}=\left ( \vec{p},\vec{v} \right )<br>$</p>
+<h3 id="2、Kalman-filter如何看待该问题"><a href="#2、Kalman-filter如何看待该问题" class="headerlink" title="2、Kalman filter如何看待该问题"></a>2、Kalman filter如何看待该问题</h3><p>采用一个向量描述状态：</p>
+<p>$<br>\vec{x}=<br>\left [<br>\begin{matrix}<br>        p \<br>        v \<br>        \end{matrix}<br> \right ]<br>$</p>
+<p>两个假设：</p>
+<ul>
+<li>p和v都符合高斯分布，数学期望为$\mu$，方差为$\sigma ^{2}$，</li>
+<li>随机</li>
+</ul>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_1.png" alt="gauss_1">  </p>
+<center>Figure 1: gauss_1</center>
+
+
+<p>我们考虑速度和位置是有关联的：</p>
+<p><strong>矩阵描述问题</strong></p>
+<p>协方差用于衡量p和v两个变量的总体误差，</p>
+<p>$<br>\begin{equation} \label{eq:statevars}<br>\begin{aligned}<br>\mathbf{\hat{x}}_k &amp;= \begin{bmatrix}<br>\text{position}\<br>\text{velocity}<br>\end{bmatrix}\<br>\mathbf{P}<em>k &amp;=<br>\begin{bmatrix}<br>\Sigma</em>{pp} &amp; \Sigma<em>{pv} \<br>\Sigma</em>{vp} &amp; \Sigma_{vv} \<br>\end{bmatrix}<br>\end{aligned}<br>\end{equation}<br>$</p>
+<p>状态迁移描述：</p>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_7.jpg" alt="状态迁移"></p>
+<p>其中的预测过程用一个矩阵描述Fk：</p>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_8.jpg" alt="预测过程"></p>
+<p>我们预测速度和位置的迁移公式：</p>
+<p>$<br>\begin{split}<br>\color{deeppink}{p<em>k} &amp;= \color{royalblue}{p</em>{k-1}} + \Delta t &amp;\color{royalblue}{v_{k-1}} \<br>\color{deeppink}{v<em>k} &amp;= &amp;\color{royalblue}{v</em>{k-1}}<br>\end{split}<br>$</p>
+<p>预测矩阵描述：</p>
+<p>$<br>\begin{align}<br>\color{deeppink}{\mathbf{\hat{x}}<em>k} &amp;= \begin{bmatrix}<br>1 &amp; \Delta t \<br>0 &amp; 1<br>\end{bmatrix} \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>&amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \label{statevars}<br>\end{align}<br>$</p>
+<p>虽然有了预测矩阵，但是我们还不知道如何<strong>更新协方差矩阵</strong>；</p>
+<p>这样我们用下面的方法更新协方差矩阵：</p>
+<p>$<br>\begin{equation}<br>\begin{split}<br>\color{deeppink}{\mathbf{\hat{x}}_k} &amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>\color{deeppink}{\mathbf{P}_k} &amp;= \mathbf{F<em>k} \color{royalblue}{\mathbf{P}</em>{k-1}} \mathbf{F}_k^T<br>\end{split}<br>\end{equation}<br>$</p>
+<p>注意这里是大写的P，代表概率，协方差概率；</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文将对卡尔曼滤波做一个粗略总结~    &lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;1、问题描述&quot;&gt;&lt;a href=&quot;#1、问题描述&quot; class=&quot;headerlink&quot; title=&quot;1、问题描述&quot;&gt;&lt;/a&gt;1、问题描述&lt;/h3&gt;&lt;p&gt;假定一个机器人导航，其状态用$\vec{
+    
+    </summary>
+    
+      <category term="algorithm" scheme="https://skypacer210.github.io/categories/algorithm/"/>
+    
+    
+      <category term="karman filter" scheme="https://skypacer210.github.io/tags/karman-filter/"/>
+    
+      <category term="tracking" scheme="https://skypacer210.github.io/tags/tracking/"/>
+    
+  </entry>
   
   <entry>
     <title>API Security</title>
