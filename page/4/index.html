@@ -146,6 +146,834 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Reading-about-XML-validator" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/01/19/Reading-about-XML-validator/">代码之美读后感之《设计XML验证器之经验》</a>
+    </h1>
+  
+
+        
+        <a href="/2014/01/19/Reading-about-XML-validator/" class="archive-article-date">
+  	<time datetime="2014-01-18T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-01-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>两大基本需求：  </p>
+<ul>
+<li>读入XML文档进行输入验证；</li>
+<li>输出验证，生成XML文档</li>
+</ul>
+<p>其中包括对XML的合法性检查，作者利用了JAVA中的JDOM类。</p>
+<h3 id="优化步骤"><a href="#优化步骤" class="headerlink" title="优化步骤"></a>优化步骤</h3><ol>
+<li>第一级优化：避免重复验证</li>
+<li>第二级优化：将所有可能存储至一张表当中，以便进行位操作，当然提前是查找表可以一次读入内存。</li>
+<li>第三级优化：引入cache,将常用的名字存入集合，其中对于小集合，利用数组即可实现，代价小于哈希表。</li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">XML</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">代码之美</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Reading/" class="article-tag-list-link color3">Reading</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2014/01/19/Reading-about-XML-validator/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-little-about-DH" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/01/15/little-about-DH/">再谈Diffie-Hellman算法</a>
+    </h1>
+  
+
+        
+        <a href="/2014/01/15/little-about-DH/" class="archive-article-date">
+  	<time datetime="2014-01-14T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-01-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近在工作中又碰到了DH(Diffie-Hellman)算法，鉴于之前对该算法理解地支离破碎，因此在博文中总结归纳下。  </p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>DH算法用于在不安全的公共通道中协商密钥，安全性体现在：在有限域上计算离散代数非常困难。上两位大牛Whitfield Diffie 和 Martin Hellman的照片：  </p>
+<p><img src="/assets/images/DH/DH_master.jpg" alt="图片"></p>
+<p>算法描述：<br>假定Alice和Bob期望在一个不安全的网络中协商一个共同的密钥，那么进行如下步骤：</p>
+<ul>
+<li>两人先说好大素数（质数）p和它的原始根g。</li>
+<li>Alice随机产生一个数a，并计算<code>A = p^a mod g</code>, 发送给Bob。</li>
+<li>Bob随机产生一个数b，并计算B= pb mod g，发送给Alice。    </li>
+</ul>
+<p>此时， Alice手握Bob发过来的B，结合自己产生的a开始这样计算：</p>
+<p><code>B^a mod p = (p^b mod g)^a mod p = p^ab mod g</code>。  </p>
+<p>Bob也拿到了Alice发来的A，同时结合自己的b，也开始计算：</p>
+<p> <code>B^a mod p = (p^b mod g)^a mod p = p^ab mod g</code>。</p>
+<p>这样Alice和Bob都得到了相同的密钥。     </p>
+<h3 id="DH的安全缺陷"><a href="#DH的安全缺陷" class="headerlink" title="DH的安全缺陷"></a>DH的安全缺陷</h3><p>DH不仅支持两点密钥交互，也可以支持多点密钥交互。但是DH算法本身存在安全性缺陷，即没有对交互双方进行身份验证，容易遭受中间人攻击。攻击思路具体如下：    </p>
+<ul>
+<li>Alice本来想发送A给Bob，被EVE截胡，EVE自己选择一个私有数c，计算出<code>C = p^c mod g</code>，发送给Bob。</li>
+<li>Bob本来想发送B给Alice，也被EVE截胡，EVE再把<code>C = p^c mod g</code>发送给Alice。</li>
+<li>此时，Alice和EVE计算出共同的密钥<code>K1 = p^ac mod g</code>，Bob和EVE计算出共同的密钥<code>K2 = p^bc mod g</code>。</li>
+<li>Alice和Bob都以为是和对方协商好了共享密钥，于是开始发送数据，Alice用K1加密数据后发送给Bob，又被该死的EVE截胡，EVE用K1解密，不仅可以看到Alice想对Bob发送的信息，还可以修改，然后再用K2加密该篡改之后的信息，发给蒙在鼓里的Bob。Bob当然可以用K2解开，但是已经被EVE窥探甚至修改。  </li>
+</ul>
+<p>因此必须引入身份验证以防范此类攻击，利用RSA数字签名即可达到此目的。</p>
+<h3 id="DH在TLS中的应用"><a href="#DH在TLS中的应用" class="headerlink" title="DH在TLS中的应用"></a>DH在TLS中的应用</h3><p>DH算法作为一种密钥协商机制，可以用于TLS协议当中。  </p>
+<p>如果在DH交互过程中Alice和Bob始终使用相同的私钥，就会导致后续产生的共享密钥是一样的，如果有嗅探者截获通信双方的所有数据，由于都是同一个密钥加密所得，一旦被破解，后续的通信将全部暴露。</p>
+<p>为了保证安全性，必须引入前向保密，即Forward Secrecy。其基本实现思路就是在Alice和Bob在选择各自的私钥是引入随机性，也印证了那句话：要用发展的眼光看问题，不能一成不变。  </p>
+<p>事实上FS在诸多加密协议中应用广泛，比如IKEv2和802.11i密钥分发中的4-way握手，无一不引入此方法。</p>
+<p>那么问题来了，TLS中哪一个才是最安全的cipher呢？就目前而言，最安全的三个候选者如下：  </p>
+<ul>
+<li><code>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P521</code></li>
+<li><code>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384</code></li>
+<li><code>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256</code></li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">DH</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">TLS</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Reading/" class="article-tag-list-link color3">Reading</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2014/01/15/little-about-DH/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-history-of-wireless-security" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/01/10/history-of-wireless-security/">无线安全之前世今生</a>
+    </h1>
+  
+
+        
+        <a href="/2014/01/10/history-of-wireless-security/" class="archive-article-date">
+  	<time datetime="2014-01-09T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-01-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文将对wireless security的发展做一个粗略介绍，从open system到WPA、WPA2和802.1X，权当做抛砖引玉~</p>
+<p>注：任何一次技术变革不仅仅是技术方案的较量，更多的是市场的博弈。原文链接<a href="http://securityuncorked.com/2008/08/history-of-wireless-security/" target="_blank" rel="external">history of wireless security</a></p>
+<hr>
+<p>##1、Open and SKA</p>
+<p>802.11在发展早期主要采用两类验证方法– Open System Association (OSA) 和Shared Key Authentication (SKA).</p>
+<ul>
+<li>Open = no authentication</li>
+<li>Shared Key = WEP</li>
+</ul>
+<p>Open systems 相当于没有任何验证手段，任何人可以连接至无线网络。</p>
+<p>SKA基于WEP加密，我们会在4个预共享密钥中选择一个作为所有无线站点连接AP的密钥，虽然后来WEP被发现存在安全漏洞。让我们来看看WEP何罪之有？<br>WEP本身有诸多问题，在wired介质当中是一个足够强健的算法，但是并不适合无线介质，下面是WEP的若干罪状：</p>
+<ul>
+<li>采用基于流的算法</li>
+<li>每包重用master key </li>
+<li>在AP之间采用相同的组播密钥</li>
+<li>缺乏对client端的有效认证机制</li>
+<li>易于遭受重放攻击和完整性攻击  </li>
+</ul>
+<p>##2、 从WEP的改造到WPA的崭露头角  </p>
+<p>###2.1、 “i”之初创  </p>
+<p>随着WEP越来越多的漏洞被发现，IEEE决定成立802.11i工作组以改进无线安全。作为一个安全网络的过渡期，WPA应运而生，其目的在于开发一个强健的安全网络。<br>802.11i工作组面临诸多困难，其中之一便是如何在仍旧使用现有硬件的基础上对WEP进行安全加密流程进行改造。作为一个过渡性解决方案，WPA在解决WEP现有不足的基础上同时考虑长期的无线安全。  </p>
+<p>###2.2、 WPA与TKIP  </p>
+<p>Wi-Fi联盟(Wi-Fi Alliance)的目的在于创建一个在主流厂家之间互通的安全平台；而WPA源于‘Wi-Fi Protected Access’其本身不是一个标准甚至不能称之为框架，仅仅是一个由无线厂商为达到相互之间的互通而形成的ad-hoc联合。<br>WPA作为802.11i的一个准标准，既采用了特定的密钥管理，也遵循了802.11i中的验证架构-802.1X。由于当时的硬件不支持AES算法，WPA采用TKIP((Temporal Key Integrity Protocol))作为替代算法。</p>
+<p>###2.3、WPA中的密钥建立机制  </p>
+<p>WPA采用PMK建立PTKs，即会话密钥，其目的在于保护每个会话。伪随机数函数PSF (pseudo-random function)确保PTKs包含nonces、MAC地址计数、时间以及随机数。密钥建立机制的重新设计目的在于最大程度地降低主密钥被窃取的可能性。见图1。  </p>
+<p><img src="/assets/images/wireless_brief_fig_1.png" alt="图片">  </p>
+<center>Figure 1. WEP vs WPA</center>  
+
+<p>###2.4、WPA的其他改进点  </p>
+<p>WPA在安全性方面的改进之处主要有以下几点:</p>
+<ul>
+<li>IV扩展至56bit（对于弱密钥可以允许8bit的密钥扩展空间）</li>
+<li>采用PTKs（再一次扩展了有效的密钥空间）</li>
+<li>指定IV rotation，避免了密钥重用</li>
+<li>采用MICHAEL算法进行完整性校验</li>
+<li>通过IEEE802.1X进行网络验证</li>
+<li>增加了序列号以防止重放攻击</li>
+<li>报文头和负载的完整性检查以防止重定向攻击</li>
+</ul>
+<p>###2.5、WPA小结<br>WPA作为一种安全架构主要包含两类组件：第一类是加密组件TKIP；第二类是验证组件，可以是PSK也可以是RADIUS。除了安全性相比WEP有提升之外，更重要的是保证了向前兼容。</p>
+<p>##3、 WPA2一统天下   </p>
+<p>2008年WPA的漏洞被发现，即TKIP exploit,该漏洞通过改变验证组件无法修正，唯一的解决方法是用AES替代TKIP。WPA2应运而生，这就要求硬件进行改变。TKIP可以作为WPA2的可选项。<br>802.11i和WPA2指的是同一件事情，这样一来，在现有的硬件上可以用统一的的加密方式-AES，这正是IEEE标准下所谓的强健网络。<br>作为当前无线安全的标准，802.11i/WPA2又像极了当年的WPA准标准，仅在一些细微处有所不同。随着802.11i完成最终的业界应用，现有的硬件将AES加密算法作为内置算法。<br>WPA2相比WPA有如下两大改变：</p>
+<ol>
+<li>AES加密算法替代WEP被内置进硬件</li>
+<li>加强了完整性检查  </li>
+</ol>
+<p>###3.1、802.11i与802.1x     </p>
+<p>802.11i采用802.1x保证密钥的建立与验证。EAPoL虽然本身是基于有线设计的，但是很容易适用于无线。802.1X相比之前的验证方法的最大不同之处在于验证过程发生在station和RADIUS server之间，而不是station和AP之间。由于AP不参与密钥产生，所以session key（由PTK导出）和每包密钥需要和AP共享，这些密钥由一个安全通道TLS传输。  </p>
+<p>图2描述了多种通信流，用不同的颜色予以标记。EAPoL通信由黑色标记，而EAP握手由蓝色区分。RADIUS采用绿色，TLS则使用了橙色。从该图可以清晰地看到station、AP以及RADIUS server之间的交互流程。</p>
+<p><img src="/assets/images/wireless_brief_fig_2.png" alt="图片">  </p>
+<center>Figure 2. 802.1X in Wireless</center>
+
+<p>###3.2、源自RADIUS的TLS隧道    </p>
+<p>802.11i利用802.1X不仅建立密钥同时也完成了验证， 相应地，RADIUS服务器也通过该途径向client验证其自身。这条从RADIUS服务器端到客户端的隧道提供了安全通信的机制，从而保证了验证过程中的密钥交互。</p>
+<p>###3.3、WPA2的安全性  </p>
+<p>WPA2也同样包含两类组件，一是基于AES的加密组件，二是基于PSK或者是RADIUS的验证组件。但并不意味着WPA2就没有漏洞，比如可以通过错误配置PEAP验证组件进行攻击。</p>
+<p>##4、 后记</p>
+<p>尽管业界对于802.1X仍然有一些争议，但其已经成为主流的安全无线验证机制并被广泛接受。总之，802.1X囊括了安全密钥交换、密钥轮转、主密钥保护以及AES加密等，成为目前一种具有单项优势的技术。</p>
+<hr>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">wireless</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">security</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2014/01/10/history-of-wireless-security/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-openstack-deploy-in-ubuntu1204" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/01/08/openstack-deploy-in-ubuntu1204/">Ubuntu下OpenStack配置小记</a>
+    </h1>
+  
+
+        
+        <a href="/2014/01/08/openstack-deploy-in-ubuntu1204/" class="archive-article-date">
+  	<time datetime="2014-01-07T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-01-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文由<a href="http://skypacer210.github.io/">skypacer</a>根据<a href="http://docs.openstack.org/trunk/install-guide/install/apt/content/" target="_blank" rel="external">OpenStack Installation Guide for Ubuntu 12.04 (LTS)</a>在自己的环境中实际部署情况整理而成。转载请注明出处！</p>
+<p>###1、安装准备  </p>
+<h4 id="网络设置"><a href="#网络设置" class="headerlink" title="网络设置"></a>网络设置</h4><ul>
+<li>安装双网卡：通过vsphere client安装两个网卡，一个内网，一个外网。<br>修改文件/etc/network/interfaces如下：    </li>
+</ul>
+<pre><code>
+auto lo
+iface lo inet loopback 
+# The primary network interface
+# Internal network
+auto eth0
+#iface eth0 inet dhcp
+iface eth0 inet static
+address 10.151.122.138
+netmask 255.255.255.0
+gateway 10.151.122.1
+dns-nameservers 10.151.122.5 10.151.120.21 10.140.2.48
+dns-search wyse.com
+# This is an autoconfigured IPv6 interface
+iface eth0 inet6 auto
+
+# External network
+auto eth1
+iface eth1 inet static
+address 10.151.120.190
+netmask 255.255.255.0
+gateway 10.151.120.1
+dns-nameservers 10.151.122.5 10.151.120.21 10.140.2.48
+dns-search wyse.com  
+
+</code></pre>  
+
+<ul>
+<li>修改host<br>修改/etc/hostname文件如下：   <pre><code>  
+controller
+</code></pre>     
+
+</li>
+</ul>
+<p>修改/etc/hosts文件如下：  </p>
+<pre><code>  
+127.0.0.1       localhost
+10.151.122.138  controller
+10.151.122.139  compute1
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+</code></pre> 
+
+
+<ul>
+<li>重启网络：service networking restart  </li>
+<li>测试网络：通过hostname命令检查主机名设置；通过ping检查主机解析  </li>
+</ul>
+<p>####1.2、安装数据库    </p>
+<ul>
+<li>apt-get install python-mysqldb mysql-server</li>
+<li>修改/etc/mysql/my.cnf：将mysql的绑定地址改为内网IP：1<br>bind-address            = 10.151.122.138  </li>
+<li>重启MYSQL：service mysql restart</li>
+<li>删除匿名用户：<br><pre><code>  <h1 id="mysql-install-db"><a href="#mysql-install-db" class="headerlink" title="mysql_install_db"></a>mysql_install_db</h1><h1 id="mysql-secure-installation"><a href="#mysql-secure-installation" class="headerlink" title="mysql_secure_installation"></a>mysql_secure_installation</h1></code></pre> }</li>
+</ul>
+<p>####1.3、安装时间服务器  </p>
+<ul>
+<li>安装NTP服务器用于同步时间：apt-get install ntp</li>
+<li>创建各自密码：暂时不考虑安全性，为了方便暂时保存在.bashrc中的环境变量中</li>
+</ul>
+<p>###2、Identity services配置</p>
+<p><a id="single_res" name="single_res"> </a></p>
+<p>单一责任原则，即一个类只能有一种原因去驱动改变，该原则的是同open-closed原则有异曲同工之妙：尽量避免现有代码的修改。当违反了单一原则的时候，一个模块有多种原因需要去修改。更糟的是，多个不同的责任集中于一个模块当中会耦合在一起，使得测试与修改变得非常复杂。  </p>
+<p>单一责任原则本质是集中性，便于进行多层抽象，而不仅仅是一个过程上下文，简单地讲类替换为函数将有利于我们在此原则基础上分析算法。  </p>
+<p>####2.1、验证机制  </p>
+<p>####2.2、定义用户、租户和角色  </p>
+<p>由于在/etc/keystone/keystone.conf中定义了admin_token，这是一个keystone和other openstack services的预共享密钥，在创建租户时会用到。  </p>
+<ul>
+<li>通过设置两个环境变量指定token和identity service运行的路径<br>export OS_SERVICE_TOKEN=ADMIN_TOKEN<br>export OS_SERVICE_ENDPOINT=<a href="http://controller:35357/v2.0" target="_blank" rel="external">http://controller:35357/v2.0</a></li>
+<li>创建租户  </li>
+</ul>
+<p>keystone tenant-create –name=admin –description=”Admin Tenant”  </p>
+<pre><code>  
+
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description |           Admin Tenant           |
+|   enabled   |               True               |
+|      id     | 5e7178983104482a92433f55b09c6dcd |
+|     name    |              admin               |
++-------------+----------------------------------+  
+</code></pre> }
+
+keystone tenant-create --name=service --description="Service Tenant"    
+
+<pre><code> 
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description |          Service Tenant          |
+|   enabled   |               True               |
+|      id     | 2b1ee1230ed34dcf9b73941f9e6b89c1 |
+|     name    |             service              |
++-------------+----------------------------------+
+</code></pre> }  
+
+-    创建管理员用户  
+
+keystone user-create --name=admin --pass=ADMIN_PASS --email=yangyongbupt168@gmail.com  
+
+<pre><code>  
++----------+----------------------------------+
+| Property |              Value               |
++----------+----------------------------------+
+|  email   |    yangyongbupt168@gmail.com     |
+| enabled  |               True               |
+|    id    | d9308be3ba924b94ac051eb8d0750cd6 |
+|   name   |              admin               |
++----------+----------------------------------+  
+</code></pre> }    
+
+-    创建角色：角色由各种OpenStack服务对应的policy.json文件指定，缺省的策略文件赋予admin角色访问大多数服务的权利。    
+
+<pre><code> 
++----------+----------------------------------+
+| Property |              Value               |
++----------+----------------------------------+
+|    id    | 372478ee2d2647858d864ce9066acccd |
+|   name   |              admin               |
++----------+----------------------------------+  
+</code></pre> }    
+
+-    为用户添加角色：用户总是以租户身份登录，角色通过租户被赋予给用户。例如，当用户admin以admin租户的身份登录时，赋予其admin角色。
+    keystone user-role-add --user=admin --tenant=admin --role=admin    
+
+####2.3、定义services和API endpoints  
+
+-    为Identity services创建一个服务实体    
+
+keystone service-create --name=keystone --type=identity --description="Keystone Identity Service"    
+
+<pre><code>   
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description |    Keystone Identity Service     |
+|      id     | 7d36ad0a2c0f4ec893b1fedc95d5e9de |
+|     name    |             keystone             |
+|     type    |             identity             |
++-------------+----------------------------------+  
+</code></pre> }    
+
+-    利用返回的service ID（随机产生）创建API endpoint，其实就是创建内外网API等URL。
+
+    keystone endpoint-create \
+    --service-id=7d36ad0a2c0f4ec893b1fedc95d5e9de \
+    --publicurl=http://controller:5000/v2.0 \
+    --internalurl=http://controller:5000/v2.0 \
+    --adminurl=http://controller:35357/v2.0  
+
+<pre><code> 
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+|   adminurl  |   http://controller:35357/v2.0   |
+|      id     | 42eb21997c244fa480320fa8bd4102dc |
+| internalurl |   http://controller:5000/v2.0    |
+|  publicurl  |   http://controller:5000/v2.0    |
+|    region   |            regionOne             |
+|  service_id | 7d36ad0a2c0f4ec893b1fedc95d5e9de |
++-------------+----------------------------------+
+</code></pre> }   
+
+####2.4、验证Identity Services安装  
+
+本质上是利用user/token验证绑定user/password的过程，期望通过user/password 查找token。  
+
+-    删除临时环境变量
+
+unset OS_SERVICE_TOKEN OS_SERVICE_ENDPOINT  
+
+-    基于用户的验证：用admin的user/passord请求验证token  
+
+keystone --os-username=admin --os-password=ADMIN_PASS \
+    --os-auth-url=http://controller:35357/v2.0 token-get  
+
+<pre><code>
+
++----------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
++----------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| expires  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 2014-01-10T03:29:38Z                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+|    id    | MIIC8QYJKoZIhvcNAQcCoIIC4jCCAt4CAQExCTAHBgUrDgMCGjCCAUcGCSqGSIb3DQEHAaCCATgEggE0eyJhY2Nlc3MiOiB7InRva2VuIjogeyJpc3N1ZWRfYXQiOiAiMjAxNC0wMS0wOVQwMzoyOTozOC4xNTMwNDAiLCAiZXhwaXJlcyI6ICIyMDE0LTAxLTEwVDAzOjI5OjM4WiIsICJpZCI6ICJwbGFjZWhvbGRlciJ9LCAic2VydmljZUNhdGFsb2ciOiBbXSwgInVzZXIiOiB7InVzZXJuYW1lIjogImFkbWluIiwgInJvbGVzX2xpbmtzIjogW10sICJpZCI6ICJkOTMwOGJlM2JhOTI0Yjk0YWMwNTFlYjhkMDc1MGNkNiIsICJyb2xlcyI6IFtdLCAibmFtZSI6ICJhZG1pbiJ9LCAibWV0YWRhdGEiOiB7ImlzX2FkbWluIjogMCwgInJvbGVzIjogW119fX0xggGBMIIBfQIBATBcMFcxCzAJBgNVBAYTAlVTMQ4wDAYDVQQIDAVVbnNldDEOMAwGA1UEBwwFVW5zZXQxDjAMBgNVBAoMBVVuc2V0MRgwFgYDVQQDDA93d3cuZXhhbXBsZS5jb20CAQEwBwYFKw4DAhowDQYJKoZIhvcNAQEBBQAEggEAAS-Fdhv74-kaGYHDuVnJo3ZHhfQ0sdXtdJE68V86gB3TnRMBvDizYaaBlUEDkVLEsOTf-SwO+2fVDnEQ82eARFwXi5RgGUW-rSPX-DU9iJob0ajc4Pn7tRioEzjUByON+8kYge7V5hmowc4e+qM7vvbUcLkTC3eKkF4b4xNg7JSCEMeRCIPSDlqOR3a-S5jODUSdQlfkcZyjocQjcQdaEBW8Rm+bv4TTVYi2PotbqoZQHGvVPg45cjeFnLFSs9XVCkFMx9rUgXmj4+FdV61t6wH0goJ5LriIHKOlKD0dp6V8RX0p1hpmFoD1dI+yDFD68dmmUV5t6gtluyZA5dJNBw== |
+| user_id  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           d9308be3ba924b94ac051eb8d0750cd6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
++----------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+</code></pre> }   
+
+
+
+这是一个包含用户ID的token paired。  
+
+keystone --os-username=admin --os-password=ADMIN_PASS \
+    --os-tenant-name=admin --os-auth-url=http://controller:35357/v2.0 token-get  
+
+<pre><code>
+
++-----------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|  Property |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
++-----------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|  expires  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           2014-01-10T03:41:25Z                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|     id    | MIIEsgYJKoZIhvcNAQcCoIIEozCCBJ8CAQExCTAHBgUrDgMCGjCCAwgGCSqGSIb3DQEHAaCCAvkEggL1eyJhY2Nlc3MiOiB7InRva2VuIjogeyJpc3N1ZWRfYXQiOiAiMjAxNC0wMS0wOVQwMzo0MToyNS45NjI4MzUiLCAiZXhwaXJlcyI6ICIyMDE0LTAxLTEwVDAzOjQxOjI1WiIsICJpZCI6ICJwbGFjZWhvbGRlciIsICJ0ZW5hbnQiOiB7ImRlc2NyaXB0aW9uIjogIkFkbWluIFRlbmFudCIsICJlbmFibGVkIjogdHJ1ZSwgImlkIjogIjVlNzE3ODk4MzEwNDQ4MmE5MjQzM2Y1NWIwOWM2ZGNkIiwgIm5hbWUiOiAiYWRtaW4ifX0sICJzZXJ2aWNlQ2F0YWxvZyI6IFt7ImVuZHBvaW50cyI6IFt7ImFkbWluVVJMIjogImh0dHA6Ly9jb250cm9sbGVyOjM1MzU3L3YyLjAiLCAicmVnaW9uIjogInJlZ2lvbk9uZSIsICJpbnRlcm5hbFVSTCI6ICJodHRwOi8vY29udHJvbGxlcjo1MDAwL3YyLjAiLCAiaWQiOiAiNzMzOWEwZDY1NDBlNGM0MGI4YWE4NGI1NDEzODNlMTYiLCAicHVibGljVVJMIjogImh0dHA6Ly9jb250cm9sbGVyOjUwMDAvdjIuMCJ9XSwgImVuZHBvaW50c19saW5rcyI6IFtdLCAidHlwZSI6ICJpZGVudGl0eSIsICJuYW1lIjogImtleXN0b25lIn1dLCAidXNlciI6IHsidXNlcm5hbWUiOiAiYWRtaW4iLCAicm9sZXNfbGlua3MiOiBbXSwgImlkIjogImQ5MzA4YmUzYmE5MjRiOTRhYzA1MWViOGQwNzUwY2Q2IiwgInJvbGVzIjogW3sibmFtZSI6ICJhZG1pbiJ9XSwgIm5hbWUiOiAiYWRtaW4ifSwgIm1ldGFkYXRhIjogeyJpc19hZG1pbiI6IDAsICJyb2xlcyI6IFsiMzcyNDc4ZWUyZDI2NDc4NThkODY0Y2U5MDY2YWNjY2QiXX19fTGCAYEwggF9AgEBMFwwVzELMAkGA1UEBhMCVVMxDjAMBgNVBAgMBVVuc2V0MQ4wDAYDVQQHDAVVbnNldDEOMAwGA1UECgwFVW5zZXQxGDAWBgNVBAMMD3d3dy5leGFtcGxlLmNvbQIBATAHBgUrDgMCGjANBgkqhkiG9w0BAQEFAASCAQA3-Ce1g6lmH707ibg+NDRTn2xiTds9SkWUvpHNTPSDvbnW5-eoSSE+Ty7EVMb5XFkCZlDYHHKuDRfdG9reFfQq9qVcXzS4R8FAxJF8V9Nfx4z76l1yGyZxRbn566uKPYc2BUlp3ZydeP7eX+k54GCNkPj+dMgCcr4weSCfuIXaVejKVsKaz1fJu7AmypeDa24fTjseJUTzqUNkCLp4+RkVMsb2SaQDgNSSJf890m+TB70zPJN63IasJvH8DnAzZ2G2F2MIw+zBAQ7kTl7lskRKOGVtUIZxxxb8TGWP+Y34VrAHLoUoXsP+fQhIlv-dKfuNt5qoWe0AlnBkrwQl3HK1 |
+| tenant_id |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     5e7178983104482a92433f55b09c6dcd                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|  user_id  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     d9308be3ba924b94ac051eb8d0750cd6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
++-----------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+</code></pre> }   
+
+
+期望返回一绑定租户的token。  
+
+
+-    脚本操作：上述手动操作的替代方法  
+
+<pre><code> 
+#!/bin/bash
+
+export OS_USERNAME=admin
+export OS_PASSWORD=ADMIN_PASS
+export OS_TENANT_NAME=admin
+export OS_AUTH_URL=http://controller:35357/v2.0  
+
+</code></pre> }   
+
+-    确保admin账户已经被验证
+
+keystone user-list
+
+<pre><code> 
++----------------------------------+-------+---------+---------------------------+
+|                id                |  name | enabled |           email           |
++----------------------------------+-------+---------+---------------------------+
+| d9308be3ba924b94ac051eb8d0750cd6 | admin |   True  | yangyongbupt168@gmail.com |
++----------------------------------+-------+---------+---------------------------+
+</code></pre> 
+
+<p>###3、OpenStack clients安装与配置  </p>
+<p>通过命令行客户端进行API调用，可以设置在脚本中自动执行。在OpenStack内部，可以运行cURL命令执行内嵌API请求。OpenStack是一种基于HTTP协议REST风格的API，包括方法、URI、介质类型和响应代码。<br>每个Openstack服务都有自己的命令行客户端。</p>
+<p>####3.1、基于python的开源客户端  </p>
+<ul>
+<li>ceilometer：度量openStack</li>
+<li>cinder：创建和管理volume</li>
+<li>glance:创建和管理图片</li>
+<li>heat：从模板登录和管理stack</li>
+<li>keystone:创建管理用户、租户、角色和密钥等</li>
+<li>neutron：为客户端server配置网络</li>
+<li>nova：管理图片、句柄和flavors</li>
+<li>swift：统计Object Storage服务的元数据</li>
+<li>充电</li>
+</ul>
+<p>###4、验证Identity Services安装     </p>
+<p>####4.1、安装Image Service  </p>
+<ul>
+<li>注册Image服务和Identity服务，这样其他的OpenStack服务可以定位到它  </li>
+</ul>
+<p>keystone service-create –name=glance –type=image \<br>    –description=”Glance Image Service”</p>
+<pre><code> 
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description |       Glance Image Service       |
+|      id     | 21b15dc9b1d846149883e953af08d906 |
+|     name    |              glance              |
+|     type    |              image               |
++-------------+----------------------------------+
+</code></pre>  
+
+<ul>
+<li>利用serveice id创建endpoint</li>
+</ul>
+<p>keystone endpoint-create –service-id=21b15dc9b1d846149883e953af08d906 –publicurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> –internalurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a> \<br>    –adminurl=<a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a></p>
+<pre><code> 
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+|   adminurl  |      http://controller:9292      |
+|      id     | 9cf77dd344514215812b1391dbf2b498 |
+| internalurl |      http://controller:9292      |
+|  publicurl  |      http://controller:9292      |
+|    region   |            regionOne             |
+|  service_id | 21b15dc9b1d846149883e953af08d906 |
++-------------+----------------------------------+
+</code></pre>  
+
+<p>####4.2、安装Image Service</p>
+<p>验证安装：  </p>
+<ul>
+<li>上传Image</li>
+</ul>
+<p>root@controller:/home/fyang/project/images# glance image-create –name=”CirrOS 0.3.0” –disk-format=qcow2 –container-format=bare –is-public=true &lt; cirros-0.3.0-x86_64-disk.img   </p>
+<p>root@controller:/home/fyang/project/images# glance image-create –name=”CirrOS 0.3.0” –disk-format=qcow2 –container-format=bare –is-public=true &lt; cirros-0.3.0-x86_64-disk.img  </p>
+<ul>
+<li>显示Image列表  </li>
+</ul>
+<p>glance image-list</p>
+<pre><code> 
++--------------------------------------+--------------+-------------+------------------+---------+--------+
+| ID                                   | Name         | Disk Format | Container Format | Size    | Status |
++--------------------------------------+--------------+-------------+------------------+---------+--------+
+| 59c63869-ce77-4647-90b5-782d258e3354 | CirrOS 0.3.0 | qcow2       | bare             | 9761280 | active |
+| 05f2ae82-0926-4b8a-9d11-dfc99d8ee845 | CirrOS 0.3.1 | qcow2       | bare             | 9761280 | active |
++--------------------------------------+--------------+-------------+------------------+---------+--------+
+</code></pre>  
+
+<p>###5、计算控制服务安装与配置  </p>
+<p>####5.1、概述  </p>
+<p>####5.1、安装Image Service  </p>
+<ul>
+<li>创建计算服务表：</li>
+</ul>
+<p>nova-manage db sync  </p>
+<pre><code>
+    2014-01-09 17:45:46.814 7918 INFO migrate.versioning.api [-] 215 -> 216... 
+2014-01-09 17:45:46.837 7918 INFO migrate.versioning.api [-] done
+</code></pre>  
+
+<ul>
+<li>创建用户</li>
+</ul>
+<p>keystone user-create –name=nova –pass=NOVA_PASS –email=nova@example.</p>
+<pre><code>
++----------+----------------------------------+
+| Property |              Value               |
++----------+----------------------------------+
+|  email   |          nova@example.           |
+| enabled  |               True               |
+|    id    | 26e1951aa2264a11800c68cc58dbce59 |
+|   name   |               nova               |
++----------+----------------------------------+
+</code></pre>  
+
+<ul>
+<li>充电</li>
+</ul>
+<p>root@controller:/home/fyang/project/images# keystone service-create –name=nova –type=compute –description=”Nova Compute service”  </p>
+<pre><code>
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description |       Nova Compute service       |
+|      id     | 0d67dd130ebc4de2ba8e54ac241e92d0 |
+|     name    |               nova               |
+|     type    |             compute              |
++-------------+----------------------------------+
+
+</code></pre>  
+
+<ul>
+<li>创建endpoint</li>
+</ul>
+<p>root@controller:/home/fyang/project# keystone endpoint-create –service-id=0d67dd130ebc4de2ba8e54ac241e92d0 –publicurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> –internalurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a> –adminurl=<a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a>  </p>
+<pre><code>
++-------------+-----------------------------------------+
+|   Property  |                  Value                  |
++-------------+-----------------------------------------+
+|   adminurl  | http://controller:8774/v2/%(tenant_id)s |
+|      id     |     21f036edca9547e196b5976a4c31f561    |
+| internalurl | http://controller:8774/v2/%(tenant_id)s |
+|  publicurl  | http://controller:8774/v2/%(tenant_id)s |
+|    region   |                regionOne                |
+|  service_id |     0d67dd130ebc4de2ba8e54ac241e92d0    |
++-------------+-----------------------------------------+  
+</code></pre>  
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">deploy</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">openstack</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2014/01/08/openstack-deploy-in-ubuntu1204/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-patterns-in-c-reactor" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -166,10 +994,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本文由<a href="http://skypacer210.github.io/">skypacer</a>译自<a href="http://www.adampetersen.se/Patterns%20in%20C%205,%20REACTOR.pdf" target="_blank" rel="external">Patterns in C REACTOR</a>，原文作者<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>。转载请注明出处！</p>
-<h2 id="小引"><a href="#小引" class="headerlink" title="小引"></a>小引</h2><hr>
-<p>本篇英文原文所发布的站点<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>是一个个人网站，本文翻译的是其中的关于设计模式C实现的文章，本章主题是reactor模式。</p>
-<p>首次正式翻译文章，水平有限，欢迎指正。</p>
+        <p>本文由<a href="http://skypacer210.github.io/">skypacer</a>译自<a href="http://www.adampetersen.se/Patterns%20in%20C%205,%20REACTOR.pdf" target="_blank" rel="external">Patterns in C REACTOR</a>，原文作者<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>。</p>
+<h2 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h2><hr>
+<p>本篇英文原文所发布的站点<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>是一个个人网站，本文翻译了其中reactor C实现章节, 水平有限，欢迎指正。</p>
 <h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><hr>
 <p>1、<a href="#mutil_client">多客户端示例</a><br>2、<a href="#single_res">单一责任原则</a><br>3、<a href="#open_closed">违反Open-Closed原则</a><br>4、<a href="#performance">从性能谈起</a><br>5、<a href="#issue_sum">问题总结</a><br>6、<a href="#reactor_pattern">REACTOR模式</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.1、<a href="#6.1">事件探测</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.2、<a href="#6.2">实现机制</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.3、<a href="#6.3">Reactor注册策略</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.4、<a href="#6.4">Reactor实现</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.5、<a href="#6.5">触发Reactor</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.6、<a href="#6.6">处理注册</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.7、<a href="#6.7">事件多样性</a><br>7、<a href="#vs">REACTOR vs OBSERVER</a><br>8、<a href="#cons">结论</a><br>9、<a href="#sum">总结</a>            </p>
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
@@ -739,22 +1566,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -767,19 +1578,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">XML</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -791,7 +1594,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color4">XML</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -799,15 +1606,23 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -823,6 +1638,26 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -835,6 +1670,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
@@ -844,14 +1687,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -875,31 +1710,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -911,27 +1726,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -948,6 +1747,50 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Exclusion</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -972,34 +1815,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">thread</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1032,6 +1847,30 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">karman filter</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
               </li>
             
             <div class="clearfix"></div>

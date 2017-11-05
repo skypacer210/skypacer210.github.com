@@ -8,23 +8,23 @@
   <link rel="dns-prefetch" href="https://skypacer210.github.io">
   <title>JAVA HTTP Client Configration | skypacer的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="1. JAVA 网络相关的类、接口与异常类  ConnectionManager RegistryBuilder  接口  ConnectionSocketFactory  创建和连接socket； 可以实现为非加密socket:    12345678public class PlainConnectionSocketFactory implements ConnectionSocketFact">
+  <meta name="description" content="JAVA 网络相关的类、接口与异常类 ConnectionManager RegistryBuilder  接口我们主要关注ConnectionSocketFactory，用于创建和连接socket，  可以实现为非加密socket:   1public class PlainConnectionSocketFactory implements ConnectionSocketFactory &amp;#">
 <meta name="keywords" content="HTTPClient,keep-alive,SSLConnectionSocketFactory">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JAVA HTTP Client Configration">
 <meta property="og:url" content="https://skypacer210.github.io/2016/07/30/JAVA-HTTPClient-Config/index.html">
 <meta property="og:site_name" content="skypacer的博客">
-<meta property="og:description" content="1. JAVA 网络相关的类、接口与异常类  ConnectionManager RegistryBuilder  接口  ConnectionSocketFactory  创建和连接socket； 可以实现为非加密socket:    12345678public class PlainConnectionSocketFactory implements ConnectionSocketFact">
+<meta property="og:description" content="JAVA 网络相关的类、接口与异常类 ConnectionManager RegistryBuilder  接口我们主要关注ConnectionSocketFactory，用于创建和连接socket，  可以实现为非加密socket:   1public class PlainConnectionSocketFactory implements ConnectionSocketFactory &amp;#">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/javaclient/default_reuse_impl.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/javaclient/call_reuse_conn.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/javaclient/call_release_conn.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/javaclient/release_conn_impl.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/javaclient/SSLConnectionSocketFactory.png">
 <meta property="og:image" content="https://skypacer210.github.io/assets/images/javaclient/SSLConnectionSocketFactory_code.png">
-<meta property="og:updated_time" content="2017-08-08T02:43:57.000Z">
+<meta property="og:updated_time" content="2017-08-09T14:20:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JAVA HTTP Client Configration">
-<meta name="twitter:description" content="1. JAVA 网络相关的类、接口与异常类  ConnectionManager RegistryBuilder  接口  ConnectionSocketFactory  创建和连接socket； 可以实现为非加密socket:    12345678public class PlainConnectionSocketFactory implements ConnectionSocketFact">
+<meta name="twitter:description" content="JAVA 网络相关的类、接口与异常类 ConnectionManager RegistryBuilder  接口我们主要关注ConnectionSocketFactory，用于创建和连接socket，  可以实现为非加密socket:   1public class PlainConnectionSocketFactory implements ConnectionSocketFactory &amp;#">
 <meta name="twitter:image" content="https://skypacer210.github.io/assets/images/javaclient/default_reuse_impl.png">
   
     <link rel="alternative" href="/atom.xml" title="skypacer的博客" type="application/atom+xml">
@@ -173,28 +173,44 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="1-JAVA-网络相关的类、接口与异常"><a href="#1-JAVA-网络相关的类、接口与异常" class="headerlink" title="1. JAVA 网络相关的类、接口与异常"></a>1. JAVA 网络相关的类、接口与异常</h2><p><strong>类</strong></p>
-<ul>
+        <h3 id="JAVA-网络相关的类、接口与异常"><a href="#JAVA-网络相关的类、接口与异常" class="headerlink" title="JAVA 网络相关的类、接口与异常"></a>JAVA 网络相关的类、接口与异常</h3><h4 id="类"><a href="#类" class="headerlink" title="类"></a>类</h4><ul>
 <li>ConnectionManager</li>
 <li>RegistryBuilder</li>
 </ul>
-<p><strong>接口</strong></p>
+<h4 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h4><p>我们主要关注ConnectionSocketFactory，用于创建和连接socket，</p>
 <ul>
-<li>ConnectionSocketFactory</li>
+<li><p>可以实现为非加密socket:</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public class PlainConnectionSocketFactory implements ConnectionSocketFactory &#123;</div></pre></td></tr></table></figure>
+</li>
+<li><p>也可以实现为加密socket;</p>
+</li>
+<li><p>也可以继续扩展增加新的方法：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public interface LayeredConnectionSocketFactory extends ConnectionSocketFactory &#123;</div></pre></td></tr></table></figure>
+</li>
 </ul>
-<p>创建和连接socket；</p>
-<p>可以实现为非加密socket:   </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class PlainConnectionSocketFactory implements ConnectionSocketFactory &#123;</div><div class="line"></div><div class="line">``` </div><div class="line"></div><div class="line">也可以实现为加密socket;</div><div class="line"></div><div class="line"></div><div class="line">也可以继续扩展增加新的方法：</div></pre></td></tr></table></figure>
-<p>public interface LayeredConnectionSocketFactory extends ConnectionSocketFactory {</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">**异常**</div><div class="line"></div><div class="line">- ConnectException</div><div class="line">- ProtocolException</div><div class="line"></div><div class="line"></div><div class="line">## 2. 长连接修改</div><div class="line"></div><div class="line"></div><div class="line">将基于HttpURLConnection类的HTTPClient修改为HttpClient4.3.2： </div><div class="line"></div><div class="line">- 重写了HttpRequest类的getHttpConnection()方法和HttpResponse类的getResponse()方法，主要将HttpURLConnection类的操作接口替换为HttpClient4.3.2；</div><div class="line">- 增加ConnectionManager类，主要基于PoolingHttpClientConnectionManager类完成KeepAlive策略配置、连接池管理与socket超时配置，对于HTTPS服务端验证，目前缺省验证通过；</div><div class="line">- 为Client接口增加setConnConfig()方法，客户端可以基于该接口配置如下参数：</div><div class="line">	- maxConnNumber：总的最大并发连接数；</div><div class="line">	- maxConnPerRoute：每个路由的并发连接数，如果不使用代理，该限制实际上就是单个主机的连接数限制，缺省为2；</div><div class="line">	- maxKeepAliveTimeout：设置KeepAlive超时时间，单位为秒；</div><div class="line"></div><div class="line">## 3. 短连接修改</div><div class="line"></div><div class="line"></div><div class="line">### 3.1 连接重用策略</div><div class="line"></div><div class="line">在httpClient中可以自定义连接重用的策略，定义了一个接口类ConnectionReuseStrategy：</div></pre></td></tr></table></figure>
-<p>public interface ConnectionReuseStrategy {<br>    boolean keepAlive(HttpResponse var1, HttpContext var2);<br>}<br>```</p>
+<h4 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h4><ul>
+<li>ConnectException</li>
+<li>ProtocolException</li>
+</ul>
+<h3 id="长连接修改"><a href="#长连接修改" class="headerlink" title="长连接修改"></a>长连接修改</h3><p>将基于HttpURLConnection类的HTTPClient修改为HttpClient4.3.2： </p>
+<ul>
+<li>重写了HttpRequest类的getHttpConnection()方法和HttpResponse类的getResponse()方法，主要将HttpURLConnection类的操作接口替换为HttpClient4.3.2；</li>
+<li>增加ConnectionManager类，主要基于PoolingHttpClientConnectionManager类完成KeepAlive策略配置、连接池管理与socket超时配置，对于HTTPS服务端验证，目前缺省验证通过；</li>
+<li>为Client接口增加setConnConfig()方法，客户端可以基于该接口配置如下参数：<ul>
+<li>maxConnNumber：总的最大并发连接数；</li>
+<li>maxConnPerRoute：每个路由的并发连接数，如果不使用代理，该限制实际上就是单个主机的连接数限制，缺省为2；</li>
+<li>maxKeepAliveTimeout：设置KeepAlive超时时间，单位为秒；</li>
+</ul>
+</li>
+</ul>
+<h3 id="短连接修改"><a href="#短连接修改" class="headerlink" title="短连接修改"></a>短连接修改</h3><h4 id="1-连接重用策略"><a href="#1-连接重用策略" class="headerlink" title="1. 连接重用策略"></a>1. 连接重用策略</h4><p>在httpClient中可以自定义连接重用的策略，定义了一个接口类ConnectionReuseStrategy：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public interface ConnectionReuseStrategy &#123;</div><div class="line">    boolean keepAlive(HttpResponse var1, HttpContext var2);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>其缺省的实现类为org.apache.http.impl.DefaultConnectionReuseStrategy:   </p>
 <p><img src="/assets/images/javaclient/default_reuse_impl.png" alt="DefaultConnectionReuseStrategy"></p>
 <center>Figure 1: DefaultConnectionReuseStrategy </center>   
 
-
 <p>其中该类似实现了接口类的对外方法keepAlive。当然我们可以自定义一个连接重用策略：</p>
-<h3 id="3-2-调用连接重用"><a href="#3-2-调用连接重用" class="headerlink" title="3.2 调用连接重用"></a>3.2 调用连接重用</h3><p>调用者为org.apache.http.impl.execchain.MainClientExec：</p>
+<h4 id="2-调用连接重用"><a href="#2-调用连接重用" class="headerlink" title="2. 调用连接重用"></a>2. 调用连接重用</h4><p>调用者为org.apache.http.impl.execchain.MainClientExec：</p>
 <p><img src="/assets/images/javaclient/call_reuse_conn.png" alt="call_reuse_conn"></p>
 <center>Figure 2: 连接重用调用过程 </center>   
 
@@ -206,19 +222,17 @@
 <p><img src="/assets/images/javaclient/call_release_conn.png" alt="call_release_conn"></p>
 <center>Figure 3: 连接释放条件 </center> 
 
-
 <p>其中内部实现如下：</p>
 <p><img src="/assets/images/javaclient/release_conn_impl.png" alt="release_conn_impl"></p>
 <center>Figure 4: 连接释放实现 </center> 
 
 
-<h2 id="3-SSL-Cipher-Suite配置"><a href="#3-SSL-Cipher-Suite配置" class="headerlink" title="3. SSL Cipher Suite配置"></a>3. SSL Cipher Suite配置</h2><p><img src="/assets/images/javaclient/SSLConnectionSocketFactory.png" alt="SSLConnectionSocketFactory">    </p>
+<h3 id="SSL-Cipher-Suite配置"><a href="#SSL-Cipher-Suite配置" class="headerlink" title="SSL Cipher Suite配置"></a>SSL Cipher Suite配置</h3><p><img src="/assets/images/javaclient/SSLConnectionSocketFactory.png" alt="SSLConnectionSocketFactory">    </p>
 <center>Figure 5: SSLConnectionSocketFactory结构 </center>
 
 <p>SSLConnectionSocketFactory类可以基于SSLSocketFactory、支持的协议、支持的密码套件进行构造：</p>
 <p><img src="/assets/images/javaclient/SSLConnectionSocketFactory_code.png" alt="SSLConnectionSocketFactory Flow"></p>
 <center>Figure 6: SSLConnectionSocketFactory流程 </center>
-
 
 <p>其中supportCipherSuites作为自定义密码套件在握手过程中检查。</p>
 
@@ -344,9 +358,18 @@
   
 <nav id="article-nav">
   
+    <a href="/2017/01/12/api-security/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          API Security
+        
+      </div>
+    </a>
   
-    <a href="/2015/08/25/Go-Concurrency-Part1/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Go Concurrency Part1: Producer and Consumer</div>
+  
+    <a href="/2016/01/02/distribute-cache/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">云服务中的cache</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -470,22 +493,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -498,19 +505,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">XML</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -522,7 +521,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color4">XML</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -530,15 +533,23 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -554,6 +565,26 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -566,6 +597,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
@@ -575,14 +614,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -606,31 +637,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -642,27 +653,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -679,6 +674,50 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Exclusion</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -703,34 +742,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">thread</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -763,6 +774,30 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">karman filter</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
               </li>
             
             <div class="clearfix"></div>

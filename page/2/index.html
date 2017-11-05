@@ -146,6 +146,531 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-client-certificate-vs-server-certificate" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/04/08/client-certificate-vs-server-certificate/">客户端证书与服务端证书</a>
+    </h1>
+  
+
+        
+        <a href="/2015/04/08/client-certificate-vs-server-certificate/" class="archive-article-date">
+  	<time datetime="2015-04-07T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-04-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Server-Certificate"><a href="#Server-Certificate" class="headerlink" title="Server Certificate"></a>Server Certificate</h2><p>服务器端证书用于标识一个Server，典型地被签发给主机名，比如机器名或者host-header(www.baidu.com)。对Server证书而言，”Issued to”域意味着选择哪个签发的hostname。  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/server_certificate.png" alt="图片">    </div></p>
+<ol>
+<li>目的：加密和解密内容</li>
+<li>真实世界里只有ROOT CA有自签名证书</li>
+<li>存储：对于window IIS，Server certificates are stored in the Personal store of the “Local Computer” account</li>
+<li>证书可以存储在用户账户对应的个人存储目录下，也是IIS缺省的搜索路径</li>
+</ol>
+<h2 id="Client-Certificate"><a href="#Client-Certificate" class="headerlink" title="Client Certificate"></a>Client Certificate</h2><p>服务器端证书用于标识一个Client或者user，意味着向Server验证Client，”Issued to”域采用用户的名字。  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/client_certificate.png" alt="图片">      </div></p>
+<ol>
+<li>目的：仅用于标识身份</li>
+<li>真实世界里只有ROOT CA有自签名证书</li>
+<li>Client certificate and private key的角色：</li>
+</ol>
+<ul>
+<li>Client证书的证书和私钥作用就是为了在Client authentication中提供Client的数字签名。</li>
+<li>crt后缀名文件仅仅包含证书，证书和私钥一般包含在.p12或者.pfx文件中(PKCS12格式)。</li>
+<li>私钥如果单独存放，一般为.pem后缀名。</li>
+<li>Server端需要client端的数字签名，然后发送至Server，Server利用client的证书（即公钥）解密，以确认client端的身份。其中Client端的数字签名生成过程如下：首先对SSL交互中的随机值进行HASH，然后用client的私钥进行加密。  </li>
+</ul>
+<h2 id="HTTPS下虚拟主机"><a href="#HTTPS下虚拟主机" class="headerlink" title="HTTPS下虚拟主机"></a>HTTPS下虚拟主机</h2><p>在HTTP下有虚拟主机这一概念，其目的是为了在服务端用单个IP支持多个主机名；对应到HTTPS，客户端验证服务器为不同主机配置多个证书，但是客户端需要检查服务器证书的common name,当客户端请求服务器证书的时候，服务器需要决定提供哪个证书，SNI应用而生，其原理如下图：  </p>
+<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SNI.jpg" alt="图片">  </div></p>
+<h2 id="中间人攻击与证书"><a href="#中间人攻击与证书" class="headerlink" title="中间人攻击与证书"></a>中间人攻击与证书</h2><p>SSL中间人攻击的形式主要有三种：SSL downgrading，SSL stripping和fake of SSL certs。<br>在SSL协议中，证书是用来进行身份验证的，这里有两个关键的检查点：  </p>
+<ul>
+<li>第一个是CA验证，对于客户端而言，验证服务器端证书依赖与本地的trust store，如果本地的trust  store被人篡改，那么避免中间人攻击则无从谈起，事实上这也正是PKI体系的弱点所在。  </li>
+<li>第二个是hostname检查，用来确保所连接的服务器就是其声称的，如果有人劫持了DNS服务器，即利用DNS cache poisoning攻击让你的地址栏看起来很正常，这个时候劫持者就可以让此项检查通过。  </li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a href="http://www.windowsecurity.com/articles-tutorials/authentication_and_encryption/Understanding-Man-in-the-Middle-Attacks-ARP-Part4.html" target="_blank" rel="external">Understanding Man-In-The-Middle Attacks - Part 4: SSL Hijacking</a></li>
+<li><a href="https://blog.cloudflare.com/introducing-strict-ssl-protecting-against-a-man-in-the-middle-attack-on-origin-traffic/" target="_blank" rel="external">Introducing Strict SSL</a></li>
+<li><a href="https://devcentral.f5.com/articles/ssl-profiles-part-7-server-name-indication" target="_blank" rel="external">SNI for TLS</a></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Certificate</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/04/08/client-certificate-vs-server-certificate/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-tune-timer-implmentation" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/03/01/tune-timer-implmentation/">关于timer实现的优化</a>
+    </h1>
+  
+
+        
+        <a href="/2015/03/01/tune-timer-implmentation/" class="archive-article-date">
+  	<time datetime="2015-02-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-03-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-Timer"><a href="#1-Timer" class="headerlink" title="1. Timer"></a>1. Timer</h2><p>Timer是底层库实现中重要的一部分，其作用主要是实现超时处理，应用的场景有：  </p>
+<ul>
+<li>EAP状态机实现</li>
+<li>事件驱动型模型实现</li>
+<li>SSL握手超时处理</li>
+</ul>
+<p>为了支持实时处理，将Timer的内部实现由原来的单向链表变为红黑树。  </p>
+<h3 id="2-为什么是红黑树"><a href="#2-为什么是红黑树" class="headerlink" title="2. 为什么是红黑树"></a>2. 为什么是红黑树</h3><p>红黑树是一种平衡树，但却不是一种基于高度的平衡树，在STL map和Linux中都作为平衡树来应用，当搜索的要求高或者修改频繁时，其表现效果更是好于AVL树，因为后者是基于高度的，所以在每次修改后都要进行rebalance，开销很大。而红黑树的插入只要两次旋转，删除最多三次旋转，虽然搜索稳定性不及AVL，但是仍不失为一种折中的好办法。</p>
+<p>为保持红黑树的平衡，需要对树进行一些调整，好比为了保证一个黑客集团内部的黑帽子和红帽子的平衡，在成员之间的帽子问题上进行调整，假定只有两种帽子，黑帽子和红帽子，而且等级森严，按照辈分排：  </p>
+<ul>
+<li>根节点必须为黑色，就是说老大必须是黑帽子；</li>
+<li>每个成员非黑即红；</li>
+<li>每个红帽子下面有两个黑帽子；</li>
+<li>从任何一个成员自己数起到自小的下线，黑帽子个数都是一致的。</li>
+</ul>
+<p>当一个新的成员（帽子为暂定为红色）加入后，对家族成员帽子颜色的调整有下面几种情况：  </p>
+<ul>
+<li>CASE1：新加入成员的Uncle辈是个红帽子，调整波及Uncle、Parent和Granparent，全部调整帽子颜色；</li>
+<li>CASE2：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的右孩子或者是右孩子的左孩子，调整波及Uncle和Granparent，以Uncle为轴旋转，交换了Uncle和Granparent的位置。</li>
+<li>CASE3：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的左孩子或者是右孩子的右孩子，调整波及很大，不仅涉及Uncle和Granparent的调整（以Uncle为轴旋转，交换了Uncle和Granparent的位置），还需将Uncle和Granparent的帽子颜色换掉。</li>
+</ul>
+<p>上述规则可用下图表示：  </p>
+<p><img src="/assets/images/rb_rule.png" alt="图片"></p>
+<p>依次插入6个节点123456，建立一颗红黑树如图所示：  </p>
+<p><img src="/assets/images/rb_insert.png" alt="图片"></p>
+<h2 id="3-参考资料"><a href="#3-参考资料" class="headerlink" title="3. 参考资料"></a>3. 参考资料</h2><ol>
+<li><a href="https://www.youtube.com/watch?v=PhY56LpCtP4" target="_blank" rel="external">RB Tree Howto</a>  </li>
+<li><a href="http://kakack.github.io/2014/04/%E9%9D%A2%E8%AF%95%E7%BC%96%E7%A8%8B%EF%BC%9A%E7%BA%A2%E9%BB%91%E6%A0%91/" target="_blank" rel="external">RB Tree Github</a>  </li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Timer</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Event Loop</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RedBlack Tree</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/03/01/tune-timer-implmentation/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-debug-tool-openssl" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/02/01/debug-tool-openssl/">调试工具杂记之OpenSSL篇</a>
+    </h1>
+  
+
+        
+        <a href="/2015/02/01/debug-tool-openssl/" class="archive-article-date">
+  	<time datetime="2015-01-31T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-02-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>OpenSSL，可以用来公私密钥对产生，证书查看（查看证书整体或者是单个信息），证书格式转化以及网络抓包，很多时候可以用于验证。</p>
+<h3 id="2-利用OpenSSL进行验证"><a href="#2-利用OpenSSL进行验证" class="headerlink" title="2. 利用OpenSSL进行验证"></a>2. 利用OpenSSL进行验证</h3><p><strong>利用OpenSSL验证证书</strong>  </p>
+<p>由于OpenSSL在验证证书时基于PEM格式，因此首先将非PEM格式转化为PEM格式。root证书由对方发送过来，但是server没有给，到是可以从网络抓包中export出来如图所示：  </p>
+<p><img src="/assets/images/tool/extract_cert.png" alt="图片">  </p>
+<ul>
+<li>转化root证书<br><code>openssl x509 -inform der -in FZROOTCA.cer -out FZROOTCA.pem</code></li>
+<li>查看证书<br><code>openssl x509 -in rsa_server.pem -noout –text</code>  </li>
+<li>转化sever证书<br><code>openssl x509 -inform der -in rsa_server.der -out rsa_server.pem</code>  </li>
+<li>利用root证书验证server证书：<br><code>openssl verify -verbose -CAfile FZROOTCA.pem  rsa_server.pem</code><br>结果显示：<br><code>rsa_server.pem: OK</code>，但貌似并不对签名进行验证，继续。</li>
+</ul>
+<p><strong>利用OpenSSL验证签名</strong>   </p>
+<p>为了验证签名，需要将public key从证书中单独抓出来：  </p>
+<p>  <code>openssl x509 -pubkey -noout -in rsa_server.pem &gt; server_pubkey.pem</code></p>
+<p>同时也需要将Signature从证书中抓出来：  </p>
+<p>  <code>openssl asn1parse -in rsa_server.pem -out sig -noout -strparse 614</code>  </p>
+<p>利用抓出来的signature和public key进行该证书的签名验证：  </p>
+<p>  <code>openssl rsautl -in sig -verify -asn1parse -inkey server_pubkey.pem –pubin</code>  </p>
+<p>结果显示：  </p>
+<p>  <code>RSA operation error</code><br>  <code>3177:error:0407006A:rsa routines:RSA_padding_check_PKCS1_type_1:block type is not 01:rsa_pk1.c:100:</code><br>  <code>3177:error:04067072:rsa routines:RSA_EAY_PUBLIC_DECRYPT:padding check failed:rsa_eay.c:699:</code>  </p>
+<p>对应代码如下：    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"> 1 int RSA_padding_check_PKCS1_type_1(unsigned char *to, int tlen,</div><div class="line"> 2 .       .       const unsigned char *from, int flen, int num)</div><div class="line"> 3 &#123;</div><div class="line"> 4 .       int i,j;</div><div class="line"> 5 .       const unsigned char *p;</div><div class="line"> 6 </div><div class="line"> 7 .       p=from;</div><div class="line"> 8 .       if ((num != (flen+1)) || (*(p++) != 01))</div><div class="line"> 9 .       &#123; 10 .       .       RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1,RSA_R_BLOCK_TYPE_IS_NOT_01);</div><div class="line">11 .       .       return(-1);</div><div class="line">12 .       &#125;</div><div class="line">13 </div><div class="line">14 .       /* scan over padding data */</div><div class="line">15 .       j=flen-1; /* one for type. */</div><div class="line">16 .       for (i=0; i&lt;j; i++)</div><div class="line">17 .       &#123;</div></pre></td></tr></table></figure>
+<p>从上面的结果可以得知公钥未能正确对签名解密，严重怀疑server将私钥弄错了。实际上如果解密成功，则应该是下面这个样子：  </p>
+<p><img src="/assets/images/tool/sig_decrypt.png" alt="图片">  </p>
+<p>其实就是遵循PKCS#1标准对数据的封装，整个明文长度和签名长度一致，都是RSA modulus个比特，上图中签名长度为2048 Bits，即256字节。第一个字节<code>00</code>意思是确保该加密块在转化为一个整数的时候其长度小于RSA的modulus。第二个字节<code>01</code>代表了这是一个私钥操作，即签名过程。然后是一大堆<code>FF</code>字节，用来填充结果，最后以<code>00</code>字节结尾。<code>30 21 30 09 06 05 2B 0E 03 02 1A 05 00 04 14</code> 则指明了HASH算法ID是SHA-1。最后的20个字节才是真正对整个证书进行HASH的结果，以此作为验证的比对对象。</p>
+<h3 id="开发新功能"><a href="#开发新功能" class="headerlink" title="开发新功能"></a>开发新功能</h3><p>为了在原有安全库的基础上支持PSSRSA，需要理解此类算法的封装格式，利用OpenSSL直接可以查看此类证书的ASN1编码格式：   </p>
+<p>  <code>openssl asn1parse -in pss_rsa_server.pem</code>    </p>
+<p>当然OpenSSL的功能远不止这些，后续会陆续添加。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ol>
+<li><a href="http://support.citrix.com/article/CTX132907" target="_blank" rel="external">How to Extract an SSL Certificate from a Network Packet Trace File in Wireshark</a>  </li>
+<li><a href="https://www.openssl.org/docs/apps/rsautl.html" target="_blank" rel="external">openssl rsautl</a>  </li>
+<li><a href="https://www.madboa.com/geek/openssl/#digest-verify" target="_blank" rel="external">OpenSSL Command-Line HOWTO 1</a>  </li>
+<li><a href="https://www.madboa.com/geek/openssl/" target="_blank" rel="external">OpenSSL Command-Line HOWTO 2</a>  </li>
+<li><a href="http://www.moserware.com/2009/06/first-few-milliseconds-of-https.html" target="_blank" rel="external">The First Few Milliseconds of an HTTPS Connection</a></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">OpenSSL</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">debug</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/02/01/debug-tool-openssl/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-little-on-performance-tune" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/01/23/little-on-performance-tune/">浅谈VDI优化</a>
+    </h1>
+  
+
+        
+        <a href="/2015/01/23/little-on-performance-tune/" class="archive-article-date">
+  	<time datetime="2015-01-22T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-01-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>VDI优化涉及到诸多系统的方面，整个系统的大框架如图所示：  </p>
+<p><img src="/assets/images/perf/VDI_framework.png" alt="图片"></p>
+<h3 id="VDI-APP层"><a href="#VDI-APP层" class="headerlink" title="VDI APP层"></a>VDI APP层</h3><p>APP内部实现架构选择，比如是采用多进程模型还是单进程模型；  </p>
+<h3 id="HTTP层"><a href="#HTTP层" class="headerlink" title="HTTP层"></a>HTTP层</h3><p>目前整体流程基于过程式交互方式，可以改为基于事情驱动的状态机实现方式；  </p>
+<h3 id="SSL层"><a href="#SSL层" class="headerlink" title="SSL层"></a>SSL层</h3><p>首先评估SSL的overhead到底有多大，以及主要瓶颈，针对性的进行优化；<br>SSL双方采用的版本也影响overhead，目前SSL的版本号有SSL2.0 SSL3.0，TLS1.0(SSL3.1)，TLS1.0(SSL3.2)和TLS1.0(SSL3.3)。版本号的协商基于如下公式：  </p>
+<p><code>min(max. client supported version, max. server supported version)</code>  </p>
+<h3 id="TCP-IP层"><a href="#TCP-IP层" class="headerlink" title="TCP/IP层"></a>TCP/IP层</h3><p><strong>关于序列号</strong>   </p>
+<ol>
+<li>TCP中双方的握手和分手过程，所有报文的<code>TCP Segment Len</code>都为0。  </li>
+<li><code>Window</code>就是滑动窗口，用来解决流控问题，即如何提高网络吐吞率，主要涉及到拥塞控制的参数调整。    </li>
+<li><code>Sequence Number</code>用来解决乱序问题，即我发送了多少加多少（对于三次握手阶段，以报文个数为单位，即在对方<code>Acknowledgment Number</code>基础上递增1；对于数据发送阶段，以字节数为递增单位，即在自己现有的<code>Sequence Number</code>上递增<code>TCP Segment Len</code>）。</li>
+<li><code>Acknowledgment Number</code>用于确认收包，解决丢包问题，即我收到了多少加多少（对于三次握手阶段，同样以报文个数为递增单位，即在对方<code>Sequence Number</code>的基础上上递增1；对于数据发送阶段，也同样以字节数为递增单位，即在自己现有的<code>Acknowledgment Number</code>上递增<code>TCP Segment Len</code>）。如图所示：</li>
+</ol>
+<p><img src="/assets/images/perf/tcp_seq.png" alt="图片"></p>
+<p>其中客户端192.168.69.2和服务器192.168.69.1的三次握手中，服务器的<code>seq</code>是自己产生的，<code>ack</code>则是在收到客户端的SYN报文后递加1（客户端的<code>seq + 1</code>），表示收到了客户端的连接请求；客户端的<code>seq</code>也是自个产生的，发送了一个SYN，就递加1，<code>ack</code>则是在收到服务器的SYN/ACK报文后在服务端的<code>seq + 1</code>。<br>在TCP连接建立后，客户端向服务端发送一个<code>TCP Segment Len</code>为445字节的分片#4，当前<code>seq</code>为1（相对序列号），不管是否送达下一个分片#6发送时，其<code>seq</code>会忠实地递增445字节，变为446。服务端收到分片#4后，将<code>ack</code>递增445字节。</p>
+<p>总之，<code>Sequence Number</code>和<code>Acknowledgment Number</code>像极了人的奋斗过程，前者好比付出，后者好比收获，但是付出不一定有收获（如果得到ACK确认则成功，否则失败）。  </p>
+<p><strong>网络层：</strong>    </p>
+<p>主要涉及到网络接口驱动的实现优化，比如中断轮询模式选择，是否启用DMA等。</p>
+<h3 id="加入LRU-Cache"><a href="#加入LRU-Cache" class="headerlink" title="加入LRU Cache"></a>加入LRU Cache</h3><p>LRU即Least Recently Used，是一种在cache中广泛应用的算法，保持经常访问的数据节点在cache中，如果某块节点很少被访问，在达到某种阈值之后就把它交换出去，这就要求查找和插入删除都要快。本系统采用双向链表和哈希表实现，主要利用了双向链表的插入和删除操作和哈希表的查找操作，数据结构定义如下:   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"> 6 typedef struct __cacheNode &#123;</div><div class="line"> 7 .       ubyte4. .       .       key;</div><div class="line"> 8 .       int.    .       .       value;</div><div class="line"> 9 .       struct list_head.       node;</div><div class="line">10 &#125; cacheNode;</div><div class="line">11 </div><div class="line">12 typedef struct __LRUCache &#123;</div><div class="line">13 .       struct list_head.       first;		//指向链表头部，代表最新访问节点</div><div class="line">14 .       struct list_head.       last;		//指向链表尾部，代表最旧访问节点</div><div class="line">15 .       hashTableOfPtrs..       *cacheMap;	//哈希表</div><div class="line">16 .       int.    .       .       capacity;	//cache容量</div><div class="line">17 .       int.    .       .       curr_size;	//当前节点个数</div><div class="line">18 &#125; LRUCache;</div></pre></td></tr></table></figure>
+<p>对应的操作主要就是get和put。    </p>
+<ul>
+<li>创建LRU cache。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">59 MSTATUS LRU_create(LRUCache **ppNewLRUCache, int capacity)</div><div class="line">60 &#123;</div><div class="line">61 .       MSTATUS..       status = OK;</div><div class="line">62 .       LRUCache.       *pNewLRU = NULL;</div><div class="line">63 .       hashTableOfPtrs.*pCacheMap;</div><div class="line">64         ubyte4. .       remain;</div><div class="line">65         ubyte4. .       count = 0;</div><div class="line">66 </div><div class="line">67 .       if (NULL == (pNewLRU = MALLOC(sizeof(LRUCache)))) &#123;</div><div class="line">68 .       .       status = ERR_MEM_ALLOC_FAIL;</div><div class="line">69 .       .       goto exit;</div><div class="line">70 .       &#125;</div><div class="line">71 </div><div class="line">72 .       MOC_MEMSET((ubyte *)(pNewLRU), 0x00, sizeof(LRUCache));</div><div class="line">73 </div><div class="line">74 .       /*Align capacity*/</div><div class="line">75 .       remain = capacity;</div><div class="line">76 .       while (remain &gt; 0) &#123;</div><div class="line">77 .       .       remain = remain &gt;&gt; 1;</div><div class="line">78 .       .       count++;</div><div class="line">79 .       &#125;</div><div class="line">80 </div><div class="line">81 .       if (OK &gt; (status = HASH_TABLE_createPtrsTable(&amp;pCacheMap, (1 &lt;&lt; count) - 1, NULL, LRU_allocHashPtrElement, LRU_freeHashPtrElement)))</div><div class="line">82 .       .       goto exit;</div><div class="line">83 </div><div class="line">84 .       pNewLRU-&gt;capacity = capacity;</div><div class="line">85 .       pNewLRU-&gt;curr_size = 0;</div><div class="line">86 .       pNewLRU-&gt;cacheMap = pCacheMap;</div><div class="line">87 .       pNewLRU-&gt;first.prev = pNewLRU-&gt;first.prev = &amp;pNewLRU-&gt;first;</div><div class="line">88 .       pNewLRU-&gt;last.prev = pNewLRU-&gt;last.prev = &amp;pNewLRU-&gt;last;</div><div class="line">89 .       *ppNewLRUCache = pNewLRU;</div><div class="line">90 exit:</div><div class="line">91 .       return status;</div><div class="line">92 &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>销毁LRU cache。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"> 94 MSTATUS LRU_release(LRUCache *pLRUCache)</div><div class="line"> 95 &#123;</div><div class="line"> 96 .       MSTATUS status = OK;</div><div class="line"> 97 </div><div class="line"> 98 .       if (NULL == pLRUCache) &#123;</div><div class="line"> 99 .       .       status = ERR_NULL_POINTER;</div><div class="line">100 .       .       goto exit;</div><div class="line">101 .       &#125;</div><div class="line">102 </div><div class="line">103 .       HASH_TABLE_removePtrsTable(pLRUCache-&gt;cacheMap, NULL);</div><div class="line">104 .       FREE(pLRUCache);</div><div class="line">105 .       pLRUCache = NULL;</div><div class="line">106 exit:</div><div class="line">107 .       return status;</div><div class="line">108 &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>插入LRU node。</li>
+</ul>
+<p>基本思路：如果待插入数据在cache中没有（cache miss）且没有超出cache容量,就为其分配节点，插入至链表头部，表示最近访问，同时插入哈希表当中；如果待插入数据已经存在且cache已经满了，那么首先找到最后一个元素，意味着最近没有访问，从哈希表中删除，然后从双链表中删除。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">209 extern MSTATUS</div><div class="line">210 LRU_setNode(LRUCache *pCache, ubyte4 key, int value)</div><div class="line">211 &#123;</div><div class="line">212 .       MSTATUS..       status = OK;</div><div class="line">213 .       cacheNode.      *pNode = NULL, *pNewNode = NULL, *pLastNode = NULL;</div><div class="line">214 .       ubyte4. .       hashValue = 0;</div><div class="line">215 .       intBoolean.     foundHashValue;</div><div class="line">216 .       int.    .       hashData;</div><div class="line">217 </div><div class="line">218 .       hashData = key;</div><div class="line">219 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">220 </div><div class="line">221 .       if (OK &gt; (status = HASH_TABLE_findPtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData, </div><div class="line">222 .       .       .       .       .       LRU_testKey, (void **)pNode, &amp;foundHashValue)))</div><div class="line">223 .       .       goto exit;</div><div class="line">224 </div><div class="line">225 .       if ((TRUE != foundHashValue) || (NULL == pNode)) &#123;</div><div class="line">226 .       .       if (pCache-&gt;curr_size == pCache-&gt;capacity) &#123;</div><div class="line">227 .       .       .       /*Remove last one*/</div><div class="line">228 .       .       .       pLastNode = LIST_ENTRY(pCache-&gt;last.next, cacheNode, node);</div><div class="line">229 .       .       .       hashData = (ubyte4)pLastNode-&gt;key;</div><div class="line">230 .       .       .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">231 </div><div class="line">232 .       .       .       HASH_TABLE_deletePtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData,</div><div class="line">233 .       .       .       .       .       LRU_testKey, (void *)pNode, &amp;foundHashValue);</div><div class="line">234 .       .       .       LRU_removeLast(pCache);</div><div class="line">235 .       .       .       if (pNode)</div><div class="line">236 .       .       .       .       FREE(pNode);</div><div class="line">237 .       .       &#125; else &#123;</div><div class="line">238 .       .       .       pCache-&gt;curr_size++;</div><div class="line">239 .       .       &#125;</div><div class="line">240 .       &#125;</div><div class="line">241 .              </div><div class="line">242 .       pNewNode = MALLOC(sizeof(cacheNode));</div><div class="line">243 .       if (NULL == pNewNode)</div><div class="line">244 .       .       status = ERR_MEM_ALLOC_FAIL;</div><div class="line">245 </div><div class="line">246 .       pNewNode-&gt;key = key;</div><div class="line">247 .       pNewNode-&gt;value = value;</div><div class="line">248 .       pNewNode-&gt;node.prev = pNewNode-&gt;node.prev = &amp;pNewNode-&gt;node;</div><div class="line">249 </div><div class="line">250 .       LRU_moveToHead(pCache, pNewNode);</div><div class="line">251 </div><div class="line">252 .       hashData = pNewNode-&gt;key;</div><div class="line">253 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">254 .       if (OK &gt; (status = HASH_TABLE_addPtr(pCache-&gt;cacheMap, hashValue, (void *)pNewNode)))</div><div class="line">255 .       .       goto exit;</div><div class="line">256 </div><div class="line">257 exit:</div><div class="line">258 .       return status;</div><div class="line">259 &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>查找LRU node。</li>
+</ul>
+<p>如果cache miss也就罢了，如何找到了，在返回该节点之前因此需要将其移到链表的头部，因为查找某个节点意味着对该节点有了最新的访问。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">181 extern MSTATUS</div><div class="line">182 LRU_getNode(LRUCache *pCache, ubyte4 key, int *pValue)</div><div class="line">183 &#123;</div><div class="line">184 .       MSTATUS..       status = OK;</div><div class="line">185 .       cacheNode.      *pNode = NULL;. /*AppData*/</div><div class="line">186 .       ubyte4. .       hashValue = key;</div><div class="line">187 .       intBoolean.     foundHashValue;</div><div class="line">188 .       int.    .       hashData;</div><div class="line">189 </div><div class="line">190 .       hashData = key;</div><div class="line">191 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">192 </div><div class="line">193 .       if (OK &gt; (status = HASH_TABLE_findPtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData, </div><div class="line">194 .       .       .       .       .       LRU_testKey, (void **)&amp;pNode, &amp;foundHashValue)))</div><div class="line">195 .       .       goto exit;</div><div class="line">196 </div><div class="line">197 .       if ((TRUE != foundHashValue) || (NULL == pNode)) &#123;</div><div class="line">198 .       .       status = -1;</div><div class="line">199 .       .       goto exit;</div><div class="line">200 .       &#125;</div><div class="line">201 </div><div class="line">202 .       LRU_moveToHead(pCache, pNode);</div><div class="line">203 </div><div class="line">204 .       *pValue = pNode-&gt;value;</div><div class="line">205 exit:</div><div class="line">206 .       return OK;</div><div class="line">207 &#125;</div></pre></td></tr></table></figure>
+<p>实际上两个辅助函数<code>LRU_moveToHead</code>和<code>LRU_removeLast</code>的实现值得注意：   </p>
+<p>其中<code>LRU_moveToHead</code>的基本实现思路就是先促成当前节点前后两个节点的牵手，然后再往前坐链表头，最后修改<code>first</code>和<code>last</code>节点。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">134 static </div><div class="line">135 void LRU_moveToHead(LRUCache *pCache, cacheNode *pNode)</div><div class="line">136 &#123;</div><div class="line">137 .       struct list_head.       *first = &amp;pCache-&gt;first;</div><div class="line">138 .       struct list_head.       *last  = &amp;pCache-&gt;last;</div><div class="line">139 .       struct list_head.       *curr = &amp;pNode-&gt;node;</div><div class="line">140 </div><div class="line">141 .       if (first == curr)</div><div class="line">142 .       .       return;</div><div class="line">143 </div><div class="line">144 .       if (NULL != curr-&gt;prev)</div><div class="line">145 .       .       curr-&gt;prev-&gt;next = curr-&gt;next;</div><div class="line">146 </div><div class="line">147 .       if (NULL != curr-&gt;next)</div><div class="line">148 .       .       curr-&gt;next-&gt;prev = curr-&gt;prev;</div><div class="line">149 </div><div class="line">150 .       if (curr == last)</div><div class="line">151 .       .       last = curr-&gt;prev;</div><div class="line">152 </div><div class="line">153 .       if (NULL != first) &#123;</div><div class="line">154 .       .       first-&gt;prev = curr;</div><div class="line">155 .       .       curr-&gt;next = first;</div><div class="line">156 .       &#125;</div><div class="line">157 </div><div class="line">158 .       first = curr;</div><div class="line">159 .       curr-&gt;prev = NULL;</div><div class="line">160 </div><div class="line">161 .       if (NULL == last)</div><div class="line">162 .       .       last = first;</div><div class="line">163 &#125;</div></pre></td></tr></table></figure>
+<h3 id="TLS层的优化点"><a href="#TLS层的优化点" class="headerlink" title="TLS层的优化点"></a>TLS层的优化点</h3><p>TLS连接的建立和关闭过程如图：  </p>
+<p><img src="/assets/images/perf/SSL_handshake.png" alt="图片"></p>
+<p>在TLS中频繁分配释放的内存主要有以下几类：   </p>
+<ul>
+<li>哈希描述符和哈希值;  </li>
+<li>密钥，比如masterkey为48字节;  </li>
+<li>典型的小块内存，一般为64字节和96字节;    </li>
+</ul>
+<p>Memory Pool的主要设计思路：  </p>
+<ul>
+<li>每块内存都看做一个对象，预先分配好一定数量的对象，即所谓的内存池；  </li>
+<li>定义get和put方法，一般成对出现，这样保证了预分配的对象数量可控；    </li>
+<li>内存池内的每个对象用单向链表维护，具体操作见图；  </li>
+</ul>
+<p><img src="/assets/images/perf/mem_pool.jpg" alt="图片"></p>
+<p>对SSL的握手过程进行对比测试，结果表明在使用mem pool的性能提升为8%左右，似乎并不理想，看来在SSL握手中此类内存的分配释放并不是影响性能的主要因素。 </p>
+<h3 id="充分利用硬件加速"><a href="#充分利用硬件加速" class="headerlink" title="充分利用硬件加速"></a>充分利用硬件加速</h3><p>对于计算密集型的加解密运算，首先想到的就是利用硬件进行加速，这里有两个方面的考虑：  </p>
+<ul>
+<li>主存和硬件加速单元之间的IO： 数据从主存搬移至硬件，硬件将结果返回给主存  </li>
+<li>对硬件处理结果的查询方式选择： 轮询还是中断？    </li>
+</ul>
+<p>针对上述考虑，采取的措施如下：    </p>
+<ul>
+<li>分析分析硬件加速的实现代码，发现其涉及到非常多固定大小内存的分配与释放，依然采用上文中的cache机制，需要注意的是硬件读写时要求地址对齐，因此对cache实现稍作修改，加入内存对齐处理。测试结果显示，后者能将性能提升50%左右(见下图)。   </li>
+</ul>
+<p><img src="/assets/images/perf/SSL_mcache_test.png" alt="图片"></p>
+<ul>
+<li>利用DMA进行数据拷贝避免动用CPU在主存和硬件加速单元之前拷贝，测试结果表明两者的性能差异大约在2倍左右。</li>
+<li>分别实现中断模式和轮询模式，对比后发现轮询模式下效率更高，因此选择了轮询模式。  </li>
+</ul>
+<p>整体而言，采用硬件加速就是在充分利用压榨硬件计算性能的基础上尽可能减少内存拷贝和IO消耗，最后性能平均提升大约十倍左右。  </p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">TLS</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">performance tune</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">memory pool</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/01/23/little-on-performance-tune/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-synchronization-and-exclusion" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1158,433 +1683,6 @@ Hello Simulator
 
 
   
-    <article id="post-authorization-code-flow-in-oauth-20" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/08/authorization-code-flow-in-oauth-20/">OAuth 2.0初探</a>
-    </h1>
-  
-
-        
-        <a href="/2014/12/08/authorization-code-flow-in-oauth-20/" class="archive-article-date">
-  	<time datetime="2014-12-07T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="OAuth解决什么问题"><a href="#OAuth解决什么问题" class="headerlink" title="OAuth解决什么问题"></a>OAuth解决什么问题</h3><h3 id="1、场景"><a href="#1、场景" class="headerlink" title="1、场景"></a>1、场景</h3><p>某孕妇Mrs.Lily向她的私人医生Dr.Michael申请做胎心监护，Dr.Michael了解到Mrs.Lily在医院A.Hospital做过类似的检查，因此Dr.Michael希望访问A.Hospital的在线系统获取Mrs.Lily的相关数据，最直接的方法就是向Mrs.Lily索要其在A.Hospital在线系统用户名和密码。<br>那么问题来了，该方法会造成哪些潜在安全威胁？    </p>
-<ul>
-<li>Dr.Michael会保存用户Mrs.Lily的密码，很不安全  </li>
-<li>Dr.Michael拥有了获取用户Mrs.Lily在A.Hospital在线系统的所有资料的权利，这样用户无法限制Dr.Michael的授权范围和时间  </li>
-<li>Mrs.Lily只有修改其密码，才能收回赋予Dr.Michael的权力，但同时也使得其他获得Mrs.Lily授权的访问应用失效  </li>
-</ul>
-<h3 id="2、OAuth的特点"><a href="#2、OAuth的特点" class="headerlink" title="2、OAuth的特点"></a>2、OAuth的特点</h3><p>OAuth解决了上述问题，即定义了一种允许一个APP访问用户相关的其他APP的验证机制，比如用户可以利用QQ账号登陆其他APP。基本思路如下：   </p>
-<ol>
-<li>OAuth在“客户端”与“服务提供商”之间，设置了一个授权层（authorization layer）。 “客户端”不能直接登陆和访问“服务提供商”，只能登陆授权层，这样就把用户和客户端分隔开来。  </li>
-<li>“客户端”不在使用密码，而是令牌(token),可以在登陆的时候指定授权范围和有效期限。  </li>
-<li>“客户端”登陆授权层之后，“服务提供商”根据令牌的授权范围和有效期限，以决定向客户开放哪些信息。  </li>
-</ol>
-<h3 id="OAuth工作流程"><a href="#OAuth工作流程" class="headerlink" title="OAuth工作流程"></a>OAuth工作流程</h3><p>待续。</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="http://architecture-soa-bpm-eai.blogspot.com/2012/08/oauth-20-for-my-ninth-grader.html" target="_blank" rel="external">oauth-20-for-my-ninth-grader</a>  </li>
-<li><a href="http://liboauth.sourceforge.net/" target="_blank" rel="external">liboauth in C</a></li>
-</ol>
-<hr>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">OAuth</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Authorization</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/08/authorization-code-flow-in-oauth-20/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-little-on-tcpip-stack" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/02/little-on-tcpip-stack/">TCP/IP协议栈中的数据收发</a>
-    </h1>
-  
-
-        
-        <a href="/2014/12/02/little-on-tcpip-stack/" class="archive-article-date">
-  	<time datetime="2014-12-01T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-12-02</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>本文将对TCP/IP的数据收发做一个粗略总结~    </p>
-<hr>
-<h3 id="1、TCP-IP基本特点"><a href="#1、TCP-IP基本特点" class="headerlink" title="1、TCP/IP基本特点"></a>1、TCP/IP基本特点</h3><p>TCP/IP总的设计目的就是保证数据的快速有序的传输，且无丢失，基本特点如下：  </p>
-<ul>
-<li><strong>面向连接</strong>：两端组成一个连接，每端以五元组为标识</li>
-<li><strong>双工字节流</strong>： 采用字节流进行双工数据通信</li>
-<li><strong>有序发送</strong>：利用序列号保证发送的有序性</li>
-<li><strong>可靠性</strong>：利用ACK保证数据的可靠性</li>
-<li><strong>流控</strong>：接收方利用接收窗口通告发送方</li>
-<li><strong>拥塞控制</strong>：接收方利用拥塞窗口通告发送方  </li>
-</ul>
-<h3 id="2、报文发送过程"><a href="#2、报文发送过程" class="headerlink" title="2、报文发送过程"></a>2、报文发送过程</h3><p>TCP/IP网络协议栈包含多个层次，下图以一个TCP连接中的报文发送过程简述其基本流程：</p>
-<p><img src="/assets/images/TCP/tx.jpg" alt="图片">  </p>
-<center>Figure 1: TX flow</center>
-
-<ol>
-<li>用户层创建数据，调用write系统调用发送数据。</li>
-<li>一旦执行系统调用，系统则进入内核层。对于类Linux系统，通过文件描述符关联socket和应用，内核中socket包含收发两块buffer。</li>
-<li>在系统调用执行数据将被拷贝至内核memory当中，然后添加至发送buffer尾部，即按序发送。</li>
-<li>在TCP层，TCB(TCP Control Block) 关联socket，如果TCP允许数据发送，内核创建TCP segment。否则，由于规则或者流量控制会将该报文丢弃。至于TCP segment报文格式，无外乎一个header加payload，还有个checksum。TCP校验和往往由网卡进行计算。</li>
-<li>继续在TCP segment上封装IP层，再算下IP校验和，就可以扔给网络层了，比如以太网层。</li>
-<li>以太网层开始查找下一跳IP的MAC地址，一旦完成将继续封装Etherent头，最终送往driver层，这里往往也是各大抓包工具进行数据拷贝的地方，比如tcpdump/wirshark，或者是自己写的抓包工具；流量整形也往往在这一层完成。</li>
-<li>driver层在收到发送请求之后，通过DMA将该主存中的数据拷贝至内部RAM之中。在数据拷贝中，同时加入符合以太网协议的相关header，IFG、前导符和CRC。对于以太网网络，物理层发送采用CSMA/CD,即在发送过程中侦听链路冲突；而对于Wi-Fi网络，则采用CSMA/CA，其基本思想是要想占用channel并发言，首先做好聆听（也是做人哲学之一），对于需要ACK的报文，一旦在规定时间内搜不到ACK，则重传该报文。</li>
-<li>一旦网卡完成报文发送，将产生中断通知CPU。</li>
-</ol>
-<p>对于报文发送过程而言，上层协议栈是生产者，驱动层为消费者。  </p>
-<p>下面以无线网卡驱动为例详述整个报文发送流程的实现细节：      </p>
-<ul>
-<li>上层协议栈（三层及以上）和驱动层之间的数据传递采用队列，一个网络接口绑定一个三层报文发送队列。802.11 MAC层从网络接口的发送队列中拿到三层报文，添加LLC层和802.11 header，此时二层报文已经组好。  </li>
-<li>驱动层同样采用一个二层报文发送队列，可以将上一步组好的二层报文放入该队列。驱动的任务就是把二层报文送入无线网卡的硬件FIFO，最终转为射频信号发送。软硬件交互通过一个循环缓冲区完成，具体而言，首先主存中定义一个TX Ring，包括多个TFD（发送描述符），其中一个TFD可以由多个TB（发送缓冲区）组成，里面除了包含要发送的数据，还包含了发送相关的控制信息；数据在DRAM和硬件FIFO之间的搬迁由DMA完成，搬迁的数量通过TX Ring的两个指针完成，一个是写指针，由软件更新，告诉硬件我已经把这个位置的TFD准备好，你可以拿了，另一个是读指针，由硬件拿走数据后更新该指针，通过中断告诉软件我已经取走数据，你可以继续在该TFD上更新数据。</li>
-</ul>
-<h3 id="3、报文的接收过程"><a href="#3、报文的接收过程" class="headerlink" title="3、报文的接收过程"></a>3、报文的接收过程</h3><p><img src="/assets/images/TCP/rx.jpg" alt="图片">  </p>
-<center>Figure 2: RX flow</center>
-
-<ol>
-<li>网卡对报文进行CRC检查，如果合法就写入主存（一般通过DMA完成）。一旦完成写入，网卡发送中断通知CPU。</li>
-<li>驱动层对报文进行检查，在发送至上层协议栈之前，必须封装成OS相关的数据结构，比如Linux对应sk_buff，BSD对应mbuf。</li>
-<li>以太网层同样对报文进行合法性检查，然后发送至网络层，交给不同的协议处理模块，对于IP报文交给IP层，而对于ARP报文则送至ARP模块。</li>
-<li>IP层继续检查报文合法性，判断其是进行IP路由还是本地处理。根据IP头的协议字段，上发至上层，比如6对应TCP层。</li>
-<li>TCP层同样检查TCP检验和，往往由网卡计算完成，而不是内核。</li>
-<li>以TCP报文的五元组作为关键字进行连接查找，查看是否匹配该层的规则，如果符合，则加入接收缓冲区。</li>
-</ol>
-<h3 id="4、不是结束语"><a href="#4、不是结束语" class="headerlink" title="4、不是结束语"></a>4、不是结束语</h3><p>理解问题需从根上抓起，TCP/IP也一样，仍有许多细节需要在工作实践中反复体会。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">TCP/IP</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Stack</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/12/02/little-on-tcpip-stack/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-iot-technology-stack" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/11/20/iot-technology-stack/">一张物联网框图</a>
-    </h1>
-  
-
-        
-        <a href="/2014/11/20/iot-technology-stack/" class="archive-article-date">
-  	<time datetime="2014-11-19T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-11-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#IOT  </p>
-<p><img src="/assets/images/IOT.png" alt="图片">  </p>
-<center>IOT technology stack</center>  
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">IOT</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">物联网</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/11/20/iot-technology-stack/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-oop-review" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/10/25/oop-review/">OOP小记</a>
-    </h1>
-  
-
-        
-        <a href="/2014/10/25/oop-review/" class="archive-article-date">
-  	<time datetime="2014-10-24T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2014-10-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="OOP中的类"><a href="#OOP中的类" class="headerlink" title="OOP中的类"></a>OOP中的类</h2><ul>
-<li><strong>类即数据结构</strong>：实现新的类库就是定义了新的数据结构。  </li>
-<li><strong>广义的生产者和消费者</strong>：类创建者对应生产者，类使用者即客户端程序员。  </li>
-<li><strong>对象即服务</strong>：关注于该对象能提供给用户那些服务，而不关注其内部实现。  </li>
-<li><strong>类关系表达方法</strong>：基类开始由上至下。  </li>
-</ul>
-<h2 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h2><p>多态用到的技术即后期绑定，由JAVA内部一段程序实现；相反，前期绑定则通过绝对地址调用实现。C++需要用virtual显示声明,JAVA默认支持。</p>
-<h2 id="容器与迭代器"><a href="#容器与迭代器" class="headerlink" title="容器与迭代器"></a>容器与迭代器</h2><p>容器本质提供了各种数据类型的抽象，JAVA中包括List类，MAP类，以及队列、树堆栈等。迭代则提供了对容器成员的抽象化访问，比如设值、取值和遍历等。在C语言中可以利用<strong>函数指针</strong>进行迭代器的设计。</p>
-<h2 id="单根继承结构"><a href="#单根继承结构" class="headerlink" title="单根继承结构"></a>单根继承结构</h2><p>所有对象都具备相同的接口，好处是垃圾回收器可以方便的发送适当的消息给系统中的每一个对象。</p>
-<h2 id="向上转型向下转型"><a href="#向上转型向下转型" class="headerlink" title="向上转型向下转型"></a>向上转型向下转型</h2><p>有待理解。</p>
-<h2 id="真并发与伪并发"><a href="#真并发与伪并发" class="headerlink" title="真并发与伪并发"></a>真并发与伪并发</h2><p>前者即多个线程运行在多个处理器上，后者是多个线程分时复用一个CPU。程序写得不好，会造成在多处理器中出现线程总运行与某个处理器之上。</p>
-<h2 id="为什么会有WEB客户端编程"><a href="#为什么会有WEB客户端编程" class="headerlink" title="为什么会有WEB客户端编程"></a>为什么会有WEB客户端编程</h2><p>WEB客户端编程设计初衷就是期望减轻服务器端压力，将计算和逻辑控制过程置于客户端运行。具体方法包括插件、脚本语言比如JAVAScript、VBScript等、JAVA（利用applet）。相比脚本语言。JAVA applet和前者的本质区别在于其本身是以被编译过的形式存在的，并且利用<strong>数字签名</strong>保障安全性。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">JAVA</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">OOP</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2014/10/25/oop-review/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
@@ -1682,22 +1780,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -1710,19 +1792,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">XML</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1734,7 +1808,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color4">XML</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1742,15 +1820,23 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1766,6 +1852,26 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -1778,6 +1884,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
@@ -1787,14 +1901,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1818,31 +1924,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1854,27 +1940,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1891,6 +1961,50 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Exclusion</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1915,34 +2029,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">thread</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1975,6 +2061,30 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">karman filter</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
               </li>
             
             <div class="clearfix"></div>

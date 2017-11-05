@@ -146,6 +146,570 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-little-on-karman-filter" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/01/little-on-karman-filter/">Karman滤波器</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/01/little-on-karman-filter/" class="archive-article-date">
+  	<time datetime="2017-10-31T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文将对卡尔曼滤波做一个粗略总结~    </p>
+<hr>
+<h3 id="1、问题描述"><a href="#1、问题描述" class="headerlink" title="1、问题描述"></a>1、问题描述</h3><p>假定一个机器人导航，其状态用$\vec{x_k}$描述：  </p>
+<p>$\vec{x_k}=\left ( \vec{p},\vec{v} \right )$</p>
+<h3 id="2、Kalman-filter如何看待该问题"><a href="#2、Kalman-filter如何看待该问题" class="headerlink" title="2、Kalman filter如何看待该问题"></a>2、Kalman filter如何看待该问题</h3><p>采用一个向量描述状态：</p>
+<p>$<br>\vec{x}=<br>\left [<br>\begin{matrix}<br>        p \<br>        v \<br>        \end{matrix}<br> \right ]<br>$</p>
+<p>两个假设：</p>
+<ul>
+<li>p和v都符合高斯分布，数学期望为$\mu$，方差为$\sigma ^{2}$，</li>
+<li>随机</li>
+</ul>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_1.png" alt="gauss_1">  </p>
+<center>Figure 1: gauss_1</center>
+
+
+<p>我们考虑速度和位置是有关联的：</p>
+<p><strong>矩阵描述问题</strong></p>
+<p>协方差用于衡量p和v两个变量的总体误差，</p>
+<p>$<br>\begin{equation} \label{eq:statevars}<br>\begin{aligned}<br>\mathbf{\hat{x}}_k &amp;= \begin{bmatrix}<br>\text{position}\<br>\text{velocity}<br>\end{bmatrix}\<br>\mathbf{P}<em>k &amp;=<br>\begin{bmatrix}<br>\Sigma</em>{pp} &amp; \Sigma<em>{pv} \<br>\Sigma</em>{vp} &amp; \Sigma_{vv} \<br>\end{bmatrix}<br>\end{aligned}<br>\end{equation}<br>$</p>
+<p>状态迁移描述：</p>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_7.jpg" alt="状态迁移"></p>
+<p>其中的预测过程用一个矩阵描述Fk：</p>
+<p><img src="http://www.bzarg.com/wp-content/uploads/2015/08/gauss_8.jpg" alt="预测过程"></p>
+<p>我们预测速度和位置的迁移公式：</p>
+<p>$<br>\begin{split}<br>\color{deeppink}{p<em>k} &amp;= \color{royalblue}{p</em>{k-1}} + \Delta t &amp;\color{royalblue}{v_{k-1}} \<br>\color{deeppink}{v<em>k} &amp;= &amp;\color{royalblue}{v</em>{k-1}}<br>\end{split}<br>$</p>
+<p>预测矩阵描述：</p>
+<p>$<br>\begin{align}<br>\color{deeppink}{\mathbf{\hat{x}}<em>k} &amp;= \begin{bmatrix}<br>1 &amp; \Delta t \<br>0 &amp; 1<br>\end{bmatrix} \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>&amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \label{statevars}<br>\end{align}<br>$</p>
+<p>虽然有了预测矩阵，但是我们还不知道如何<strong>更新协方差矩阵</strong>；</p>
+<p>这样我们用下面的方法更新协方差矩阵：</p>
+<p>$<br>\begin{equation}<br>\begin{split}<br>\color{deeppink}{\mathbf{\hat{x}}_k} &amp;= \mathbf{F}<em>k \color{royalblue}{\mathbf{\hat{x}}</em>{k-1}} \<br>\color{deeppink}{\mathbf{P}_k} &amp;= \mathbf{F<em>k} \color{royalblue}{\mathbf{P}</em>{k-1}} \mathbf{F}_k^T<br>\end{split}<br>\end{equation}<br>$</p>
+<p>注意这里是大写的P，代表概率，协方差概率；</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">karman filter</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">tracking</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/algorithm/" class="article-tag-list-link color5">algorithm</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/01/little-on-karman-filter/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SLS-design" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/29/SLS-design/">云服务SLA</a>
+    </h1>
+  
+
+        
+        <a href="/2017/09/29/SLS-design/" class="archive-article-date">
+  	<time datetime="2017-09-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h2><hr>
+<p>供应链系统的业务对象分布广泛，包括云供应链团队、云产品、BI、CBM、下游接口依赖方，业务数据依赖方；</p>
+<p>供应链系统SLA保障系统的可用性、稳定性与易用性，当前系统从以下几个方面着手：</p>
+<ul>
+<li>可扩展性；</li>
+<li>数据容灾；</li>
+<li>信息安全；</li>
+<li>监控报警；</li>
+</ul>
+<p>引入微服务带来的挑战：</p>
+<ul>
+<li>微服务之间交互，且互相依赖；</li>
+<li>服务拆分粒度越细，运维和部署成本随之上升，该项工作往往有开发团队一肩挑；</li>
+<li>每个微服务都可能成为单点，错误排查难度增加；</li>
+<li>微服务就像狂野大西部，每一个微服务的开发者可以自由选择自己喜欢的开发工具、部署系统；</li>
+<li>微服务之间需要从业务和技术两个方面解决信任问题；</li>
+</ul>
+<p>业界解决思路，比如Uber/Netfix：</p>
+<ul>
+<li>制定微服务之间的标准，理清职责边界；</li>
+<li>基于一系列可用性SLA提升单个微服务自身的服务质量与信任度；<ul>
+<li>stability稳定性 + reliability可靠度；<ul>
+<li>标准化开发流程，做好分支管理、release版本控制；</li>
+<li>完善测试流程，包括单元、集成、E2E测试(特别是对外接口)；</li>
+<li>测试、打包、构建、发布流程全部自动化，目前测试需要借助aone进行；</li>
+<li>标准的部署流程，包括日常、预发、金丝雀发布、线上；</li>
+<li>发布前梳理依赖以及failover方案，比如api service服务挂掉怎么办，设计层面就有服务发现用作服务层的负载均衡；</li>
+</ul>
+</li>
+<li>performance性能；<ul>
+<li>QPS多少，如何测试？</li>
+<li>标识系统瓶颈；</li>
+<li>服务之间依赖的可扩展性；</li>
+<li>流量是否可以被引流；</li>
+</ul>
+</li>
+<li>fault-tolerance: 对内对外双向容错<ul>
+<li>避免单点；</li>
+<li>所有失败场景与影响需要详尽评估；</li>
+<li>引入FIT(Failure Injection Testing）<img src="https://cdn-images-1.medium.com/max/800/0*cuqMUmiwL6WpyjJ_." alt="FIT">、压力测试、chaos测试(混沌测试)；</li>
+<li>自我修复；</li>
+<li>多机房部署备份数据；</li>
+</ul>
+</li>
+<li>catastrophe-preparedness:  </li>
+<li>monitoring：随时知晓系统运行状态；<ul>
+<li>从host、物理设施、微服务层次标识各种维度的metric</li>
+<li>日志能够精确反映微服务的历史运行状态；</li>
+<li>最后能有dashboard直观解释报警信息；</li>
+<li>所有alert可配置，建立On-call机制；</li>
+</ul>
+</li>
+<li>documentation:<ul>
+<li>完整技术文档，定期更新；</li>
+<li>架构定期评审review</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>cd</li>
+</ul>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><hr>
+<p>1、<a href="#mutil_client">多客户端示例</a><br>2、<a href="#single_res">单一责任原则</a><br>3、<a href="#open_closed">违反Open-Closed原则</a><br>4、<a href="#performance">从性能谈起</a><br>5、<a href="#issue_sum">问题总结</a><br>6、<a href="#reactor_pattern">REACTOR模式</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.1、<a href="#6.1">事件探测</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.2、<a href="#6.2">实现机制</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.3、<a href="#6.3">Reactor注册策略</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.4、<a href="#6.4">Reactor实现</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.5、<a href="#6.5">触发Reactor</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.6、<a href="#6.6">处理注册</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.7、<a href="#6.7">事件多样性</a><br>7、<a href="#vs">REACTOR vs OBSERVER</a><br>8、<a href="#cons">结论</a><br>9、<a href="#sum">总结</a>            </p>
+<h2 id="当前系统整体架构"><a href="#当前系统整体架构" class="headerlink" title="当前系统整体架构"></a>当前系统整体架构</h2><hr>
+<p><a id="mutil_client" name="mutil_client"> </a>  </p>
+<p><img src="/assets/images/system_all.png" alt="系统框架"></p>
+<p><a href="https://vladmihalcea.com/2016/06/28/14-high-performance-java-persistence-tips/" target="_blank" rel="external">link</a><br><img src="https://vladmihalcea.files.wordpress.com/2016/06/databaseintegrationpoint.png" alt="png"></p>
+<p><a href="https://www.susanjfowler.com/blog/2016/10/7/the-architecture-interview" target="_blank" rel="external">inver_arch</a></p>
+<h3 id="2、状态机"><a href="#2、状态机" class="headerlink" title="2、状态机"></a>2、状态机</h3><p><a href="https://blog.mimacom.com/blog/2016/01/07/introducing-spring-state-machine/" target="_blank" rel="external">SSM</a></p>
+<p>采购服务引入了状态机模型；</p>
+<ul>
+<li>扁平化状态描述；</li>
+<li>类型安全的配置适配器；</li>
+<li>便于事件监听与消费；</li>
+</ul>
+<h3 id="3、消息队列："><a href="#3、消息队列：" class="headerlink" title="3、消息队列："></a>3、消息队列：</h3><p>消息队列用于解耦调用方和被调用方，对于供应链系统主要有三个用途：</p>
+<ul>
+<li>实现后台历史同步任务的依赖通知机制；</li>
+<li>OpLog通过消息队列异步写入日志系统；</li>
+<li>采购到货、交付信息的通知；</li>
+</ul>
+<h2 id="接口定义"><a href="#接口定义" class="headerlink" title="接口定义"></a>接口定义</h2><p><img src="/assets/images/API_total.png" alt="API"></p>
+<p>整体框架基于前后端分离实现，后端完成主要数据管理以及对应的业务逻辑，前端完成数据展示、交互与分析，两者通过统一定义好的Restful API交互。</p>
+<p>API层定义了所有的接口，包括三大类：用户接口(User API), 配置接口(Config API)和管理接口(Admin API)。</p>
+<h2 id="SLA保证"><a href="#SLA保证" class="headerlink" title="SLA保证"></a>SLA保证</h2><h3 id="1、负载均衡"><a href="#1、负载均衡" class="headerlink" title="1、负载均衡"></a>1、负载均衡</h3><p>这里的负载均衡有几个层次：</p>
+<ul>
+<li>服务层负载均衡，基于Spring Cloud Ribbon实现服务所部署集群内部的各个服务节点之间的负载均衡；</li>
+<li>7层负载均衡；</li>
+<li>四层负载均衡；</li>
+</ul>
+<h3 id="2、可扩展性"><a href="#2、可扩展性" class="headerlink" title="2、可扩展性"></a>2、可扩展性</h3><p>随着供应链系统后台数据的增加，必须优化当前库存、历史库存、预测数据查询性能；</p>
+<p>这里的可扩展性分为水平扩展和垂直扩展；</p>
+<p>对于垂直扩展，我们针对单一机器本身，比如我们申请拥有更快CPU的虚拟机，甚至直接申请性能更高的物理机，往往效果有限；</p>
+<p>而水平扩展则不然，我们通过增加更多服务器以提升性能，但是需要确保数据的一致性；当前系统中各个子服务均为集群部署，其中sync_manager2台、finance2台、forcast2台；</p>
+<p>如果我们只是单纯增加服务器数量，数据库(当前采用的数据库为MySQL)势必很快将成为瓶颈, 当前的解决方案：</p>
+<h4 id="2-1、引入cache"><a href="#2-1、引入cache" class="headerlink" title="2.1、引入cache"></a>2.1、引入cache</h4><p>从架构上划分，cache可分为本地cache、全局Cache与分布式cache:</p>
+<ul>
+<li>本地Cache</li>
+</ul>
+<p>系统中的本地cache基于成员变量、局部变量或则静态变量实现；</p>
+<ul>
+<li>全局Cache</li>
+</ul>
+<p><img src="/assets/images/global_cache_2.png" alt="图片">  </p>
+<center>Figure 1: eternal loop to scan for different events</center>
+
+<p>对于后台业务数据的更新，如果每次都直接调用业务方数据源接口则耗时过长，像ECS这样的大户，一圈下来超过半个小时；为了缩短同步时间，同时尽量保证业务数据的实时性，网络拓扑同步用到了全局cache，流程如下：</p>
+<ul>
+<li>对于每次请求，集群内的服务器首先请求全局缓存；如果命中直接返回；</li>
+<li>如果没有命中，则发起请求的服务节点自己直接去数据源(调用各个云产品的网络拓扑接口)拉取；</li>
+<li>一旦从数据源成功拉取到数据，更新全局缓存；</li>
+</ul>
+<p>其中网络拓扑的全局cache基于数据库的二级缓存实现；通过该策略，我们将一次刷新时间缩短至原来的五分之一；<br>元数据的查询同样基于全局cache实现；</p>
+<ul>
+<li>分布式Cache</li>
+</ul>
+<p>如果需要，后续可以继续引入分布式cache，将cache元素分布在集群的不同的服务器中，即对cache本身进行水平扩展；</p>
+<p><a id="mutil_client" name="mutil_client"> </a>  </p>
+<h4 id="2-2、数据库读写分离"><a href="#2-2、数据库读写分离" class="headerlink" title="2.2、数据库读写分离"></a>2.2、数据库读写分离</h4><p>供应链当前数据库的读写比大约为？。</p>
+<h4 id="2-3、数据表增加合适的索引"><a href="#2-3、数据表增加合适的索引" class="headerlink" title="2.3、数据表增加合适的索引"></a>2.3、数据表增加合适的索引</h4><p>目前数据表大约100余个，业务逻辑对应的SQL查询往往涉及多表JOIN，需要优化表结构与SQL本身；比如采购订单查询接口在各个子表加入合适的索引之后效率提升数十倍；</p>
+<h4 id="2-4、前后台分离"><a href="#2-4、前后台分离" class="headerlink" title="2.4、前后台分离"></a>2.4、前后台分离</h4><p>当前库存查询页面对于后端接口的性能要求与后端对同样接口的需求是不一致的，目前供应链系统的实现如下：</p>
+<ul>
+<li>前台、后台系统web/serveive/db分离解耦，以此避免后台低效查询引发前台查询抖动；</li>
+<li>采用前台与后台数据冗余的设计，分别满足两侧需求，比如在tboss_data中增加了产品等；</li>
+</ul>
+<h3 id="3、数据容灾"><a href="#3、数据容灾" class="headerlink" title="3、数据容灾"></a>3、数据容灾</h3><p><a id="single_res" name="single_res"> </a></p>
+<p>当前接入供应链的业务数据是非常宝贵的资产，供应链系统在后台实现上采用了主-被双数据库，同时定期备份历史数据表；</p>
+<ul>
+<li>数据定期备份；</li>
+<li>主备数据库数据自动同步，已完成数据备份；</li>
+</ul>
+<h3 id="3、信息安全"><a href="#3、信息安全" class="headerlink" title="3、信息安全"></a>3、信息安全</h3><p>对于供应链系统而言，信息安全是第一要务，我们在集团现有安全接入机制的基础上定制化了供应链系统本身的安全实现：</p>
+<ul>
+<li>监控下游调用接口</li>
+</ul>
+<p><a id="open_closed" name="open_closed"> </a>  </p>
+<h3 id="5、监控报警"><a href="#5、监控报警" class="headerlink" title="5、监控报警"></a>5、监控报警</h3><p>总体分为两大类：</p>
+<ul>
+<li>业务监控</li>
+<li>服务监控</li>
+</ul>
+<p>为实现上述功能，我们开发了相应的管理接口，主要暴露给系统管理员，以方面其监控服务运行状态，包括如下子模块：</p>
+<ul>
+<li>同步：该接口可以手动同步、刷新各个产品的数据，同时支持部分数据订正功能；</li>
+<li>数据同步、定时任务的监控API:</li>
+<li>服务本身的监控状况和版本信息；</li>
+<li>各个产品的原始接口，方便跟踪调查问题；</li>
+</ul>
+<h4 id="5-1、业务监控"><a href="#5-1、业务监控" class="headerlink" title="5.1、业务监控"></a>5.1、业务监控</h4><p>业务逻辑监控的内容分为元数据监控、库存预警监控、TBoss到货通知、采购下单失败通知、URI Alert、审计；</p>
+<ul>
+<li>元数据监控主要是后台查询未关联plancode的集群，在前端页面展示，同时统一收集后通知给关注人；</li>
+<li>库存预警监控则关注当前资源供应情况，根据业务方配置的资源预警水位进行预警并通知关注人；</li>
+<li>TBoss到货通知主要是方面供应链的提单人跟踪服务器的到货信息，当服务器到货后会有相应的邮件通知；</li>
+<li>采购下单失败通知针对采购过程中自动提单失败后方面提醒提单人；</li>
+<li>URI Alert完成对用户请求的埋点；</li>
+<li>审计主要是接入OpLog；</li>
+</ul>
+<h4 id="5-2、服务监控"><a href="#5-2、服务监控" class="headerlink" title="5.2、服务监控"></a>5.2、服务监控</h4><p>为了保证数据同步的完整性和准确性，同时也方便跟踪和调查问题，我们对所有产品的原始数据源接口进行监控：</p>
+<ul>
+<li>错误调用打点</li>
+</ul>
+<p>这里记录了原始接口调用的失败情形，每天发送给相关接口人包含详细错误信息的邮件，事实证明该信息对于产品方调查问题帮助很大；</p>
+<ul>
+<li>调用日志</li>
+</ul>
+<p>记录了从controller、service、util、SQL各层的调用日志;</p>
+<ul>
+<li>审计日志</li>
+</ul>
+<p>记录了用户行为;</p>
+<p>为了方面实时查看数据同步的信息，同时监控错误，我们主要从三个方面着手：</p>
+<ul>
+<li>同步数据统计(Count Statistics)</li>
+</ul>
+<p>我们将所有产品的历史同步数量和当前数量进行记录分析，同时也对当前表的同步分布进行监控</p>
+<ul>
+<li>调度任务(Scheduler Alert)</li>
+</ul>
+<p>随着接入产品的增多，后台调度任务数量会随之上升，因此我们记录了同步任务的执行情况，包括主机、线程、状态、类名、异常等，如图：</p>
+<ul>
+<li>SQL Metric</li>
+</ul>
+<p>对于SQL我们从三个层次进行监控，首先在本地记录SQL执行日志，同时基于Druid Monitor模块实时查询SQL执行数、执行时间等，最后结合RDS的杜康系统进行分析，其中Druid Monitor模块示例见下图：</p>
+<ul>
+<li>UT日报</li>
+</ul>
+<p>基于aone实验室，我们设置每次commit至发布分支触发UT，并发送邮件；</p>
+<ul>
+<li>代码检查： 在平时开发过程中引入静态检查工具findbugs，及时发现潜在BUG并修复；</li>
+</ul>
+<h3 id="9、总结"><a href="#9、总结" class="headerlink" title="9、总结"></a>9、总结</h3><p><a id="sum" name="sum"> </a>  </p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">design pattern</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">reactor</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/09/29/SLS-design/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-api-security" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/12/api-security/">API Security</a>
+    </h1>
+  
+
+        
+        <a href="/2017/01/12/api-security/" class="archive-article-date">
+  	<time datetime="2017-01-11T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-01-12</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>该文分析了API安全相关的验证与鉴权技术特点与基本原理。     </p>
+<h3 id="JWT"><a href="#JWT" class="headerlink" title="JWT"></a>JWT</h3><p><a href="https://medium.com/@him_jar/permission-based-views-in-angularjs-1edfd0fd8288" target="_blank" rel="external">前端与权限</a><br><a href="https://nordicapis.com/how-to-control-user-identity-within-microservices/" target="_blank" rel="external">微服务中的身份</a><br><a href="https://medium.com/@robert.broeckelmann/identity-propagation-in-an-api-gateway-architecture-c0f9bbe9273b" target="_blank" rel="external">API gateway</a><br><a href="https://laracasts.com/discuss/channels/general-discussion/general-advice-how-to-handle-api-authentication-and-databases?page=1" target="_blank" rel="external">如何解决前端与API消费者同时鉴权问题</a><br><a href="https://kubernetes.io/docs/admin/authorization/rbac/" target="_blank" rel="external">RDBC</a><br><a href="https://www.moesif.com/blog/technical/restful-apis/Authorization-on-RESTful-APIs/" target="_blank" rel="external">JWT1</a><br><a href="https://en.wikipedia.org/wiki/JSON_Web_Token" target="_blank" rel="external">jwt2</a><br><a href="https://support.omnigroup.com/doc-assets//OmniPlan-Mac/OmniPlan-Mac-v3.0.0.1/zh/EPUB/xhtml/03_tutorial.xhtml" target="_blank" rel="external">ominiplan_tool</a></p>
+<p>线程安全是多线程程序中的编程理念，一段代码线程安全意味着在多个线程执行的时候能够运行正确。因此，它必须满足： </p>
+<ul>
+<li>确保你的网站能够适配所有主流的浏览器。一个最小的测试集必须包括：Firefox采用的Gecko引擎，Safari以及其他手机浏览器采用的WebKit引擎，Chrome，IE(兼容VPC图片)和Opera。同时也需考虑在不同OS上的渲染问题；</li>
+<li>考虑浏览器之外的访问通道，比如蜂窝电话，Sreen Reader以及搜索引擎。这里的要点是如何在不影响用户的情况下更新功能，这里需要版本管理软件和自动化编译机制；</li>
+<li>永远不要呈现给用户不友好的错误提示；</li>
+<li>不要将用户的邮箱地址以明文形式呈现；</li>
+<li>对于用户产生的链接加入<code>rel=&quot;nofollow&quot;</code>属性以避免受到攻击；</li>
+<li>为你的网站加入深思熟虑后的限制；</li>
+<li>POST成功后立即重定向，从而禁止再次提交引发刷新；</li>
+<li>理解并应用渐进增强；</li>
+<li>多元化用户交互，不单单依赖鼠标；</li>
+<li>最后一点：别让用户思考； </li>
+</ul>
+<h3 id="微服务中的身份问题"><a href="#微服务中的身份问题" class="headerlink" title="微服务中的身份问题"></a>微服务中的身份问题</h3><p>OAuth2 and OpenID Connect</p>
+<p>Securing each step of the request’s journey</p>
+<ul>
+<li>参考OWASP development guide，其覆盖了上层到底层的安全架构和知道准则；</li>
+<li>理解SQL注入并知道如何防御；</li>
+<li>永远不信任用户输入或者是来自用户的请求，包括cookie以及隐藏其后的属性值；</li>
+<li>对密码进行”撒盐”哈希，不同列采用不同的“盐”以防御彩虹表攻击；选择计算较慢的哈希算法(比如bcrypt或者scrypt)来存储密码，NIST和FIPS建议采用PBKDF2对密码进行哈希。避免直接使用MD5和SHA；</li>
+<li>不要试图开发你自己的验证系统，相比现有成熟的验证体系，你的方法更容易受到攻击；</li>
+<li>对敏感数据输入相关的页面采用SSL/HTTPS保护；</li>
+<li>预防 session hijacking；</li>
+<li>避免 cross site scripting (XSS)；</li>
+<li>避免 cross site request forgeries (CSRF)；</li>
+<li>避免 Clickjacking；</li>
+<li>确保你的系统及时更新最新的补丁；</li>
+<li>确保你的DB连接信息是安全的；</li>
+<li>及时追踪最新的攻击方法和手段；</li>
+<li>阅读谷歌浏览器的安全手册；</li>
+<li>阅读Web应用攻击者的手册；</li>
+<li>考虑最小权限原则，尝试以非root权限运行你的应用服务器；</li>
+</ul>
+<h3 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h3><ul>
+<li>如有必要实现cache，理解并使用HTTP、HTML5的cache；</li>
+<li>优化图像处理，不要在需要反复使用的场合调用20KB的照片；</li>
+<li>学会如何压缩和deflate；</li>
+<li>组合多个脚本文件以减少浏览器的连接数量；</li>
+<li>参考Yahoo的异常性能站点，包含有多个操作指导；</li>
+<li>采用CSS处理小的有相关度的图片；</li>
+<li>高访问量站点需要考虑跨domain的组件拆分问题；</li>
+<li>静态内容()应该放置于一个单独的域，该域不使用cookie。因为一个域及其子域中的所有cookie在每次请求发送中都会被包含。一个好的方式是采用CDN，但是必须考虑CDN失效的情形；</li>
+<li>最小化渲染页面所需的HTTP请求；</li>
+<li>善假于物，比如Google的Closure JavaScript编译器；</li>
+<li>确保在站点的根目录下有一个<code>favicon.ico</code>文件, 比如. <code>/favicon.ico</code>。浏览器会自动请求该文件，甚至在HTML中无需提及；如果没有这样的文件<code>/favicon.ico</code>，会产生多个404错误，消耗网站带宽；</li>
+</ul>
+<h3 id="搜索引擎优化"><a href="#搜索引擎优化" class="headerlink" title="搜索引擎优化"></a>搜索引擎优化</h3><ul>
+<li>采用搜索引擎友好的URLS，比如采用<code>example.com/pages/45-article-title</code> 而不是<code>example.com/index.php?page=45</code>；  </li>
+<li>对于动态内容修改，将<code>#</code>替换诶<code>#！</code>；  </li>
+<li>不要采用诸如<code>click here</code>的链接；</li>
+<li>设置一个XML sitemap, 缺省位置<code>/sitemap.xml</code>；</li>
+<li>对于多个URL指向同一个内容，采用<code>&lt;link rel=&quot;canonical&quot; ... /&gt;</code>；</li>
+<li>善假于物，这次是Google的 Webmaster Tools 和微软Bing的 Webmaster Tools；</li>
+<li>安装Google的分析器，或者是开源的Piwik；</li>
+<li>知道搜索引擎爬虫的工作原理；</li>
+<li>采用301做永久重定向；</li>
+</ul>
+<h3 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h3><ul>
+<li>理解HTTP相关原理，比如GET、POST、session、cookie以及无状态；</li>
+<li>根据W3C标准编写HTML和CSS，确保准确；</li>
+<li>理解浏览器中JavaScript如何工作；</li>
+<li>理解JavaScript, style sheets以及其他所需资源的加载过程以及对性能的影响；</li>
+<li>理解JavaScript sandbox的工作原理；</li>
+<li>理解JavaScript已逐步被AJAX替代；</li>
+<li>理解301和302重定向的区别；</li>
+<li>尽可能多的理解网站所运行的平台；</li>
+<li>考虑采用Reset Style Sheet 或者normalize.css；</li>
+<li>考虑JavaScript框架；</li>
+<li>综合考虑perceived performance 和 JS 框架；</li>
+<li>不要重复发明轮子；</li>
+<li>尽可能“轻便”；</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">HTTP</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">OWASP</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JWT</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/01/12/api-security/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-JAVA-HTTPClient-Config" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -166,28 +730,44 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="1-JAVA-网络相关的类、接口与异常"><a href="#1-JAVA-网络相关的类、接口与异常" class="headerlink" title="1. JAVA 网络相关的类、接口与异常"></a>1. JAVA 网络相关的类、接口与异常</h2><p><strong>类</strong></p>
-<ul>
+        <h3 id="JAVA-网络相关的类、接口与异常"><a href="#JAVA-网络相关的类、接口与异常" class="headerlink" title="JAVA 网络相关的类、接口与异常"></a>JAVA 网络相关的类、接口与异常</h3><h4 id="类"><a href="#类" class="headerlink" title="类"></a>类</h4><ul>
 <li>ConnectionManager</li>
 <li>RegistryBuilder</li>
 </ul>
-<p><strong>接口</strong></p>
+<h4 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h4><p>我们主要关注ConnectionSocketFactory，用于创建和连接socket，</p>
 <ul>
-<li>ConnectionSocketFactory</li>
+<li><p>可以实现为非加密socket:</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public class PlainConnectionSocketFactory implements ConnectionSocketFactory &#123;</div></pre></td></tr></table></figure>
+</li>
+<li><p>也可以实现为加密socket;</p>
+</li>
+<li><p>也可以继续扩展增加新的方法：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public interface LayeredConnectionSocketFactory extends ConnectionSocketFactory &#123;</div></pre></td></tr></table></figure>
+</li>
 </ul>
-<p>创建和连接socket；</p>
-<p>可以实现为非加密socket:   </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class PlainConnectionSocketFactory implements ConnectionSocketFactory &#123;</div><div class="line"></div><div class="line">``` </div><div class="line"></div><div class="line">也可以实现为加密socket;</div><div class="line"></div><div class="line"></div><div class="line">也可以继续扩展增加新的方法：</div></pre></td></tr></table></figure>
-<p>public interface LayeredConnectionSocketFactory extends ConnectionSocketFactory {</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">**异常**</div><div class="line"></div><div class="line">- ConnectException</div><div class="line">- ProtocolException</div><div class="line"></div><div class="line"></div><div class="line">## 2. 长连接修改</div><div class="line"></div><div class="line"></div><div class="line">将基于HttpURLConnection类的HTTPClient修改为HttpClient4.3.2： </div><div class="line"></div><div class="line">- 重写了HttpRequest类的getHttpConnection()方法和HttpResponse类的getResponse()方法，主要将HttpURLConnection类的操作接口替换为HttpClient4.3.2；</div><div class="line">- 增加ConnectionManager类，主要基于PoolingHttpClientConnectionManager类完成KeepAlive策略配置、连接池管理与socket超时配置，对于HTTPS服务端验证，目前缺省验证通过；</div><div class="line">- 为Client接口增加setConnConfig()方法，客户端可以基于该接口配置如下参数：</div><div class="line">	- maxConnNumber：总的最大并发连接数；</div><div class="line">	- maxConnPerRoute：每个路由的并发连接数，如果不使用代理，该限制实际上就是单个主机的连接数限制，缺省为2；</div><div class="line">	- maxKeepAliveTimeout：设置KeepAlive超时时间，单位为秒；</div><div class="line"></div><div class="line">## 3. 短连接修改</div><div class="line"></div><div class="line"></div><div class="line">### 3.1 连接重用策略</div><div class="line"></div><div class="line">在httpClient中可以自定义连接重用的策略，定义了一个接口类ConnectionReuseStrategy：</div></pre></td></tr></table></figure>
-<p>public interface ConnectionReuseStrategy {<br>    boolean keepAlive(HttpResponse var1, HttpContext var2);<br>}<br>```</p>
+<h4 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h4><ul>
+<li>ConnectException</li>
+<li>ProtocolException</li>
+</ul>
+<h3 id="长连接修改"><a href="#长连接修改" class="headerlink" title="长连接修改"></a>长连接修改</h3><p>将基于HttpURLConnection类的HTTPClient修改为HttpClient4.3.2： </p>
+<ul>
+<li>重写了HttpRequest类的getHttpConnection()方法和HttpResponse类的getResponse()方法，主要将HttpURLConnection类的操作接口替换为HttpClient4.3.2；</li>
+<li>增加ConnectionManager类，主要基于PoolingHttpClientConnectionManager类完成KeepAlive策略配置、连接池管理与socket超时配置，对于HTTPS服务端验证，目前缺省验证通过；</li>
+<li>为Client接口增加setConnConfig()方法，客户端可以基于该接口配置如下参数：<ul>
+<li>maxConnNumber：总的最大并发连接数；</li>
+<li>maxConnPerRoute：每个路由的并发连接数，如果不使用代理，该限制实际上就是单个主机的连接数限制，缺省为2；</li>
+<li>maxKeepAliveTimeout：设置KeepAlive超时时间，单位为秒；</li>
+</ul>
+</li>
+</ul>
+<h3 id="短连接修改"><a href="#短连接修改" class="headerlink" title="短连接修改"></a>短连接修改</h3><h4 id="1-连接重用策略"><a href="#1-连接重用策略" class="headerlink" title="1. 连接重用策略"></a>1. 连接重用策略</h4><p>在httpClient中可以自定义连接重用的策略，定义了一个接口类ConnectionReuseStrategy：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public interface ConnectionReuseStrategy &#123;</div><div class="line">    boolean keepAlive(HttpResponse var1, HttpContext var2);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>其缺省的实现类为org.apache.http.impl.DefaultConnectionReuseStrategy:   </p>
 <p><img src="/assets/images/javaclient/default_reuse_impl.png" alt="DefaultConnectionReuseStrategy"></p>
 <center>Figure 1: DefaultConnectionReuseStrategy </center>   
 
-
 <p>其中该类似实现了接口类的对外方法keepAlive。当然我们可以自定义一个连接重用策略：</p>
-<h3 id="3-2-调用连接重用"><a href="#3-2-调用连接重用" class="headerlink" title="3.2 调用连接重用"></a>3.2 调用连接重用</h3><p>调用者为org.apache.http.impl.execchain.MainClientExec：</p>
+<h4 id="2-调用连接重用"><a href="#2-调用连接重用" class="headerlink" title="2. 调用连接重用"></a>2. 调用连接重用</h4><p>调用者为org.apache.http.impl.execchain.MainClientExec：</p>
 <p><img src="/assets/images/javaclient/call_reuse_conn.png" alt="call_reuse_conn"></p>
 <center>Figure 2: 连接重用调用过程 </center>   
 
@@ -199,19 +779,17 @@
 <p><img src="/assets/images/javaclient/call_release_conn.png" alt="call_release_conn"></p>
 <center>Figure 3: 连接释放条件 </center> 
 
-
 <p>其中内部实现如下：</p>
 <p><img src="/assets/images/javaclient/release_conn_impl.png" alt="release_conn_impl"></p>
 <center>Figure 4: 连接释放实现 </center> 
 
 
-<h2 id="3-SSL-Cipher-Suite配置"><a href="#3-SSL-Cipher-Suite配置" class="headerlink" title="3. SSL Cipher Suite配置"></a>3. SSL Cipher Suite配置</h2><p><img src="/assets/images/javaclient/SSLConnectionSocketFactory.png" alt="SSLConnectionSocketFactory">    </p>
+<h3 id="SSL-Cipher-Suite配置"><a href="#SSL-Cipher-Suite配置" class="headerlink" title="SSL Cipher Suite配置"></a>SSL Cipher Suite配置</h3><p><img src="/assets/images/javaclient/SSLConnectionSocketFactory.png" alt="SSLConnectionSocketFactory">    </p>
 <center>Figure 5: SSLConnectionSocketFactory结构 </center>
 
 <p>SSLConnectionSocketFactory类可以基于SSLSocketFactory、支持的协议、支持的密码套件进行构造：</p>
 <p><img src="/assets/images/javaclient/SSLConnectionSocketFactory_code.png" alt="SSLConnectionSocketFactory Flow"></p>
 <center>Figure 6: SSLConnectionSocketFactory流程 </center>
-
 
 <p>其中supportCipherSuites作为自定义密码套件在握手过程中检查。</p>
 
@@ -257,6 +835,270 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2016/07/30/JAVA-HTTPClient-Config/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-distribute-cache" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/01/02/distribute-cache/">云服务中的cache</a>
+    </h1>
+  
+
+        
+        <a href="/2016/01/02/distribute-cache/" class="archive-article-date">
+  	<time datetime="2016-01-01T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-01-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文由<a href="http://skypacer210.github.io/">skypacer</a>译自<a href="http://www.adampetersen.se/Patterns%20in%20C%205,%20REACTOR.pdf" target="_blank" rel="external">Patterns in C REACTOR</a>，原文作者<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>。</p>
+<h2 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h2><hr>
+<p>本篇英文原文所发布的站点<a href="http://www.adampetersen.se/" target="_blank" rel="external">Adam Petersen</a>是一个个人网站，本文翻译了其中reactor C实现章节, 水平有限，欢迎指正。</p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><hr>
+<p>1、<a href="#mutil_client">多客户端示例</a><br>2、<a href="#single_res">单一责任原则</a><br>3、<a href="#open_closed">违反Open-Closed原则</a><br>4、<a href="#performance">从性能谈起</a><br>5、<a href="#issue_sum">问题总结</a><br>6、<a href="#reactor_pattern">REACTOR模式</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.1、<a href="#6.1">事件探测</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.2、<a href="#6.2">实现机制</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.3、<a href="#6.3">Reactor注册策略</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.4、<a href="#6.4">Reactor实现</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.5、<a href="#6.5">触发Reactor</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.6、<a href="#6.6">处理注册</a><br>&nbsp;&nbsp;&nbsp;&nbsp;6.7、<a href="#6.7">事件多样性</a><br>7、<a href="#vs">REACTOR vs OBSERVER</a><br>8、<a href="#cons">结论</a><br>9、<a href="#sum">总结</a>            </p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
+<p><a id="mutil_client" name="mutil_client"> </a>  </p>
+<p>本文将研究一种适用于<em>event-driven</em>应用的模式。Reactor Pattern将应用的不同职责解耦，允许应用由多个潜在的client端分离并分发事件。</p>
+<h3 id="1、如何评估一个系统"><a href="#1、如何评估一个系统" class="headerlink" title="1、如何评估一个系统"></a>1、如何评估一个系统</h3><p>我们可以以单位时间内的操作次数定义性能，比如每秒请求数，每秒交易数；</p>
+<p>可扩展性： 指通过增加计算资源以提高处理负载的能力，分为水平扩展和垂直扩展；</p>
+<p>对于垂直扩展，我们针对单一机器本身，比如用SSD替换HDD，换个更快的CPU等，往往效果有限；<br>而水平扩展则不然，我们通过增加更多服务器将性能提升至几十倍上千倍，但同时难度也更大，需要确保数据的一致性；</p>
+<p>对于WEB服务，如果我们只是单纯增加服务器数量，数据库势必很快将成为瓶颈，因此我们引入cache；</p>
+<p>注：这里的数据库一般指传统的关系型数据库，支持用于完成业务逻辑的SQL；</p>
+<h3 id="2、Cache"><a href="#2、Cache" class="headerlink" title="2、Cache"></a>2、Cache</h3><p>Cache的几个概念：</p>
+<ul>
+<li>cache Size：定义了Cache可保存元素数量；</li>
+<li>命中率：返回正确结构数/请求缓存次数，越高表明缓存使用率越高；</li>
+<li>cache eviction算法：即清空策略，其定义了当元素超过cache本身容量时的处理方法，比如LRU算法，将最近最少用的元素清除；</li>
+<li>time-to-live: 定义了cache元素何时被清除；</li>
+</ul>
+<p>“多久更新，如何更新”</p>
+<p><a href="http://gaofulai1988.iteye.com/blog/2255997" target="_blank" rel="external">cache</a></p>
+<h4 id="2-1、Cache的分类"><a href="#2-1、Cache的分类" class="headerlink" title="2.1、Cache的分类"></a>2.1、Cache的分类</h4><p>从调用者与cache的交互方式上，我们可以分为三大类：</p>
+<ul>
+<li>应用层cache：首先从cache取，命中则返回；如果未能命中，则直接去取数据源本身；</li>
+<li>L2 Cache,所谓的中间层cache, 调用者和ache之间隔了一层proxy, 调用者意识不到cache的存在; 当cache未能命中时，由proxy访问数据源获取数据加入cache;</li>
+</ul>
+<p>作为用户访问云服务的重要手段，SDK往往充当了proxy的角色，其内部加入L2 cache，可有效降低对服务本身的访问压力；</p>
+<ul>
+<li>混合Cache: 如果proxy和L2 Cache界限不明显，很多时候合二为一，即为混合cache</li>
+</ul>
+<p>从架构上划分，cache可分为本地与分布式；</p>
+<ul>
+<li>Local Cache：</li>
+</ul>
+<ul>
+<li>所有元素存在本地内存，对于JAVA而言其上限即为JVM的heap大小；</li>
+<li>同一进程内部，响应迅速</li>
+</ul>
+<p>当然其缺点也很明显，首先本次缓存与程序紧耦合，多个应用程序无法共享缓存，各应用和集群节点都必须维护自己的单独缓存，也是一种浪费；另外，为了保证多个进程间的数据一致性，程序相对不易维护；</p>
+<ul>
+<li>常见实现：ConcurrentHashMap，ehcache， Spring Cache</li>
+</ul>
+<p>其中Ehcache的缓存数据有两级：内存和磁盘，与一般的本地内存缓存相比，有了磁盘的存储空间，将可以支持更大量的数据缓存需求；</p>
+<p><strong>直接实现</strong></p>
+<p>a. 成员变量或局部变量实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"> public void UseLocalCache()&#123;</div><div class="line">     //一个本地的缓存变量</div><div class="line">     Map&lt;String, Object&gt; localCacheStoreMap = new HashMap&lt;String, Object&gt;();</div><div class="line"></div><div class="line">    List&lt;Object&gt; infosList = this.getInfoList();</div><div class="line">    for(Object item:infosList)&#123;</div><div class="line">        if(localCacheStoreMap.containsKey(item))&#123; //缓存命中 使用缓存数据</div><div class="line">            // todo</div><div class="line">        &#125; else &#123; // 缓存未命中  IO获取数据，结果存入缓存</div><div class="line">            Object valueObject = this.getInfoFromDB();</div><div class="line">            localCacheStoreMap.put(valueObject.toString(), valueObject);</div><div class="line"></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">//示例</div><div class="line">private List&lt;Object&gt; getInfoList()&#123;</div><div class="line">    return new ArrayList&lt;Object&gt;();</div><div class="line">&#125;</div><div class="line">//示例数据库IO获取</div><div class="line">private Object getInfoFromDB()&#123;</div><div class="line">    return new Object();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以局部变量map结构缓存部分业务数据，减少频繁的重复数据库I/O操作。缺点仅限于类的自身作用域内，类间无法共享缓存。</p>
+<p>b. 静态变量实现</p>
+<p>最常用的单例实现静态资源缓存，代码示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">public class CityUtils &#123;</div><div class="line">      private static final HttpClient httpClient = ServerHolder.createClientWithPool(); </div><div class="line">      private static Map&lt;Integer, String&gt; cityIdNameMap = new HashMap&lt;Integer, String&gt;();</div><div class="line">      private static Map&lt;Integer, String&gt; districtIdNameMap = new HashMap&lt;Integer, String&gt;();</div><div class="line"></div><div class="line">  static &#123;</div><div class="line">    HttpGet get = new HttpGet(&quot;http://gis-in.sankuai.com/api/location/city/all&quot;);</div><div class="line">    BaseAuthorizationUtils.generateAuthAndDateHeader(get,</div><div class="line">            BaseAuthorizationUtils.CLIENT_TO_REQUEST_MDC,</div><div class="line">            BaseAuthorizationUtils.SECRET_TO_REQUEST_MDC);</div><div class="line">    try &#123;</div><div class="line">        String resultStr = httpClient.execute(get, new BasicResponseHandler());</div><div class="line">        JSONObject resultJo = new JSONObject(resultStr);</div><div class="line">        JSONArray dataJa = resultJo.getJSONArray(&quot;data&quot;);</div><div class="line">        for (int i = 0; i &lt; dataJa.length(); i++) &#123;</div><div class="line">            JSONObject itemJo = dataJa.getJSONObject(i);</div><div class="line">            cityIdNameMap.put(itemJo.getInt(&quot;id&quot;), itemJo.getString(&quot;name&quot;));</div><div class="line">        &#125;</div><div class="line">    &#125; catch (Exception e) &#123;</div><div class="line">        throw new RuntimeException(&quot;Init City List Error!&quot;, e);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">    static &#123;</div><div class="line">    HttpGet get = new HttpGet(&quot;http://gis-in.sankuai.com/api/location/district/all&quot;);</div><div class="line">    BaseAuthorizationUtils.generateAuthAndDateHeader(get,</div><div class="line">            BaseAuthorizationUtils.CLIENT_TO_REQUEST_MDC,</div><div class="line">            BaseAuthorizationUtils.SECRET_TO_REQUEST_MDC);</div><div class="line">    try &#123;</div><div class="line">        String resultStr = httpClient.execute(get, new BasicResponseHandler());</div><div class="line">        JSONObject resultJo = new JSONObject(resultStr);</div><div class="line">        JSONArray dataJa = resultJo.getJSONArray(&quot;data&quot;);</div><div class="line">        for (int i = 0; i &lt; dataJa.length(); i++) &#123;</div><div class="line">            JSONObject itemJo = dataJa.getJSONObject(i);</div><div class="line">            districtIdNameMap.put(itemJo.getInt(&quot;id&quot;), itemJo.getString(&quot;name&quot;));</div><div class="line">        &#125;</div><div class="line">    &#125; catch (Exception e) &#123;</div><div class="line">        throw new RuntimeException(&quot;Init District List Error!&quot;, e);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">    public static String getCityName(int cityId) &#123;</div><div class="line">      String name = cityIdNameMap.get(cityId);</div><div class="line">      if (name == null) &#123;</div><div class="line">        name = &quot;未知&quot;;</div><div class="line">      &#125;</div><div class="line">       return name;</div><div class="line">     &#125;</div><div class="line"></div><div class="line">    public static String getDistrictName(int districtId) &#123;</div><div class="line">      String name = districtIdNameMap.get(districtId);</div><div class="line">       if (name == null) &#123;</div><div class="line">         name = &quot;未知&quot;;</div><div class="line">        &#125;</div><div class="line">       return name;</div><div class="line">     &#125;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>O2O业务中常用的城市基础基本信息判断，通过静态变量一次获取缓存内存中，减少频繁的I/O读取，静态变量实现类间可共享，进程内可共享，缓存的实时性稍差。为了解决本地缓存数据的实时性问题，目前大量使用的是结合ZooKeeper的自动发现机制，实时变更本地静态变量缓存：</p>
+<p>TODO:实际项目：相对静态数据，比如元数据可以基于本次cache加速，</p>
+<p>美团点评内部的基础配置组件MtConfig，采用的就是类似原理，使用静态变量缓存，结合ZooKeeper的统一管理，做到自动动态更新缓存，如图2所示。<br><a href="https://tech.meituan.com/cache_about.html" target="_blank" rel="external">美团</a></p>
+<p>TODO1：根据期望到货时间排序通知，需要考虑加入本地cache, <a href="https://redislabs.com/ebook/part-2-core-concepts/chapter-8-building-a-simple-social-network/8-1-users-and-statuses/8-1-2-status-messages/" target="_blank" rel="external">EBOOK – REDIS IN ACTION
+</a></p>
+<p>TODO2: Pub/Sub：在更新中保持用户对数据的映射是系统中的一个普遍任务。Redis的pub/sub功能使用了SUBSCRIBE、UNSUBSCRIBE和PUBLISH命令，让这个变得更加容易。到货通知</p>
+<p><a href="https://cruftex.net/2016/03/16/Java-Caching-Benchmarks-2016-Part-1.html" target="_blank" rel="external">Java Cache Benchmark</a><br><a href="http://www.jianshu.com/p/49fc4065201a" target="_blank" rel="external">sping cache</a></p>
+<ul>
+<li>分布式cache特点：</li>
+</ul>
+<ul>
+<li>cache元素分布在集群的不同的服务器中；</li>
+<li>Cache size为每个cache分片之和，可以远远大于单台JVM可保存的cache数量；</li>
+<li>cache可水平扩展</li>
+</ul>
+<p>目前的实现memcached、redis和tair;</p>
+<p><a href="http://blog.sina.com.cn/s/blog_6145ed810102vefe.html" target="_blank" rel="external">分布式cache性能对比</a><br><a href="https://github.com/JamzyWang/awesome-redis" target="_blank" rel="external">redis</a><br><a href="https://www.ibm.com/developerworks/library/j-ts1/index.html" target="_blank" rel="external">Understanding transaction pitfalls</a><br><a href="https://gitee.com/shentong_012/YayCrawler/tree/master" target="_blank" rel="external">网络爬虫</a><br><a href="https://nickcraver.com/blog/2016/02/17/stack-overflow-the-architecture-2016-edition/" target="_blank" rel="external">stakcoveflow架构</a></p>
+<h4 id="2-2、供应链的Cache"><a href="#2-2、供应链的Cache" class="headerlink" title="2.2、供应链的Cache"></a>2.2、供应链的Cache</h4><p><strong>Global Cache</strong>      </p>
+<p><img src="/assets/images/global_cache_2.png" alt="图片">  </p>
+<center>Figure 1: eternal loop to scan for different events</center>
+
+<p>网络拓扑同步用到了global cache，流程：</p>
+<ul>
+<li>sync服务</li>
+</ul>
+<p><a id="mutil_client" name="mutil_client"> </a>    </p>
+<h3 id="2、SDL流程"><a href="#2、SDL流程" class="headerlink" title="2、SDL流程"></a>2、SDL流程</h3><p><a id="single_res" name="single_res"> </a></p>
+<p>Secure Software and Secure Development Tools</p>
+<p><img src="/assets/images/sdl_flow.png" alt="SDL"></p>
+<ul>
+<li>安全本身就是设计需求：尽可能早的考虑安全和合规；</li>
+<li>攻击面分析：基于最小权限和分层防护；</li>
+<li>利用威胁模型：面对威胁场景，利用结构化的方法帮助团队更有效的识别安全薄弱环节、以及应对策略，建立合适的迁移方案；</li>
+</ul>
+<p>手段：</p>
+<p><a href="http://findbugs.sourceforge.net/" target="_blank" rel="external">findbugs</a><br><a href="https://www.klocwork.com/" target="_blank" rel="external">kclowork</a></p>
+<ul>
+<li>静态扫描工具： C版本的Klocwork，静态代码分析，内存泄露等，开源审计；JAVA的findbugs</li>
+</ul>
+<p>其中JAVA的静态扫描示例：</p>
+<p><img src="/assets/images/findbug_java.png" alt="findbug"></p>
+<h3 id="3、Redis"><a href="#3、Redis" class="headerlink" title="3、Redis"></a>3、Redis</h3><p><a id="open_closed" name="open_closed"> </a>  </p>
+<p>Redis基于TCL编写测试框架；</p>
+<h3 id="4、mybatis支持缓存"><a href="#4、mybatis支持缓存" class="headerlink" title="4、mybatis支持缓存"></a>4、mybatis支持缓存</h3><p><a id="performance" name="performance"> </a>  </p>
+<p><a href="https://www.zhihu.com/question/22696632/answer/136316871" target="_blank" rel="external">碎片化阅读</a>  </p>
+<p><a href="https://my.oschina.net/KingPan/blog/277424" target="_blank" rel="external">mybatis错误</a></p>
+<ul>
+<li>二八原则为知识体系构建；</li>
+<li>看书做笔记，零碎记录，再加工为文章；</li>
+<li>讲给别人听，熟练到改变了大脑，你才不会遗忘。</li>
+</ul>
+<h3 id="5、数据库缓存支持"><a href="#5、数据库缓存支持" class="headerlink" title="5、数据库缓存支持"></a>5、数据库缓存支持</h3><p><a id="issue_sum" name="issue_sum"> </a>  </p>
+<h4 id="5-1-spring支持缓存"><a href="#5-1-spring支持缓存" class="headerlink" title="5.1 spring支持缓存"></a>5.1 spring支持缓存</h4><p><a href="http://blog.didispace.com/springbootcache1/" target="_blank" rel="external">Spring Boot中的缓存支持（一）注解配置与EhCache使用</a></p>
+<h4 id="5-2-mybatis支持缓存"><a href="#5-2-mybatis支持缓存" class="headerlink" title="5.2 mybatis支持缓存"></a>5.2 mybatis支持缓存</h4><ol>
+<li>前提</li>
+</ol>
+<p>多数 ide 会提示声明一个静态常量 serialVersionUID(版本标识), 类已经序列化，serialVersionUID是JAVA的序列化过程中用于标识和识别序列化类的；</p>
+<p>Serializable 则是应用于Java 对象序列化/反序列化, 作用：</p>
+<ul>
+<li>用于网络传输；</li>
+<li>用于本地磁盘保存；</li>
+</ul>
+<p><a href="https://github.com/giantray/stackoverflow-java-top-qa/blob/master/contents/what-is-a-serialversionuid-and-why-should-i-use-it.md" target="_blank" rel="external">序列化</a></p>
+<ol>
+<li>MyBatis配置：二级缓存</li>
+</ol>
+<ul>
+<li>全局配置变量参数   cacheEnabled=true</li>
+<li>该select语句所在的Mapper，配置了<cache> 或<cached-ref>节点，并且有效</cached-ref></cache></li>
+<li>该select语句的参数 useCache=true</li>
+</ul>
+<ol>
+<li>MyBatis配置：第三方缓存</li>
+</ol>
+<ul>
+<li>Ehcache</li>
+</ul>
+<p>框架实现：</p>
+<p><img src="/assets/images/distribute_cache/mybatis_cache_whole.jpg" alt="mybatis_cache_whole"></p>
+<p><a href="http://blog.csdn.net/luanlouis/article/details/41408341" target="_blank" rel="external">framwork</a></p>
+<p>调用过程分析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div></pre></td><td class="code"><pre><div class="line">&quot;pool-7-thread-29@12768&quot; prio=5 tid=0x88 nid=NA runnable</div><div class="line">  java.lang.Thread.State: RUNNABLE</div><div class="line">	  at java.net.SocketInputStream.socketRead0(SocketInputStream.java:-1)</div><div class="line">	  at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)</div><div class="line">	  at java.net.SocketInputStream.read(SocketInputStream.java:170)</div><div class="line">	  at java.net.SocketInputStream.read(SocketInputStream.java:141)</div><div class="line">	  at com.mysql.jdbc.util.ReadAheadInputStream.fill(ReadAheadInputStream.java:112)</div><div class="line">	  at com.mysql.jdbc.util.ReadAheadInputStream.readFromUnderlyingStreamIfNecessary(ReadAheadInputStream.java:159)</div><div class="line">	  at com.mysql.jdbc.util.ReadAheadInputStream.read(ReadAheadInputStream.java:187)</div><div class="line">	  - locked &lt;0x4125&gt; (a com.mysql.jdbc.util.ReadAheadInputStream)</div><div class="line">	  at com.mysql.jdbc.MysqlIO.readFully(MysqlIO.java:3158)</div><div class="line">	  at com.mysql.jdbc.MysqlIO.reuseAndReadPacket(MysqlIO.java:3615)</div><div class="line">	  at com.mysql.jdbc.MysqlIO.reuseAndReadPacket(MysqlIO.java:3604)</div><div class="line">	  at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:4155)</div><div class="line">	  at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2615)</div><div class="line">	  at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2776)</div><div class="line">	  at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2838)</div><div class="line">	  - locked &lt;0x4126&gt; (a com.mysql.jdbc.JDBC4Connection)</div><div class="line">	  at com.mysql.jdbc.PreparedStatement.executeInternal(PreparedStatement.java:2082)</div><div class="line">	  at com.mysql.jdbc.PreparedStatement.execute(PreparedStatement.java:1307)</div><div class="line">	  at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:2931)</div><div class="line">	  at com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_execute(FilterEventAdapter.java:440)</div><div class="line">	  at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:2929)</div><div class="line">	  at com.alibaba.druid.wall.WallFilter.preparedStatement_execute(WallFilter.java:600)</div><div class="line">	  at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:2929)</div><div class="line">	  at com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_execute(FilterEventAdapter.java:440)</div><div class="line">	  at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:2929)</div><div class="line">	  at com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.execute(PreparedStatementProxyImpl.java:131)</div><div class="line">	  at com.alibaba.druid.pool.DruidPooledPreparedStatement.execute(DruidPooledPreparedStatement.java:493)</div><div class="line">	  at sun.reflect.GeneratedMethodAccessor81.invoke(Unknown Source:-1)</div><div class="line">	  at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</div><div class="line">	  at java.lang.reflect.Method.invoke(Method.java:497)</div><div class="line">	  at org.apache.ibatis.logging.jdbc.PreparedStatementLogger.invoke(PreparedStatementLogger.java:59)</div><div class="line">	  at com.sun.proxy.$Proxy189.execute(Unknown Source:-1)</div><div class="line">	  at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:63)</div><div class="line">	  at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:79)</div><div class="line">	  at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:63)</div><div class="line">	  at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:324)</div><div class="line">	  at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:156)</div><div class="line">	  at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:109)</div><div class="line">	  at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:83)</div><div class="line">	  at sun.reflect.GeneratedMethodAccessor79.invoke(Unknown Source:-1)</div><div class="line">	  at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</div><div class="line">	  at java.lang.reflect.Method.invoke(Method.java:497)</div><div class="line">	  at org.apache.ibatis.plugin.Invocation.proceed(Invocation.java:49)</div><div class="line">	  at com.github.pagehelper.SqlUtil._processPage(SqlUtil.java:401)</div><div class="line">	  at com.github.pagehelper.SqlUtil.processPage(SqlUtil.java:374)</div><div class="line">	  at com.github.pagehelper.PageHelper.intercept(PageHelper.java:255)</div><div class="line">	  at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:61)</div><div class="line">	  at com.sun.proxy.$Proxy187.query(Unknown Source:-1)</div><div class="line">	  at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:148)</div><div class="line">	  at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:141)</div><div class="line">	  at sun.reflect.GeneratedMethodAccessor300.invoke(Unknown Source:-1)</div><div class="line">	  at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</div><div class="line">	  at java.lang.reflect.Method.invoke(Method.java:497)</div><div class="line">	  at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:434)</div><div class="line">	  at com.sun.proxy.$Proxy101.selectList(Unknown Source:-1)</div><div class="line">	  at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:231)</div><div class="line">	  at org.apache.ibatis.binding.MapperMethod.executeForMany(MapperMethod.java:137)</div><div class="line">	  at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:75)</div><div class="line">	  at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:53)</div><div class="line">	  at com.sun.proxy.$Proxy164.queryPlanClusterCodeByCondition(Unknown Source:-1)</div><div class="line">	  at com.aliyun.supplychain.services.impl.SyncDataUtil.queryPlanClusterCode(SyncDataUtil.java:759)</div><div class="line">	  at com.aliyun.supplychain.services.impl.SyncDataUtil$$FastClassBySpringCGLIB$$1788316e.invoke(&lt;generated&gt;:-1)</div><div class="line">	  at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:204)</div><div class="line">	  at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:720)</div><div class="line">	  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:157)</div><div class="line">	  at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:85)</div><div class="line">	  at com.aliyun.supplychain.filter.LogRecordAspect.methodAround(LogRecordAspect.java:124)</div><div class="line">	  at sun.reflect.GeneratedMethodAccessor77.invoke(Unknown Source:-1)</div><div class="line">	  at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</div><div class="line">	  at java.lang.reflect.Method.invoke(Method.java:497)</div><div class="line">	  at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:621)</div><div class="line">	  at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:610)</div><div class="line">	  at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:68)</div><div class="line">	  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)</div><div class="line">	  at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:92)</div><div class="line">	  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)</div><div class="line">	  at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:655)</div><div class="line">	  at com.aliyun.supplychain.services.impl.SyncDataUtil$$EnhancerBySpringCGLIB$$b746d32b.queryPlanClusterCode(&lt;generated&gt;:-1)</div><div class="line">	  at com.aliyun.supplychain.synchroizerV3.RDSSynchroizer.buildResourceInventoryList(RDSSynchroizer.java:130)</div><div class="line">	  at</div></pre></td></tr></table></figure>
+<p><img src="/assets/images/distribute_cache/mybatis_cache_1.png" alt="distribute_cache"></p>
+<p>其中cache执行器CacheingExecutor, 如果配置了使用cache的标志(在mapper.xml中)，直接从cache中获取;</p>
+<h4 id="5-3-Spring-Boot-整合-Redis-实现缓存操作"><a href="#5-3-Spring-Boot-整合-Redis-实现缓存操作" class="headerlink" title="5.3 Spring Boot 整合 Redis 实现缓存操作"></a>5.3 Spring Boot 整合 Redis 实现缓存操作</h4><p><a href="http://www.bysocket.com/?p=1756" target="_blank" rel="external">redis</a></p>
+<h3 id="6、消息队列"><a href="#6、消息队列" class="headerlink" title="6、消息队列"></a>6、消息队列</h3><p><a id="reactor_pattern" name="reactor_pattern"> </a>  </p>
+<p>用途：解耦调用方和被调用方</p>
+<p>TODO：</p>
+<ul>
+<li>定时任务修改为通知，你完了通知为，我继续</li>
+<li>从</li>
+</ul>
+<p><img src="/assets/images/reactor_figure_2.png" alt="图片"></p>
+<center>Figure 2: Structure of the REACTOR pattern</center>   
+
+
+<h4 id="6-1、事件探测"><a href="#6-1、事件探测" class="headerlink" title="6.1、事件探测"></a>6.1、事件探测</h4><p><a id="6.1" name="6.1"> </a>  </p>
+<p>在一些文献中关于 <strong>reactor</strong> 的描述中，定义了一个工具，即 <strong>synchronous Event Demultiplexer </strong>， 该分离器由 <strong>reactor</strong> 调用等待已经注册的 <strong>Handles</strong> 的事件。 </p>
+<p>该事件分离器一般由操作系统提供，比如 <em>poll()</em> ，<em>select()</em> 和 <em>WaitForMutipleObjects()</em> 。</p>
+<h4 id="6-2、实现机制"><a href="#6-2、实现机制" class="headerlink" title="6.2、实现机制"></a>6.2、实现机制</h4><p><a id="6.2" name="6.2"> </a>    </p>
+<p><strong>EventHandler</strong> 和 <strong>Reactor</strong> 之间的合作关系类似OBSERVER模式中的observer和它的对象。    </p>
+<p>为了将Reactor和它的事件处理器解耦，同时Reactor仍能够通知到他们，每个具体的事件处理器必须关联一个唯一的instance。这里的C实现中，采用void <em>作为通用类型以描述 <em>*EventHandler</em></em> 接口。  </p>
+<ul>
+<li>事件处理接口：EventHandler.h  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">14 #ifndef EVENT_HANDLER_H</div><div class="line">15 #define EVENT_HANDLER_H</div><div class="line">16 </div><div class="line">17 #include &quot;Handle.h&quot;</div><div class="line">18 </div><div class="line">19 /* All interaction from Reactor to an event handler goes </div><div class="line">20 through function pointers with the following signatures: */</div><div class="line">21 typedef Handle (*getHandleFunc)(void *instance);</div><div class="line">22 typedef void (*handleEventFunc)(void *instance);</div><div class="line">23 </div><div class="line">24 typedef struct &#123;</div><div class="line">25 .       void *instance;</div><div class="line">26 .       getHandleFunc getHandle;</div><div class="line">27 .       handleEventFunc handleEvent;</div><div class="line">28 &#125; EventHandler;</div><div class="line">29 </div><div class="line">30 #endif</div></pre></td></tr></table></figure>
+<h3 id="8、MVC测试与cookie"><a href="#8、MVC测试与cookie" class="headerlink" title="8、MVC测试与cookie"></a>8、MVC测试与cookie</h3><p><a id="cons" name="cons"> </a>  </p>
+<p><a href="https://stackoverflow.com/questions/36600817/spring-mvc-testing-security-integration-test-jsessionid-is-not-present" target="_blank" rel="external">Cookie</a><br><a href="https://stackoverflow.com/questions/26142631/why-does-spring-mockmvc-result-not-contain-a-cookie/26281932#26281932" target="_blank" rel="external">cookie2</a></p>
+<p>应用REACTOR模式的主要结论如下：  </p>
+<ul>
+<li>遵循single-responsibility原则的好处：采用REACTOR模式，每种责任被封装并相互之间解耦，导致高内聚，因此简化了后续维护。比如在事件探测中平台相关的代码可以从应用中解耦，极大的方便了单元测试。  </li>
+<li>遵循open-closed原则的好处：新的责任只需创建新的事件处理器，无需影响现有代码。  </li>
+<li>统一了事件处理：尽管REACTOR模式集中于句柄，但其可以扩展至其他任务。Reactor加入timer支持（平台相关，比如基于信号或者线程），当同步事件分离器触发后可以设定一个超时，以避免重入问题和竞争条件。  </li>
+<li>提供了一种并行读的方案：采用REACTOR方案可以有效避免并行读事件处理中的阻塞现象，其本质是一个非抢占式的多任务模型，每个具体的事件处理器必须确保其不能执行可能导致其余事件处理器饥饿的操作。  </li>
+<li>类型安全的折中：由于所有的事件处理器抽象为void *，当由void指针转化为具体的事件处理指针时，编译器并没有相应的机制处理转化错误。同样的问题在OBSERVER模式中也存在，解决方法都是一致的：为不同类型的事件处理器定义单独的通知函数，利用EventHandler绑定事件处理器和其他函数。  </li>
+</ul>
+<h3 id="8、前台后台分离"><a href="#8、前台后台分离" class="headerlink" title="8、前台后台分离"></a>8、前台后台分离</h3><p>对于类似订单中心的多Key类业务，在数据量较大，需要对数据库进行水平切分时，对于后台需求，采用“前台后台分离”的架构设计方法：</p>
+<ul>
+<li>前台、后台系统web/serveive/db分离解耦，避免后台低效查询引发前台查询抖动；</li>
+<li>采用前台与后台数据冗余的设计，分别满足两侧需求，比如在tboss_data中增加了产品等；</li>
+<li>采用外置索引(例如ES搜索系统)或者大数据处理(例如HIVE)来满足后台变态的查询需求；</li>
+</ul>
+<h3 id="9-ereka-loadbanlacner"><a href="#9-ereka-loadbanlacner" class="headerlink" title="9. ereka loadbanlacner"></a>9. ereka loadbanlacner</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">2017-09-01 23:25:38.281  INFO 32439 --- [nio-8001-exec-7] c.n.l.DynamicServerListLoadBalancer      : DynamicServerListLoadBalancer for client supplychain-purchase initialized: DynamicServerListLoadBalancer:&#123;NFLoadBalancer:name=supplychain-purchase,current list of Servers=[10.125.31.73:7001, 10.125.30.240:7001],Load balancer stats=Zone stats: &#123;defaultzone=[Zone:defaultzone;	Instance count:2;	Active connections count: 0;	Circuit breaker tripped count: 0;	Active connections per server: 0.0;]</div><div class="line">&#125;,Server stats: [[Server:10.125.31.73:7001;	Zone:defaultZone;	Total Requests:0;	Successive connection failure:0;	Total blackout seconds:0;	Last connection made:Thu Jan 01 08:00:00 CST 1970;	First connection made: Thu Jan 01 08:00:00 CST 1970;	Active Connections:0;	total failure count in last (1000) msecs:0;	average resp time:0.0;	90 percentile resp time:0.0;	95 percentile resp time:0.0;	min resp time:0.0;	max resp time:0.0;	stddev resp time:0.0]</div><div class="line">, [Server:10.125.30.240:7001;	Zone:defaultZone;	Total Requests:0;	Successive connection failure:0;	Total blackout seconds:0;	Last connection made:Thu Jan 01 08:00:00 CST 1970;	First connection made: Thu Jan 01 08:00:00 CST 1970;	Active Connections:0;	total failure count in last (1000) msecs:0;	average resp time:0.0;	90 percentile resp time:0.0;	95 percentile resp time:0.0;	min resp time:0.0;	max resp time:0.0;	stddev resp time:0.0]</div><div class="line">]&#125;ServerList:org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList@d60df1</div></pre></td></tr></table></figure>
+<h3 id="9、总结"><a href="#9、总结" class="headerlink" title="9、总结"></a>9、总结</h3><p><a id="sum" name="sum"> </a>  </p>
+<p>Reactor模式通过对不同责任的解耦和不同模块的封装简化了事件驱动型应用的设计。关于该模式更多的讨论可以参考面向对象的软件模式卷2。      </p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">design pattern</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">reactor</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2016/01/02/distribute-cache/">展开全文 >></a>
         </p>
       
 
@@ -1022,531 +1864,6 @@
 
 
   
-    <article id="post-client-certificate-vs-server-certificate" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/04/08/client-certificate-vs-server-certificate/">客户端证书与服务端证书</a>
-    </h1>
-  
-
-        
-        <a href="/2015/04/08/client-certificate-vs-server-certificate/" class="archive-article-date">
-  	<time datetime="2015-04-07T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-04-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Server-Certificate"><a href="#Server-Certificate" class="headerlink" title="Server Certificate"></a>Server Certificate</h2><p>服务器端证书用于标识一个Server，典型地被签发给主机名，比如机器名或者host-header(www.baidu.com)。对Server证书而言，”Issued to”域意味着选择哪个签发的hostname。  </p>
-<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/server_certificate.png" alt="图片">    </div></p>
-<ol>
-<li>目的：加密和解密内容</li>
-<li>真实世界里只有ROOT CA有自签名证书</li>
-<li>存储：对于window IIS，Server certificates are stored in the Personal store of the “Local Computer” account</li>
-<li>证书可以存储在用户账户对应的个人存储目录下，也是IIS缺省的搜索路径</li>
-</ol>
-<h2 id="Client-Certificate"><a href="#Client-Certificate" class="headerlink" title="Client Certificate"></a>Client Certificate</h2><p>服务器端证书用于标识一个Client或者user，意味着向Server验证Client，”Issued to”域采用用户的名字。  </p>
-<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/client_certificate.png" alt="图片">      </div></p>
-<ol>
-<li>目的：仅用于标识身份</li>
-<li>真实世界里只有ROOT CA有自签名证书</li>
-<li>Client certificate and private key的角色：</li>
-</ol>
-<ul>
-<li>Client证书的证书和私钥作用就是为了在Client authentication中提供Client的数字签名。</li>
-<li>crt后缀名文件仅仅包含证书，证书和私钥一般包含在.p12或者.pfx文件中(PKCS12格式)。</li>
-<li>私钥如果单独存放，一般为.pem后缀名。</li>
-<li>Server端需要client端的数字签名，然后发送至Server，Server利用client的证书（即公钥）解密，以确认client端的身份。其中Client端的数字签名生成过程如下：首先对SSL交互中的随机值进行HASH，然后用client的私钥进行加密。  </li>
-</ul>
-<h2 id="HTTPS下虚拟主机"><a href="#HTTPS下虚拟主机" class="headerlink" title="HTTPS下虚拟主机"></a>HTTPS下虚拟主机</h2><p>在HTTP下有虚拟主机这一概念，其目的是为了在服务端用单个IP支持多个主机名；对应到HTTPS，客户端验证服务器为不同主机配置多个证书，但是客户端需要检查服务器证书的common name,当客户端请求服务器证书的时候，服务器需要决定提供哪个证书，SNI应用而生，其原理如下图：  </p>
-<p><div style="text-align:center" markdown="1"><br><img src="/assets/images/SNI.jpg" alt="图片">  </div></p>
-<h2 id="中间人攻击与证书"><a href="#中间人攻击与证书" class="headerlink" title="中间人攻击与证书"></a>中间人攻击与证书</h2><p>SSL中间人攻击的形式主要有三种：SSL downgrading，SSL stripping和fake of SSL certs。<br>在SSL协议中，证书是用来进行身份验证的，这里有两个关键的检查点：  </p>
-<ul>
-<li>第一个是CA验证，对于客户端而言，验证服务器端证书依赖与本地的trust store，如果本地的trust  store被人篡改，那么避免中间人攻击则无从谈起，事实上这也正是PKI体系的弱点所在。  </li>
-<li>第二个是hostname检查，用来确保所连接的服务器就是其声称的，如果有人劫持了DNS服务器，即利用DNS cache poisoning攻击让你的地址栏看起来很正常，这个时候劫持者就可以让此项检查通过。  </li>
-</ul>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
-<li><a href="http://www.windowsecurity.com/articles-tutorials/authentication_and_encryption/Understanding-Man-in-the-Middle-Attacks-ARP-Part4.html" target="_blank" rel="external">Understanding Man-In-The-Middle Attacks - Part 4: SSL Hijacking</a></li>
-<li><a href="https://blog.cloudflare.com/introducing-strict-ssl-protecting-against-a-man-in-the-middle-attack-on-origin-traffic/" target="_blank" rel="external">Introducing Strict SSL</a></li>
-<li><a href="https://devcentral.f5.com/articles/ssl-profiles-part-7-server-name-indication" target="_blank" rel="external">SNI for TLS</a></li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Certificate</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2015/04/08/client-certificate-vs-server-certificate/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-tune-timer-implmentation" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/03/01/tune-timer-implmentation/">关于timer实现的优化</a>
-    </h1>
-  
-
-        
-        <a href="/2015/03/01/tune-timer-implmentation/" class="archive-article-date">
-  	<time datetime="2015-02-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-03-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-Timer"><a href="#1-Timer" class="headerlink" title="1. Timer"></a>1. Timer</h2><p>Timer是底层库实现中重要的一部分，其作用主要是实现超时处理，应用的场景有：  </p>
-<ul>
-<li>EAP状态机实现</li>
-<li>事件驱动型模型实现</li>
-<li>SSL握手超时处理</li>
-</ul>
-<p>为了支持实时处理，将Timer的内部实现由原来的单向链表变为红黑树。  </p>
-<h3 id="2-为什么是红黑树"><a href="#2-为什么是红黑树" class="headerlink" title="2. 为什么是红黑树"></a>2. 为什么是红黑树</h3><p>红黑树是一种平衡树，但却不是一种基于高度的平衡树，在STL map和Linux中都作为平衡树来应用，当搜索的要求高或者修改频繁时，其表现效果更是好于AVL树，因为后者是基于高度的，所以在每次修改后都要进行rebalance，开销很大。而红黑树的插入只要两次旋转，删除最多三次旋转，虽然搜索稳定性不及AVL，但是仍不失为一种折中的好办法。</p>
-<p>为保持红黑树的平衡，需要对树进行一些调整，好比为了保证一个黑客集团内部的黑帽子和红帽子的平衡，在成员之间的帽子问题上进行调整，假定只有两种帽子，黑帽子和红帽子，而且等级森严，按照辈分排：  </p>
-<ul>
-<li>根节点必须为黑色，就是说老大必须是黑帽子；</li>
-<li>每个成员非黑即红；</li>
-<li>每个红帽子下面有两个黑帽子；</li>
-<li>从任何一个成员自己数起到自小的下线，黑帽子个数都是一致的。</li>
-</ul>
-<p>当一个新的成员（帽子为暂定为红色）加入后，对家族成员帽子颜色的调整有下面几种情况：  </p>
-<ul>
-<li>CASE1：新加入成员的Uncle辈是个红帽子，调整波及Uncle、Parent和Granparent，全部调整帽子颜色；</li>
-<li>CASE2：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的右孩子或者是右孩子的左孩子，调整波及Uncle和Granparent，以Uncle为轴旋转，交换了Uncle和Granparent的位置。</li>
-<li>CASE3：新加入成员的Uncle是个黑帽子，而且该成员是Uncle父亲的左孩子的左孩子或者是右孩子的右孩子，调整波及很大，不仅涉及Uncle和Granparent的调整（以Uncle为轴旋转，交换了Uncle和Granparent的位置），还需将Uncle和Granparent的帽子颜色换掉。</li>
-</ul>
-<p>上述规则可用下图表示：  </p>
-<p><img src="/assets/images/rb_rule.png" alt="图片"></p>
-<p>依次插入6个节点123456，建立一颗红黑树如图所示：  </p>
-<p><img src="/assets/images/rb_insert.png" alt="图片"></p>
-<h2 id="3-参考资料"><a href="#3-参考资料" class="headerlink" title="3. 参考资料"></a>3. 参考资料</h2><ol>
-<li><a href="https://www.youtube.com/watch?v=PhY56LpCtP4" target="_blank" rel="external">RB Tree Howto</a>  </li>
-<li><a href="http://kakack.github.io/2014/04/%E9%9D%A2%E8%AF%95%E7%BC%96%E7%A8%8B%EF%BC%9A%E7%BA%A2%E9%BB%91%E6%A0%91/" target="_blank" rel="external">RB Tree Github</a>  </li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Timer</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Event Loop</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RedBlack Tree</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2015/03/01/tune-timer-implmentation/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-debug-tool-openssl" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/02/01/debug-tool-openssl/">调试工具杂记之OpenSSL篇</a>
-    </h1>
-  
-
-        
-        <a href="/2015/02/01/debug-tool-openssl/" class="archive-article-date">
-  	<time datetime="2015-01-31T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-02-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>OpenSSL，可以用来公私密钥对产生，证书查看（查看证书整体或者是单个信息），证书格式转化以及网络抓包，很多时候可以用于验证。</p>
-<h3 id="2-利用OpenSSL进行验证"><a href="#2-利用OpenSSL进行验证" class="headerlink" title="2. 利用OpenSSL进行验证"></a>2. 利用OpenSSL进行验证</h3><p><strong>利用OpenSSL验证证书</strong>  </p>
-<p>由于OpenSSL在验证证书时基于PEM格式，因此首先将非PEM格式转化为PEM格式。root证书由对方发送过来，但是server没有给，到是可以从网络抓包中export出来如图所示：  </p>
-<p><img src="/assets/images/tool/extract_cert.png" alt="图片">  </p>
-<ul>
-<li>转化root证书<br><code>openssl x509 -inform der -in FZROOTCA.cer -out FZROOTCA.pem</code></li>
-<li>查看证书<br><code>openssl x509 -in rsa_server.pem -noout –text</code>  </li>
-<li>转化sever证书<br><code>openssl x509 -inform der -in rsa_server.der -out rsa_server.pem</code>  </li>
-<li>利用root证书验证server证书：<br><code>openssl verify -verbose -CAfile FZROOTCA.pem  rsa_server.pem</code><br>结果显示：<br><code>rsa_server.pem: OK</code>，但貌似并不对签名进行验证，继续。</li>
-</ul>
-<p><strong>利用OpenSSL验证签名</strong>   </p>
-<p>为了验证签名，需要将public key从证书中单独抓出来：  </p>
-<p>  <code>openssl x509 -pubkey -noout -in rsa_server.pem &gt; server_pubkey.pem</code></p>
-<p>同时也需要将Signature从证书中抓出来：  </p>
-<p>  <code>openssl asn1parse -in rsa_server.pem -out sig -noout -strparse 614</code>  </p>
-<p>利用抓出来的signature和public key进行该证书的签名验证：  </p>
-<p>  <code>openssl rsautl -in sig -verify -asn1parse -inkey server_pubkey.pem –pubin</code>  </p>
-<p>结果显示：  </p>
-<p>  <code>RSA operation error</code><br>  <code>3177:error:0407006A:rsa routines:RSA_padding_check_PKCS1_type_1:block type is not 01:rsa_pk1.c:100:</code><br>  <code>3177:error:04067072:rsa routines:RSA_EAY_PUBLIC_DECRYPT:padding check failed:rsa_eay.c:699:</code>  </p>
-<p>对应代码如下：    </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"> 1 int RSA_padding_check_PKCS1_type_1(unsigned char *to, int tlen,</div><div class="line"> 2 .       .       const unsigned char *from, int flen, int num)</div><div class="line"> 3 &#123;</div><div class="line"> 4 .       int i,j;</div><div class="line"> 5 .       const unsigned char *p;</div><div class="line"> 6 </div><div class="line"> 7 .       p=from;</div><div class="line"> 8 .       if ((num != (flen+1)) || (*(p++) != 01))</div><div class="line"> 9 .       &#123; 10 .       .       RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1,RSA_R_BLOCK_TYPE_IS_NOT_01);</div><div class="line">11 .       .       return(-1);</div><div class="line">12 .       &#125;</div><div class="line">13 </div><div class="line">14 .       /* scan over padding data */</div><div class="line">15 .       j=flen-1; /* one for type. */</div><div class="line">16 .       for (i=0; i&lt;j; i++)</div><div class="line">17 .       &#123;</div></pre></td></tr></table></figure>
-<p>从上面的结果可以得知公钥未能正确对签名解密，严重怀疑server将私钥弄错了。实际上如果解密成功，则应该是下面这个样子：  </p>
-<p><img src="/assets/images/tool/sig_decrypt.png" alt="图片">  </p>
-<p>其实就是遵循PKCS#1标准对数据的封装，整个明文长度和签名长度一致，都是RSA modulus个比特，上图中签名长度为2048 Bits，即256字节。第一个字节<code>00</code>意思是确保该加密块在转化为一个整数的时候其长度小于RSA的modulus。第二个字节<code>01</code>代表了这是一个私钥操作，即签名过程。然后是一大堆<code>FF</code>字节，用来填充结果，最后以<code>00</code>字节结尾。<code>30 21 30 09 06 05 2B 0E 03 02 1A 05 00 04 14</code> 则指明了HASH算法ID是SHA-1。最后的20个字节才是真正对整个证书进行HASH的结果，以此作为验证的比对对象。</p>
-<h3 id="开发新功能"><a href="#开发新功能" class="headerlink" title="开发新功能"></a>开发新功能</h3><p>为了在原有安全库的基础上支持PSSRSA，需要理解此类算法的封装格式，利用OpenSSL直接可以查看此类证书的ASN1编码格式：   </p>
-<p>  <code>openssl asn1parse -in pss_rsa_server.pem</code>    </p>
-<p>当然OpenSSL的功能远不止这些，后续会陆续添加。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ol>
-<li><a href="http://support.citrix.com/article/CTX132907" target="_blank" rel="external">How to Extract an SSL Certificate from a Network Packet Trace File in Wireshark</a>  </li>
-<li><a href="https://www.openssl.org/docs/apps/rsautl.html" target="_blank" rel="external">openssl rsautl</a>  </li>
-<li><a href="https://www.madboa.com/geek/openssl/#digest-verify" target="_blank" rel="external">OpenSSL Command-Line HOWTO 1</a>  </li>
-<li><a href="https://www.madboa.com/geek/openssl/" target="_blank" rel="external">OpenSSL Command-Line HOWTO 2</a>  </li>
-<li><a href="http://www.moserware.com/2009/06/first-few-milliseconds-of-https.html" target="_blank" rel="external">The First Few Milliseconds of an HTTPS Connection</a></li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">OpenSSL</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">debug</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2015/02/01/debug-tool-openssl/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-little-on-performance-tune" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/01/23/little-on-performance-tune/">浅谈VDI优化</a>
-    </h1>
-  
-
-        
-        <a href="/2015/01/23/little-on-performance-tune/" class="archive-article-date">
-  	<time datetime="2015-01-22T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-01-23</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>VDI优化涉及到诸多系统的方面，整个系统的大框架如图所示：  </p>
-<p><img src="/assets/images/perf/VDI_framework.png" alt="图片"></p>
-<h3 id="VDI-APP层"><a href="#VDI-APP层" class="headerlink" title="VDI APP层"></a>VDI APP层</h3><p>APP内部实现架构选择，比如是采用多进程模型还是单进程模型；  </p>
-<h3 id="HTTP层"><a href="#HTTP层" class="headerlink" title="HTTP层"></a>HTTP层</h3><p>目前整体流程基于过程式交互方式，可以改为基于事情驱动的状态机实现方式；  </p>
-<h3 id="SSL层"><a href="#SSL层" class="headerlink" title="SSL层"></a>SSL层</h3><p>首先评估SSL的overhead到底有多大，以及主要瓶颈，针对性的进行优化；<br>SSL双方采用的版本也影响overhead，目前SSL的版本号有SSL2.0 SSL3.0，TLS1.0(SSL3.1)，TLS1.0(SSL3.2)和TLS1.0(SSL3.3)。版本号的协商基于如下公式：  </p>
-<p><code>min(max. client supported version, max. server supported version)</code>  </p>
-<h3 id="TCP-IP层"><a href="#TCP-IP层" class="headerlink" title="TCP/IP层"></a>TCP/IP层</h3><p><strong>关于序列号</strong>   </p>
-<ol>
-<li>TCP中双方的握手和分手过程，所有报文的<code>TCP Segment Len</code>都为0。  </li>
-<li><code>Window</code>就是滑动窗口，用来解决流控问题，即如何提高网络吐吞率，主要涉及到拥塞控制的参数调整。    </li>
-<li><code>Sequence Number</code>用来解决乱序问题，即我发送了多少加多少（对于三次握手阶段，以报文个数为单位，即在对方<code>Acknowledgment Number</code>基础上递增1；对于数据发送阶段，以字节数为递增单位，即在自己现有的<code>Sequence Number</code>上递增<code>TCP Segment Len</code>）。</li>
-<li><code>Acknowledgment Number</code>用于确认收包，解决丢包问题，即我收到了多少加多少（对于三次握手阶段，同样以报文个数为递增单位，即在对方<code>Sequence Number</code>的基础上上递增1；对于数据发送阶段，也同样以字节数为递增单位，即在自己现有的<code>Acknowledgment Number</code>上递增<code>TCP Segment Len</code>）。如图所示：</li>
-</ol>
-<p><img src="/assets/images/perf/tcp_seq.png" alt="图片"></p>
-<p>其中客户端192.168.69.2和服务器192.168.69.1的三次握手中，服务器的<code>seq</code>是自己产生的，<code>ack</code>则是在收到客户端的SYN报文后递加1（客户端的<code>seq + 1</code>），表示收到了客户端的连接请求；客户端的<code>seq</code>也是自个产生的，发送了一个SYN，就递加1，<code>ack</code>则是在收到服务器的SYN/ACK报文后在服务端的<code>seq + 1</code>。<br>在TCP连接建立后，客户端向服务端发送一个<code>TCP Segment Len</code>为445字节的分片#4，当前<code>seq</code>为1（相对序列号），不管是否送达下一个分片#6发送时，其<code>seq</code>会忠实地递增445字节，变为446。服务端收到分片#4后，将<code>ack</code>递增445字节。</p>
-<p>总之，<code>Sequence Number</code>和<code>Acknowledgment Number</code>像极了人的奋斗过程，前者好比付出，后者好比收获，但是付出不一定有收获（如果得到ACK确认则成功，否则失败）。  </p>
-<p><strong>网络层：</strong>    </p>
-<p>主要涉及到网络接口驱动的实现优化，比如中断轮询模式选择，是否启用DMA等。</p>
-<h3 id="加入LRU-Cache"><a href="#加入LRU-Cache" class="headerlink" title="加入LRU Cache"></a>加入LRU Cache</h3><p>LRU即Least Recently Used，是一种在cache中广泛应用的算法，保持经常访问的数据节点在cache中，如果某块节点很少被访问，在达到某种阈值之后就把它交换出去，这就要求查找和插入删除都要快。本系统采用双向链表和哈希表实现，主要利用了双向链表的插入和删除操作和哈希表的查找操作，数据结构定义如下:   </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"> 6 typedef struct __cacheNode &#123;</div><div class="line"> 7 .       ubyte4. .       .       key;</div><div class="line"> 8 .       int.    .       .       value;</div><div class="line"> 9 .       struct list_head.       node;</div><div class="line">10 &#125; cacheNode;</div><div class="line">11 </div><div class="line">12 typedef struct __LRUCache &#123;</div><div class="line">13 .       struct list_head.       first;		//指向链表头部，代表最新访问节点</div><div class="line">14 .       struct list_head.       last;		//指向链表尾部，代表最旧访问节点</div><div class="line">15 .       hashTableOfPtrs..       *cacheMap;	//哈希表</div><div class="line">16 .       int.    .       .       capacity;	//cache容量</div><div class="line">17 .       int.    .       .       curr_size;	//当前节点个数</div><div class="line">18 &#125; LRUCache;</div></pre></td></tr></table></figure>
-<p>对应的操作主要就是get和put。    </p>
-<ul>
-<li>创建LRU cache。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">59 MSTATUS LRU_create(LRUCache **ppNewLRUCache, int capacity)</div><div class="line">60 &#123;</div><div class="line">61 .       MSTATUS..       status = OK;</div><div class="line">62 .       LRUCache.       *pNewLRU = NULL;</div><div class="line">63 .       hashTableOfPtrs.*pCacheMap;</div><div class="line">64         ubyte4. .       remain;</div><div class="line">65         ubyte4. .       count = 0;</div><div class="line">66 </div><div class="line">67 .       if (NULL == (pNewLRU = MALLOC(sizeof(LRUCache)))) &#123;</div><div class="line">68 .       .       status = ERR_MEM_ALLOC_FAIL;</div><div class="line">69 .       .       goto exit;</div><div class="line">70 .       &#125;</div><div class="line">71 </div><div class="line">72 .       MOC_MEMSET((ubyte *)(pNewLRU), 0x00, sizeof(LRUCache));</div><div class="line">73 </div><div class="line">74 .       /*Align capacity*/</div><div class="line">75 .       remain = capacity;</div><div class="line">76 .       while (remain &gt; 0) &#123;</div><div class="line">77 .       .       remain = remain &gt;&gt; 1;</div><div class="line">78 .       .       count++;</div><div class="line">79 .       &#125;</div><div class="line">80 </div><div class="line">81 .       if (OK &gt; (status = HASH_TABLE_createPtrsTable(&amp;pCacheMap, (1 &lt;&lt; count) - 1, NULL, LRU_allocHashPtrElement, LRU_freeHashPtrElement)))</div><div class="line">82 .       .       goto exit;</div><div class="line">83 </div><div class="line">84 .       pNewLRU-&gt;capacity = capacity;</div><div class="line">85 .       pNewLRU-&gt;curr_size = 0;</div><div class="line">86 .       pNewLRU-&gt;cacheMap = pCacheMap;</div><div class="line">87 .       pNewLRU-&gt;first.prev = pNewLRU-&gt;first.prev = &amp;pNewLRU-&gt;first;</div><div class="line">88 .       pNewLRU-&gt;last.prev = pNewLRU-&gt;last.prev = &amp;pNewLRU-&gt;last;</div><div class="line">89 .       *ppNewLRUCache = pNewLRU;</div><div class="line">90 exit:</div><div class="line">91 .       return status;</div><div class="line">92 &#125;</div></pre></td></tr></table></figure>
-<ul>
-<li>销毁LRU cache。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"> 94 MSTATUS LRU_release(LRUCache *pLRUCache)</div><div class="line"> 95 &#123;</div><div class="line"> 96 .       MSTATUS status = OK;</div><div class="line"> 97 </div><div class="line"> 98 .       if (NULL == pLRUCache) &#123;</div><div class="line"> 99 .       .       status = ERR_NULL_POINTER;</div><div class="line">100 .       .       goto exit;</div><div class="line">101 .       &#125;</div><div class="line">102 </div><div class="line">103 .       HASH_TABLE_removePtrsTable(pLRUCache-&gt;cacheMap, NULL);</div><div class="line">104 .       FREE(pLRUCache);</div><div class="line">105 .       pLRUCache = NULL;</div><div class="line">106 exit:</div><div class="line">107 .       return status;</div><div class="line">108 &#125;</div></pre></td></tr></table></figure>
-<ul>
-<li>插入LRU node。</li>
-</ul>
-<p>基本思路：如果待插入数据在cache中没有（cache miss）且没有超出cache容量,就为其分配节点，插入至链表头部，表示最近访问，同时插入哈希表当中；如果待插入数据已经存在且cache已经满了，那么首先找到最后一个元素，意味着最近没有访问，从哈希表中删除，然后从双链表中删除。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">209 extern MSTATUS</div><div class="line">210 LRU_setNode(LRUCache *pCache, ubyte4 key, int value)</div><div class="line">211 &#123;</div><div class="line">212 .       MSTATUS..       status = OK;</div><div class="line">213 .       cacheNode.      *pNode = NULL, *pNewNode = NULL, *pLastNode = NULL;</div><div class="line">214 .       ubyte4. .       hashValue = 0;</div><div class="line">215 .       intBoolean.     foundHashValue;</div><div class="line">216 .       int.    .       hashData;</div><div class="line">217 </div><div class="line">218 .       hashData = key;</div><div class="line">219 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">220 </div><div class="line">221 .       if (OK &gt; (status = HASH_TABLE_findPtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData, </div><div class="line">222 .       .       .       .       .       LRU_testKey, (void **)pNode, &amp;foundHashValue)))</div><div class="line">223 .       .       goto exit;</div><div class="line">224 </div><div class="line">225 .       if ((TRUE != foundHashValue) || (NULL == pNode)) &#123;</div><div class="line">226 .       .       if (pCache-&gt;curr_size == pCache-&gt;capacity) &#123;</div><div class="line">227 .       .       .       /*Remove last one*/</div><div class="line">228 .       .       .       pLastNode = LIST_ENTRY(pCache-&gt;last.next, cacheNode, node);</div><div class="line">229 .       .       .       hashData = (ubyte4)pLastNode-&gt;key;</div><div class="line">230 .       .       .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">231 </div><div class="line">232 .       .       .       HASH_TABLE_deletePtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData,</div><div class="line">233 .       .       .       .       .       LRU_testKey, (void *)pNode, &amp;foundHashValue);</div><div class="line">234 .       .       .       LRU_removeLast(pCache);</div><div class="line">235 .       .       .       if (pNode)</div><div class="line">236 .       .       .       .       FREE(pNode);</div><div class="line">237 .       .       &#125; else &#123;</div><div class="line">238 .       .       .       pCache-&gt;curr_size++;</div><div class="line">239 .       .       &#125;</div><div class="line">240 .       &#125;</div><div class="line">241 .              </div><div class="line">242 .       pNewNode = MALLOC(sizeof(cacheNode));</div><div class="line">243 .       if (NULL == pNewNode)</div><div class="line">244 .       .       status = ERR_MEM_ALLOC_FAIL;</div><div class="line">245 </div><div class="line">246 .       pNewNode-&gt;key = key;</div><div class="line">247 .       pNewNode-&gt;value = value;</div><div class="line">248 .       pNewNode-&gt;node.prev = pNewNode-&gt;node.prev = &amp;pNewNode-&gt;node;</div><div class="line">249 </div><div class="line">250 .       LRU_moveToHead(pCache, pNewNode);</div><div class="line">251 </div><div class="line">252 .       hashData = pNewNode-&gt;key;</div><div class="line">253 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">254 .       if (OK &gt; (status = HASH_TABLE_addPtr(pCache-&gt;cacheMap, hashValue, (void *)pNewNode)))</div><div class="line">255 .       .       goto exit;</div><div class="line">256 </div><div class="line">257 exit:</div><div class="line">258 .       return status;</div><div class="line">259 &#125;</div></pre></td></tr></table></figure>
-<ul>
-<li>查找LRU node。</li>
-</ul>
-<p>如果cache miss也就罢了，如何找到了，在返回该节点之前因此需要将其移到链表的头部，因为查找某个节点意味着对该节点有了最新的访问。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">181 extern MSTATUS</div><div class="line">182 LRU_getNode(LRUCache *pCache, ubyte4 key, int *pValue)</div><div class="line">183 &#123;</div><div class="line">184 .       MSTATUS..       status = OK;</div><div class="line">185 .       cacheNode.      *pNode = NULL;. /*AppData*/</div><div class="line">186 .       ubyte4. .       hashValue = key;</div><div class="line">187 .       intBoolean.     foundHashValue;</div><div class="line">188 .       int.    .       hashData;</div><div class="line">189 </div><div class="line">190 .       hashData = key;</div><div class="line">191 .       HASH_VALUE_hashGen(&amp;hashData, sizeof(hashData), INIT_HASH_VALUE, &amp;hashValue);</div><div class="line">192 </div><div class="line">193 .       if (OK &gt; (status = HASH_TABLE_findPtr(pCache-&gt;cacheMap, hashValue, (void *)&amp;hashData, </div><div class="line">194 .       .       .       .       .       LRU_testKey, (void **)&amp;pNode, &amp;foundHashValue)))</div><div class="line">195 .       .       goto exit;</div><div class="line">196 </div><div class="line">197 .       if ((TRUE != foundHashValue) || (NULL == pNode)) &#123;</div><div class="line">198 .       .       status = -1;</div><div class="line">199 .       .       goto exit;</div><div class="line">200 .       &#125;</div><div class="line">201 </div><div class="line">202 .       LRU_moveToHead(pCache, pNode);</div><div class="line">203 </div><div class="line">204 .       *pValue = pNode-&gt;value;</div><div class="line">205 exit:</div><div class="line">206 .       return OK;</div><div class="line">207 &#125;</div></pre></td></tr></table></figure>
-<p>实际上两个辅助函数<code>LRU_moveToHead</code>和<code>LRU_removeLast</code>的实现值得注意：   </p>
-<p>其中<code>LRU_moveToHead</code>的基本实现思路就是先促成当前节点前后两个节点的牵手，然后再往前坐链表头，最后修改<code>first</code>和<code>last</code>节点。  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">134 static </div><div class="line">135 void LRU_moveToHead(LRUCache *pCache, cacheNode *pNode)</div><div class="line">136 &#123;</div><div class="line">137 .       struct list_head.       *first = &amp;pCache-&gt;first;</div><div class="line">138 .       struct list_head.       *last  = &amp;pCache-&gt;last;</div><div class="line">139 .       struct list_head.       *curr = &amp;pNode-&gt;node;</div><div class="line">140 </div><div class="line">141 .       if (first == curr)</div><div class="line">142 .       .       return;</div><div class="line">143 </div><div class="line">144 .       if (NULL != curr-&gt;prev)</div><div class="line">145 .       .       curr-&gt;prev-&gt;next = curr-&gt;next;</div><div class="line">146 </div><div class="line">147 .       if (NULL != curr-&gt;next)</div><div class="line">148 .       .       curr-&gt;next-&gt;prev = curr-&gt;prev;</div><div class="line">149 </div><div class="line">150 .       if (curr == last)</div><div class="line">151 .       .       last = curr-&gt;prev;</div><div class="line">152 </div><div class="line">153 .       if (NULL != first) &#123;</div><div class="line">154 .       .       first-&gt;prev = curr;</div><div class="line">155 .       .       curr-&gt;next = first;</div><div class="line">156 .       &#125;</div><div class="line">157 </div><div class="line">158 .       first = curr;</div><div class="line">159 .       curr-&gt;prev = NULL;</div><div class="line">160 </div><div class="line">161 .       if (NULL == last)</div><div class="line">162 .       .       last = first;</div><div class="line">163 &#125;</div></pre></td></tr></table></figure>
-<h3 id="TLS层的优化点"><a href="#TLS层的优化点" class="headerlink" title="TLS层的优化点"></a>TLS层的优化点</h3><p>TLS连接的建立和关闭过程如图：  </p>
-<p><img src="/assets/images/perf/SSL_handshake.png" alt="图片"></p>
-<p>在TLS中频繁分配释放的内存主要有以下几类：   </p>
-<ul>
-<li>哈希描述符和哈希值;  </li>
-<li>密钥，比如masterkey为48字节;  </li>
-<li>典型的小块内存，一般为64字节和96字节;    </li>
-</ul>
-<p>Memory Pool的主要设计思路：  </p>
-<ul>
-<li>每块内存都看做一个对象，预先分配好一定数量的对象，即所谓的内存池；  </li>
-<li>定义get和put方法，一般成对出现，这样保证了预分配的对象数量可控；    </li>
-<li>内存池内的每个对象用单向链表维护，具体操作见图；  </li>
-</ul>
-<p><img src="/assets/images/perf/mem_pool.jpg" alt="图片"></p>
-<p>对SSL的握手过程进行对比测试，结果表明在使用mem pool的性能提升为8%左右，似乎并不理想，看来在SSL握手中此类内存的分配释放并不是影响性能的主要因素。 </p>
-<h3 id="充分利用硬件加速"><a href="#充分利用硬件加速" class="headerlink" title="充分利用硬件加速"></a>充分利用硬件加速</h3><p>对于计算密集型的加解密运算，首先想到的就是利用硬件进行加速，这里有两个方面的考虑：  </p>
-<ul>
-<li>主存和硬件加速单元之间的IO： 数据从主存搬移至硬件，硬件将结果返回给主存  </li>
-<li>对硬件处理结果的查询方式选择： 轮询还是中断？    </li>
-</ul>
-<p>针对上述考虑，采取的措施如下：    </p>
-<ul>
-<li>分析分析硬件加速的实现代码，发现其涉及到非常多固定大小内存的分配与释放，依然采用上文中的cache机制，需要注意的是硬件读写时要求地址对齐，因此对cache实现稍作修改，加入内存对齐处理。测试结果显示，后者能将性能提升50%左右(见下图)。   </li>
-</ul>
-<p><img src="/assets/images/perf/SSL_mcache_test.png" alt="图片"></p>
-<ul>
-<li>利用DMA进行数据拷贝避免动用CPU在主存和硬件加速单元之前拷贝，测试结果表明两者的性能差异大约在2倍左右。</li>
-<li>分别实现中断模式和轮询模式，对比后发现轮询模式下效率更高，因此选择了轮询模式。  </li>
-</ul>
-<p>整体而言，采用硬件加速就是在充分利用压榨硬件计算性能的基础上尽可能减少内存拷贝和IO消耗，最后性能平均提升大约十倍左右。  </p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">TLS</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">performance tune</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">memory pool</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/technology/" class="article-tag-list-link color1">technology</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2015/01/23/little-on-performance-tune/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1644,22 +1961,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ARM</a>
               </li>
              
@@ -1672,19 +1973,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">DH</a>
+                <a href="javascript:void(0)" class="js-tag color4">wireless</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">XML</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
+                <a href="javascript:void(0)" class="js-tag color4">security</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1696,7 +1989,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
+                <a href="javascript:void(0)" class="js-tag color4">XML</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">代码之美</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1704,15 +2001,23 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+                <a href="javascript:void(0)" class="js-tag color3">DH</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+                <a href="javascript:void(0)" class="js-tag color4">TLS</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+                <a href="javascript:void(0)" class="js-tag color5">design pattern</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">reactor</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Design Pattern</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1728,6 +2033,26 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">LCRS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -1740,6 +2065,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
@@ -1749,14 +2082,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">物联网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JAVA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OOP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1780,31 +2105,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">OAuth</a>
+                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Authorization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1816,27 +2121,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">802.1X</a>
+                <a href="javascript:void(0)" class="js-tag color5">NS-3</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">EAP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1853,6 +2142,50 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Exclusion</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">WPA</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">PSK</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Wireshark</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">OpenSSL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">performance tune</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">memory pool</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">select</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1877,34 +2210,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">OWASP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SSL/TLS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">select</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">HashTable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">thread</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Certificate</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1937,6 +2242,30 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">SSLConnectionSocketFactory</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JWT</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">karman filter</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">tracking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">reentrance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mutex</a>
               </li>
             
             <div class="clearfix"></div>
